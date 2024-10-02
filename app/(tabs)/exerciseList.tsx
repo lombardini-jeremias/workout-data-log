@@ -1,10 +1,5 @@
 import React, { useState, useLayoutEffect, useCallback } from "react";
-import {
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-} from "react-native";
+import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 import exercisesData from "../../db/exercises.json";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
@@ -15,11 +10,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { Exercise } from "../../interfaces/Exercise.interfaces";
 import { Containers } from "../../constants/Container";
+import SearchBar from "../../components/SearchBar";
 
 const loadUserExercisesFromStorage = async () => {
   try {
     const jsonValue = await AsyncStorage.getItem("userExercises");
-    console.log("LOADED EX");
     return jsonValue != null ? JSON.parse(jsonValue) : [];
   } catch (error) {
     console.error("Error loading user exercises", error);
@@ -27,7 +22,7 @@ const loadUserExercisesFromStorage = async () => {
   }
 };
 
-export default function ExerciseListScreen() {
+export default function ExerciseList() {
   const navigation = useNavigation();
   const router = useRouter();
   const { fromScreen } = useLocalSearchParams();
@@ -40,10 +35,7 @@ export default function ExerciseListScreen() {
     useCallback(() => {
       const loadExercises = async () => {
         const userExercises = await loadUserExercisesFromStorage();
-        const allExercises: any = [
-          ...exercisesData.exercises,
-          ...userExercises,
-        ];
+        const allExercises = [...exercisesData.exercises, ...userExercises];
         setExercises(allExercises);
         setFilteredExercises(allExercises);
       };
@@ -55,10 +47,10 @@ export default function ExerciseListScreen() {
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity
-          onPress={() => (router as any).push("CreateExerciseScreen")}
+          onPress={() => router.push("CreateExerciseScreen")}
           style={{ marginRight: 20 }}
         >
-          <Ionicons name="add" size={24} color={Colors.text} />
+          <Ionicons name="add" size={26} color={Colors.text} />
         </TouchableOpacity>
       ),
     });
@@ -77,9 +69,8 @@ export default function ExerciseListScreen() {
   };
 
   const handleSelectExercise = (exercise: Exercise) => {
-    console.log(exercise.id);
     if (fromScreen === "WorkoutForm") {
-      (router as any).push({
+      router.push({
         pathname: "CreateExerciseScreen",
         params: {
           selectedExercise: {
@@ -89,7 +80,7 @@ export default function ExerciseListScreen() {
         },
       });
     } else {
-      (router as any).push({
+      router.push({
         pathname: "ExerciseDetailScreen",
         params: {
           exerciseId: exercise.id,
@@ -99,12 +90,15 @@ export default function ExerciseListScreen() {
   };
 
   return (
-    <ThemedView style={Containers.screenContainer}>
+    <View style={Containers.screenContainer}>
+      <SearchBar searchQuery={searchQuery} onSearch={handleSearch} />
+
       <FlatList
         data={filteredExercises}
+        showsVerticalScrollIndicator={false}
         keyExtractor={(item: Exercise) => item.id.toString()}
-        initialNumToRender={30}
-        maxToRenderPerBatch={30}
+        initialNumToRender={20}
+        maxToRenderPerBatch={20}
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => handleSelectExercise(item)}>
             <ThemedView style={styles.exerciseItem}>
@@ -112,70 +106,30 @@ export default function ExerciseListScreen() {
             </ThemedView>
           </TouchableOpacity>
         )}
-        ListHeaderComponent={
-          <ThemedView style={styles.fixedHeader}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search exercise..."
-              placeholderTextColor={Colors.text}
-              autoCorrect={false}
-              value={searchQuery}
-              onChangeText={handleSearch}
-            />
-          </ThemedView>
-        }
         ListEmptyComponent={
           <ThemedText style={styles.noExerciseText}>
             No exercises found
           </ThemedText>
         }
       />
-    </ThemedView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  fixedHeader: {
-    padding: 10,
-    zIndex: 10,
-  },
-  searchBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    position: "relative",
-    marginBottom: 16,
-  },
-  searchInput: {
-    flex: 1,
-    height: 40,
-    borderColor: Colors.text,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingLeft: 12,
-    paddingRight: 12,
-    backgroundColor: Colors.background,
-    color: Colors.text,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 8,
-    color: Colors.text,
-  },
   exerciseItem: {
     padding: 10,
     borderBottomWidth: 1,
     borderColor: Colors.text,
-    marginTop: 10,
   },
   exerciseText: {
     fontSize: 16,
     color: Colors.text,
   },
   noExerciseText: {
+    paddingTop: 20,
     fontSize: 16,
     textAlign: "center",
-    color: Colors.lightGray,
+    color: Colors.gray,
   },
 });

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import { TextInput, TouchableOpacity, Alert, StyleSheet } from "react-native";
 import { v4 as uuidv4 } from "uuid";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -7,7 +7,9 @@ import { Colors } from "@/constants/Colors";
 import { Containers } from "@/constants/Container";
 import { ThemedText } from "../../components/ThemedText";
 import { ThemedView } from "../../components/ThemedView";
-import { useNavigation } from "expo-router";
+import { Stack, useNavigation } from "expo-router";
+import TitleScreen from "../../components/TitleScreen";
+import BackButton from "../../components/BackBotton";
 
 const saveUserExercisesToStorage = async (exercises) => {
   try {
@@ -59,16 +61,25 @@ export default function CreateExercise() {
     }
   };
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => <BackButton />,
+    });
+  }, [navigation]);
+
   return (
     <ThemedView style={Containers.screenContainer}>
-      <ThemedText style={styles.title}>Add a New Exercise</ThemedText>
+      {/* <View style={Containers.titleContainer}>
+        <ThemedText style={styles.title}>Add a New Exercise</ThemedText>
+      </View> */}
+      <TitleScreen title={"Add a New Exercise"} />
 
       <ThemedView style={styles.inputContainer}>
         <ThemedText style={styles.label}>Exercise Name:</ThemedText>
         <TextInput
           style={styles.inputText}
           placeholder="Exercise Name"
-          placeholderTextColor={Colors.text}
+          placeholderTextColor={Colors.gray}
           value={newExercise}
           onChangeText={setNewExercise}
         />
@@ -82,18 +93,8 @@ export default function CreateExercise() {
 }
 
 const styles = StyleSheet.create({
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginTop: 10,
-    marginBottom: 8,
-    color: Colors.text,
-  },
   inputContainer: {
-    marginRight: 10,
-    marginLeft: 10,
-    marginBottom: 10,
+    margin: 10,
   },
   label: {
     fontSize: 16,

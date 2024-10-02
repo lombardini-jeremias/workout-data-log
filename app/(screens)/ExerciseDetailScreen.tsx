@@ -1,13 +1,24 @@
-import { StyleSheet, ActivityIndicator, ScrollView } from "react-native";
-import React, { useEffect, useState } from "react";
+import {
+  StyleSheet,
+  ActivityIndicator,
+  ScrollView,
+  View,
+  Text,
+  TouchableOpacity,
+} from "react-native";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import exercisesData from "../../db/exercises.json";
 import { Colors } from "@/constants/Colors";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import { Exercise } from "../../interfaces/Exercise.interfaces";
 import { ThemedText } from "../../components/ThemedText";
 import { ThemedView } from "../../components/ThemedView";
+import { Containers } from "../../constants/Container";
+import { Ionicons } from "@expo/vector-icons";
+import BackButton from "../../components/BackBotton";
 
 export default function ExerciseDetailScreen() {
+  const navigation = useNavigation();
   const { exerciseId } = useLocalSearchParams();
   const [exercise, setExercise] = useState<Exercise | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,14 +53,24 @@ export default function ExerciseDetailScreen() {
     loadExerciseDetails();
   }, [exerciseId]);
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => <BackButton />,
+    });
+  }, [navigation]);
+
   if (loading) {
     return (
-      <ThemedView style={styles.centered}>
-        <ActivityIndicator size="large" color={Colors.primary} />
-        <ThemedText style={styles.loadingText}>
-          Loading exercise details...
-        </ThemedText>
-      </ThemedView>
+      <View style={Colors.dark.background}>
+        <View style={Containers.screenContainer}>
+          <ThemedView style={styles.centered}>
+            <ActivityIndicator size="large" color={Colors.primary} />
+            <ThemedText style={styles.loadingText}>
+              Loading exercise details...
+            </ThemedText>
+          </ThemedView>
+        </View>
+      </View>
     );
   }
 
@@ -62,73 +83,78 @@ export default function ExerciseDetailScreen() {
   }
 
   return (
-    <ScrollView>
-      {exercise ? (
-        <>
-          <ThemedText style={styles.title}>{exercise.name}</ThemedText>
-          <ThemedText style={styles.detailText}>
-            Force: {exercise.force}
-          </ThemedText>
-          <ThemedText style={styles.detailText}>
-            Level: {exercise.level}
-          </ThemedText>
-          <ThemedText style={styles.detailText}>
-            Mechanic: {exercise.mechanic || "N/A"}
-          </ThemedText>
-          <ThemedText style={styles.detailText}>
-            Equipment: {exercise.equipment}
-          </ThemedText>
-          <ThemedText style={styles.detailText}>
-            Primary Muscles: {exercise.primaryMuscles.join(", ")}
-          </ThemedText>
-          <ThemedText style={styles.detailText}>
-            Secondary Muscles: {exercise.secondaryMuscles.join(", ") || "None"}
-          </ThemedText>
-          <ThemedText style={styles.detailText}>
-            Category: {exercise.category}
-          </ThemedText>
+    <View style={Containers.screenContainer}>
+      <ScrollView>
+        {exercise ? (
+          <>
+            <View style={Containers.titleContainer}>
+              <ThemedText type="title">{exercise.name}</ThemedText>
+            </View>
+            <View>
+              <ThemedText type="defaultSemiBold">
+                Force: <Text style={styles.detailText}>{exercise.force}</Text>
+              </ThemedText>
+              <ThemedText type="defaultSemiBold">
+                Level: <Text style={styles.detailText}>{exercise.level} </Text>
+              </ThemedText>
+              <ThemedText type="defaultSemiBold">
+                Mechanic:{" "}
+                <Text style={styles.detailText}>
+                  {" "}
+                  {exercise.mechanic || "N/A"}
+                </Text>
+              </ThemedText>
+              <ThemedText type="defaultSemiBold">
+                Equipment:{" "}
+                <Text style={styles.detailText}> {exercise.equipment}</Text>
+              </ThemedText>
+              <ThemedText type="defaultSemiBold">
+                Primary Muscles:{" "}
+                <Text style={styles.detailText}>
+                  {exercise.primaryMuscles.join(", ")}{" "}
+                </Text>
+              </ThemedText>
+              <ThemedText type="defaultSemiBold">
+                Secondary Muscles:{" "}
+                <Text style={styles.detailText}>
+                  {" "}
+                  {exercise.secondaryMuscles.join(", ") || "None"}
+                </Text>
+              </ThemedText>
+              <ThemedText type="defaultSemiBold">
+                Category:{" "}
+                <Text style={styles.detailText}>{exercise.category} </Text>
+              </ThemedText>
+            </View>
 
-          <ThemedText style={styles.instructionsTitle}>
-            Instructions:
+            <View style={styles.containerInstruction}>
+              <ThemedText type="subtitle">Instructions:</ThemedText>
+              {exercise.instructions.map((instruction, index) => (
+                <ThemedText key={index} style={styles.instructionText}>
+                  {index + 1}. {instruction}
+                </ThemedText>
+              ))}
+            </View>
+          </>
+        ) : (
+          <ThemedText style={styles.noExerciseText}>
+            Exercise not found
           </ThemedText>
-          {exercise.instructions.map((instruction, index) => (
-            <ThemedText key={index} style={styles.instructionText}>
-              {index + 1}. {instruction}
-            </ThemedText>
-          ))}
-        </>
-      ) : (
-        <ThemedText style={styles.noExerciseText}>
-          Exercise not found
-        </ThemedText>
-      )}
-    </ScrollView>
+        )}
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screenContainer: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: Colors.background,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 20,
-    color: Colors.text,
-  },
   detailText: {
     fontSize: 16,
+    fontWeight: "normal",
     marginBottom: 5,
     color: Colors.text,
   },
-  instructionsTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
+  containerInstruction: {
     marginTop: 20,
-    color: Colors.text,
   },
   instructionText: {
     fontSize: 16,
@@ -140,7 +166,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.dark.background,
   },
   errorText: {
     fontSize: 16,
@@ -154,6 +180,6 @@ const styles = StyleSheet.create({
   noExerciseText: {
     fontSize: 16,
     textAlign: "center",
-    color: Colors.lightGray,
+    color: Colors.gray,
   },
 });

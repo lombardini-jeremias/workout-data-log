@@ -15,6 +15,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { Containers } from "../../constants/Container";
+import TitleScreen from "../../components/TitleScreen";
 
 export default function WorkoutFormScreen() {
   const router = useRoute();
@@ -130,9 +131,10 @@ export default function WorkoutFormScreen() {
       <ScrollView>
         <ThemedView>
           <ThemedView style={styles.inputContainer}>
-            <ThemedView style={Containers.titleContainer}>
+            <TitleScreen title={"Workout Form"} />
+            {/* <ThemedView style={Containers.titleContainer}>
               <ThemedText type="title">Workout Form</ThemedText>
-            </ThemedView>
+            </ThemedView> */}
             <ThemedText style={styles.label}>Date:</ThemedText>
             <TextInput
               style={styles.inputText}
@@ -177,6 +179,7 @@ export default function WorkoutFormScreen() {
                 value={String(sets)}
                 onChangeText={(text) => setSets(parseInt(text, 10) || 0)}
                 placeholder="Number of Sets"
+                placeholderTextColor={Colors.gray}
                 keyboardType="numeric"
               />
               <TouchableOpacity
@@ -202,6 +205,7 @@ export default function WorkoutFormScreen() {
                 value={String(reps)}
                 onChangeText={(text) => setReps(parseInt(text, 10) || 0)}
                 placeholder="Number of Reps"
+                placeholderTextColor={Colors.gray}
                 keyboardType="numeric"
               />
               <TouchableOpacity
@@ -220,6 +224,7 @@ export default function WorkoutFormScreen() {
               value={String(weight)}
               onChangeText={(text) => setWeight(parseInt(text, 10) || 0)}
               placeholder="Weight Used"
+              placeholderTextColor={Colors.gray}
               keyboardType="numeric"
             />
           </ThemedView>
@@ -231,7 +236,7 @@ export default function WorkoutFormScreen() {
               value={comment}
               onChangeText={setComment}
               placeholder="Comment"
-              placeholderTextColor={Colors.text}
+              placeholderTextColor={Colors.gray}
             />
           </ThemedView>
 

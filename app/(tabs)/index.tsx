@@ -8,7 +8,7 @@ export default function HomeScreen() {
   const router = useRouter();
 
   return (
-    <ThemedView style={Containers.screenContainer}>
+    <ThemedView style={Containers.tabContainer}>
       <ScrollView>
         <ThemedView style={Containers.titleContainer}>
           <ThemedText type="title">Workout Data Log</ThemedText>
@@ -23,7 +23,7 @@ export default function HomeScreen() {
             </ThemedView>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() =>
               (router as any).push({
                 pathname: "ExerciseListScreen",
@@ -36,15 +36,15 @@ export default function HomeScreen() {
                 <Text style={styles.cardText}>Exercises List</Text>
               </ThemedView>
             </ThemedView>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
-          <TouchableOpacity>
+          {/* <TouchableOpacity>
             <ThemedView style={styles.stepContainer}>
               <ThemedText type="card">
                 <ThemedText type="cardText">Export data</ThemedText>
               </ThemedText>
             </ThemedView>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </ThemedView>
       </ScrollView>
     </ThemedView>

@@ -1,5 +1,4 @@
 import { Text, type TextProps, StyleSheet } from "react-native";
-
 import { useThemeColor } from "@/hooks/useThemeColor";
 
 export type ThemedTextProps = TextProps & {
@@ -35,6 +34,7 @@ export function ThemedText({
         type === "link" ? styles.link : undefined,
         type === "card" ? styles.card : undefined,
         type === "cardText" ? styles.cardText : undefined,
+        type === "errorText" ? styles.errorText : undefined,
         style,
       ]}
       {...rest}
@@ -81,6 +81,11 @@ const styles = StyleSheet.create({
   cardText: {
     fontSize: 20,
     fontWeight: "bold",
+    textAlign: "center",
+  },
+  errorText: {
+    fontSize: 16,
+    color: "#cf6679",
     textAlign: "center",
   },
 });

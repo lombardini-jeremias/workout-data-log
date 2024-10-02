@@ -12,7 +12,6 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-        headerShown: false,
       }}
     >
       <Tabs.Screen
@@ -39,6 +38,19 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="exerciseList"
+        options={{
+          title: "Exercise List",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "list" : "list-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+
       <Tabs.Screen
         name="settings"
         options={{

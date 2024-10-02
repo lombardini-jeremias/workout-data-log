@@ -5,18 +5,6 @@ export default function StackLayout() {
   return (
     <Stack>
       <Stack.Screen
-        name="ExerciseListScreen"
-        options={{
-          title: "Exercise List",
-          headerBackTitle: "Back",
-          headerStyle: {
-            backgroundColor: Colors.background,
-          },
-          headerTintColor: Colors.text,
-          headerShown: true,
-        }}
-      />
-      <Stack.Screen
         name="CreateExerciseScreen"
         options={{
           title: "Create Exercise",
