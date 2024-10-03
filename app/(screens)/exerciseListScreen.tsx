@@ -11,7 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import { Exercise } from "../../interfaces/Exercise.interfaces";
 import { Containers } from "../../constants/Container";
 import SearchBar from "../../components/navigation/SearchBar";
@@ -30,6 +30,7 @@ const loadUserExercisesFromStorage = async (): Promise<Exercise[]> => {
 
 export default function ExerciseList() {
   const navigation = useNavigation();
+  const router = useRouter();
 
   const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
@@ -85,8 +86,16 @@ export default function ExerciseList() {
     // Add logic to proceed with selected exercises
   };
 
-  const handleExerciseDetails = (exercise: Exercise) => {
-    navigation.navigate("exerciseDetailScreen", { exercise });
+  // const handleExerciseDetails = (item: Exercise) => {
+  //   navigation.navigate("exerciseDetailScreen", { item });
+  // };
+  const handleExerciseDetails = (item: Exercise) => {
+    router.push({
+      pathname: "exerciseDetailScreen",
+      params: { exerciseId: item.id },
+    });
+
+    return console.log("Router Details");
   };
 
   return (
