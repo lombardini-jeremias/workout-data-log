@@ -10,7 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { Exercise } from "../../interfaces/Exercise.interfaces";
 import { Containers } from "../../constants/Container";
-import SearchBar from "../../components/SearchBar";
+import SearchBar from "../../components/navigation/SearchBar";
 
 const loadUserExercisesFromStorage = async () => {
   try {

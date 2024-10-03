@@ -3,6 +3,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useRouter } from "expo-router";
 import { Containers } from "../../constants/Container";
+import TitleScreen from "../../components/TitleScreen";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -10,9 +11,7 @@ export default function HomeScreen() {
   return (
     <ThemedView style={Containers.tabContainer}>
       <ScrollView>
-        <ThemedView style={Containers.titleContainer}>
-          <ThemedText type="title">Workout Data Log</ThemedText>
-        </ThemedView>
+        <TitleScreen title="Workout Data Log" />
 
         <ThemedView style={styles.cardContainers}>
           <TouchableOpacity>

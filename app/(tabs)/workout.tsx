@@ -111,7 +111,7 @@ export default function WorkoutFormScreen() {
   };
 
   const selectExercise = () => {
-    navigation.navigate("ExerciseListScreen", { fromScreen: "WorkoutForm" });
+    navigation.navigate("exerciseList", { fromScreen: "WorkoutForm" });
     // router.push({
     //   pathname: "ExerciseListScreen",
     //   params: { fromScreen: "WorkoutForm" }
@@ -131,10 +131,6 @@ export default function WorkoutFormScreen() {
       <ScrollView>
         <ThemedView>
           <ThemedView style={styles.inputContainer}>
-            <TitleScreen title={"Workout Form"} />
-            {/* <ThemedView style={Containers.titleContainer}>
-              <ThemedText type="title">Workout Form</ThemedText>
-            </ThemedView> */}
             <ThemedText style={styles.label}>Date:</ThemedText>
             <TextInput
               style={styles.inputText}
@@ -256,6 +252,7 @@ const styles = StyleSheet.create({
     color: Colors.text,
   },
   inputContainer: {
+    marginTop: 10,
     marginBottom: 10,
   },
   inputNumber: {
