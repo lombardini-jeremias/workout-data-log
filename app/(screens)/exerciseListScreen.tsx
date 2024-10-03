@@ -10,6 +10,7 @@ import exercisesData from "../../db/exercises.json";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { Colors } from "@/constants/Colors";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
 import { Exercise } from "../../interfaces/Exercise.interfaces";
 import { Containers } from "../../constants/Container";
@@ -84,6 +85,10 @@ export default function ExerciseList() {
     // Add logic to proceed with selected exercises
   };
 
+  const handleExerciseDetails = (exercise: Exercise) => {
+    navigation.navigate("exerciseDetailScreen", { exercise });
+  };
+
   return (
     <View style={Containers.screenContainer}>
       <SearchBar searchQuery={searchQuery} onSearch={handleSearch} />
@@ -99,12 +104,32 @@ export default function ExerciseList() {
             (exercise) => exercise.id === item.id
           );
           return (
-            <TouchableOpacity onPress={() => handleSelectExercise(item)}>
-              <View style={styles.exerciseItem}>
-                {isSelected && <View style={styles.selectedIndicator} />}
-                <Text style={styles.exerciseText}>{item.name}</Text>
-              </View>
-            </TouchableOpacity>
+            <View
+              style={[
+                styles.exerciseItemContainer,
+                isSelected && styles.selectedExerciseItemContainer, // Conditionally apply the selected style
+              ]}
+            >
+              <TouchableOpacity
+                onPress={() => handleSelectExercise(item)}
+                style={{ flex: 0.9 }}
+              >
+                <View style={styles.exerciseItem}>
+                  <Text style={styles.exerciseText}>{item.name}</Text>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => handleExerciseDetails(item)}
+                style={styles.iconContainer}
+              >
+                <Ionicons
+                  name="ellipsis-horizontal-circle-outline"
+                  size={24}
+                  color={Colors.text}
+                />
+              </TouchableOpacity>
+            </View>
           );
         }}
         ListEmptyComponent={
@@ -122,21 +147,31 @@ export default function ExerciseList() {
 }
 
 const styles = StyleSheet.create({
-  exerciseItem: {
-    paddingVertical: 15,
+  exerciseItemContainer: {
+    paddingVertical: 20,
     borderBottomWidth: 1,
     flexDirection: "row",
+    justifyContent: "space-between",
     borderColor: Colors.text,
+  },
+  selectedExerciseItemContainer: {
+    paddingLeft: 10,
+    borderLeftWidth: 5,
+    borderLeftColor: "#2196F3",
+    borderRadius: 5,
   },
   exerciseText: {
     fontSize: 18,
     color: Colors.text,
   },
-  selectedIndicator: {
-    width: 5,
-    height: "100%",
-    backgroundColor: "#2196F3",
-    marginRight: 10,
+  exerciseItem: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconContainer: {
+    flex: 0.1,
+    alignItems: "flex-end",
+    paddingLeft: 15,
   },
   addButtonContainer: {
     position: "absolute",
