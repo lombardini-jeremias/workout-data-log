@@ -1,18 +1,23 @@
 import React, { useState, useLayoutEffect, useCallback } from "react";
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import exercisesData from "../../db/exercises.json";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { Colors } from "@/constants/Colors";
-import { ThemedText } from "../../components/ThemedText";
-import { ThemedView } from "../../components/ThemedView";
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import { useNavigation } from "expo-router";
 import { Exercise } from "../../interfaces/Exercise.interfaces";
 import { Containers } from "../../constants/Container";
 import SearchBar from "../../components/navigation/SearchBar";
 import CreateButton from "../../components/navigation/CreateButton";
+import ButtonSecondary from "../../components/buttons/ButtonSecondary";
 
-const loadUserExercisesFromStorage = async () => {
+const loadUserExercisesFromStorage = async (): Promise<Exercise[]> => {
   try {
     const jsonValue = await AsyncStorage.getItem("userExercises");
     return jsonValue != null ? JSON.parse(jsonValue) : [];
@@ -24,12 +29,11 @@ const loadUserExercisesFromStorage = async () => {
 
 export default function ExerciseList() {
   const navigation = useNavigation();
-  const router = useRouter();
-  const { fromScreen } = useLocalSearchParams();
 
-  const [exercises, setExercises] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filteredExercises, setFilteredExercises] = useState([]);
+  const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [filteredExercises, setFilteredExercises] = useState<Exercise[]>([]);
 
   useFocusEffect(
     useCallback(() => {
@@ -45,9 +49,7 @@ export default function ExerciseList() {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
-        <CreateButton title="Create" onPress={handleCreate} />
-      ),
+      headerRight: () => <CreateButton title="Create" onPress={handleCreate} />,
     });
   }, [navigation]);
 
@@ -60,7 +62,7 @@ export default function ExerciseList() {
     if (text === "") {
       setFilteredExercises(exercises);
     } else {
-      const filtered = exercises.filter((exercise: Exercise) =>
+      const filtered = exercises.filter((exercise) =>
         exercise.name.toLowerCase().includes(text.toLowerCase())
       );
       setFilteredExercises(filtered);
@@ -68,24 +70,18 @@ export default function ExerciseList() {
   };
 
   const handleSelectExercise = (exercise: Exercise) => {
-    if (fromScreen === "WorkoutForm") {
-      router.push({
-        pathname: "createExerciseScreen",
-        params: {
-          selectedExercise: {
-            id: exercise.id,
-            name: exercise.name,
-          },
-        },
-      });
+    if (selectedExercises.some((selected) => selected.id === exercise.id)) {
+      setSelectedExercises((prev) =>
+        prev.filter((item) => item.id !== exercise.id)
+      );
     } else {
-      router.push({
-        pathname: "exerciseDetailScreen",
-        params: {
-          exerciseId: exercise.id,
-        },
-      });
+      setSelectedExercises((prev) => [...prev, exercise]);
     }
+  };
+
+  const handleAddExercises = () => {
+    console.log("Selected exercises:", selectedExercises);
+    // Add logic to proceed with selected exercises
   };
 
   return (
@@ -98,32 +94,55 @@ export default function ExerciseList() {
         keyExtractor={(item: Exercise) => item.id.toString()}
         initialNumToRender={20}
         maxToRenderPerBatch={20}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handleSelectExercise(item)}>
-            <View style={styles.exerciseItem}>
-              <Text style={styles.exerciseText}>{item.name}</Text>
-            </View>
-          </TouchableOpacity>
-        )}
+        renderItem={({ item }) => {
+          const isSelected = selectedExercises.some(
+            (exercise) => exercise.id === item.id
+          );
+          return (
+            <TouchableOpacity onPress={() => handleSelectExercise(item)}>
+              <View style={styles.exerciseItem}>
+                {isSelected && <View style={styles.selectedIndicator} />}
+                <Text style={styles.exerciseText}>{item.name}</Text>
+              </View>
+            </TouchableOpacity>
+          );
+        }}
         ListEmptyComponent={
-          <Text style={styles.noExerciseText}>
-            No exercises found
-          </Text>
+          <Text style={styles.noExerciseText}>No exercises found</Text>
         }
       />
+
+      {selectedExercises.length > 0 && (
+        <View style={styles.addButtonContainer}>
+          <ButtonSecondary title="Add Exercise" onPress={handleAddExercises} />
+        </View>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   exerciseItem: {
-    padding: 15,
+    paddingVertical: 15,
     borderBottomWidth: 1,
+    flexDirection: "row",
     borderColor: Colors.text,
   },
   exerciseText: {
     fontSize: 18,
     color: Colors.text,
+  },
+  selectedIndicator: {
+    width: 5,
+    height: "100%",
+    backgroundColor: "#2196F3",
+    marginRight: 10,
+  },
+  addButtonContainer: {
+    position: "absolute",
+    bottom: 20,
+    left: 20,
+    right: 20,
   },
   noExerciseText: {
     paddingTop: 20,
