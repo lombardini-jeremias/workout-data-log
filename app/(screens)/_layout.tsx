@@ -5,26 +5,53 @@ export default function StackLayout() {
   return (
     <Stack>
       <Stack.Screen
-        name="CreateExerciseScreen"
+        name="exerciseListScreen"
+        options={{
+          title: "Exercise List",
+          headerBackTitle: "Back",
+          headerBackTitleStyle: {},
+          headerStyle: {
+            backgroundColor: Colors.dark.background,
+          },
+          headerTintColor: Colors.secondary,
+
+          headerShown: true,
+        }}
+      />
+
+      <Stack.Screen
+        name="createExerciseScreen"
         options={{
           title: "Create Exercise",
           headerBackTitle: "Back",
           headerStyle: {
-            backgroundColor: Colors.background,
+            backgroundColor: Colors.dark.background,
           },
-          headerTintColor: Colors.text,
+          headerTintColor: Colors.secondary,
           headerShown: true,
         }}
       />
       <Stack.Screen
-        name="ExerciseDetailScreen"
+        name="exerciseDetailScreen"
         options={{
           title: "Exercise Detail",
           headerBackTitle: "Back",
           headerStyle: {
-            backgroundColor: Colors.background,
+            backgroundColor: Colors.dark.background,
           },
-          headerTintColor: Colors.text,
+          headerTintColor: Colors.secondary,
+          headerShown: true,
+        }}
+      />
+
+      <Stack.Screen
+        name="createDayActivity"
+        options={{
+          title: "Create Day Activity",
+          headerStyle: {
+            backgroundColor: Colors.dark.background,
+          },
+          headerTintColor: Colors.secondary,
           headerShown: true,
         }}
       />

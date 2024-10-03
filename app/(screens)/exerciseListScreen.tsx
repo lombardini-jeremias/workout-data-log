@@ -1,16 +1,16 @@
 import React, { useState, useLayoutEffect, useCallback } from "react";
-import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import exercisesData from "../../db/exercises.json";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "../../components/ThemedText";
 import { ThemedView } from "../../components/ThemedView";
-import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { Exercise } from "../../interfaces/Exercise.interfaces";
 import { Containers } from "../../constants/Container";
 import SearchBar from "../../components/navigation/SearchBar";
+import CreateButton from "../../components/navigation/CreateButton";
 
 const loadUserExercisesFromStorage = async () => {
   try {
@@ -46,15 +46,14 @@ export default function ExerciseList() {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity
-          onPress={() => router.push("CreateExerciseScreen")}
-          style={{ marginRight: 20 }}
-        >
-          <Ionicons name="add" size={26} color={Colors.text} />
-        </TouchableOpacity>
+        <CreateButton title="Create" onPress={handleCreate} />
       ),
     });
   }, [navigation]);
+
+  const handleCreate = () => {
+    navigation.navigate("createExerciseScreen");
+  };
 
   const handleSearch = (text: string) => {
     setSearchQuery(text);
@@ -71,7 +70,7 @@ export default function ExerciseList() {
   const handleSelectExercise = (exercise: Exercise) => {
     if (fromScreen === "WorkoutForm") {
       router.push({
-        pathname: "CreateExerciseScreen",
+        pathname: "createExerciseScreen",
         params: {
           selectedExercise: {
             id: exercise.id,
@@ -81,7 +80,7 @@ export default function ExerciseList() {
       });
     } else {
       router.push({
-        pathname: "ExerciseDetailScreen",
+        pathname: "exerciseDetailScreen",
         params: {
           exerciseId: exercise.id,
         },
@@ -101,15 +100,15 @@ export default function ExerciseList() {
         maxToRenderPerBatch={20}
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => handleSelectExercise(item)}>
-            <ThemedView style={styles.exerciseItem}>
-              <ThemedText style={styles.exerciseText}>{item.name}</ThemedText>
-            </ThemedView>
+            <View style={styles.exerciseItem}>
+              <Text style={styles.exerciseText}>{item.name}</Text>
+            </View>
           </TouchableOpacity>
         )}
         ListEmptyComponent={
-          <ThemedText style={styles.noExerciseText}>
+          <Text style={styles.noExerciseText}>
             No exercises found
-          </ThemedText>
+          </Text>
         }
       />
     </View>
@@ -118,17 +117,17 @@ export default function ExerciseList() {
 
 const styles = StyleSheet.create({
   exerciseItem: {
-    padding: 10,
+    padding: 15,
     borderBottomWidth: 1,
     borderColor: Colors.text,
   },
   exerciseText: {
-    fontSize: 16,
+    fontSize: 18,
     color: Colors.text,
   },
   noExerciseText: {
     paddingTop: 20,
-    fontSize: 16,
+    fontSize: 18,
     textAlign: "center",
     color: Colors.gray,
   },

@@ -12,7 +12,7 @@ export default function BackButton() {
       onPress={() => navigation.goBack()}
       style={styles.container}
     >
-      <Ionicons name="chevron-back" size={26} color={Colors.text} />
+      <Ionicons name="chevron-back" size={26} color={Colors.secondary} />
       <Text style={styles.text}>Back</Text>
     </TouchableOpacity>
   );
@@ -24,7 +24,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   text: {
-    color: "#FFF",
-    fontSize: 18,
+    color: Colors.secondary,
+    fontSize: 17,
+    
   },
 });

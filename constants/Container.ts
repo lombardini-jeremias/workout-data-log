@@ -5,7 +5,7 @@ export const Containers = {
     paddingLeft: 20,
     paddingRight: 20,
     paddingBottom: 20,
-    backgroundColor: '#151718',
+    backgroundColor: '#000000',
   },
   tabContainer: {
     flex: 1,
