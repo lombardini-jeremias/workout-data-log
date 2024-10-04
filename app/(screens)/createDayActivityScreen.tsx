@@ -99,7 +99,6 @@ export default function CreateDayActivity() {
     try {
       const jsonValue = await AsyncStorage.getItem(DAY_ACTIVITIES_KEY);
       const dayActivities = jsonValue ? JSON.parse(jsonValue) : [];
-
       const activityExists = dayActivities.some(
         (activity) => activity.name === formattedName
       );
@@ -115,27 +114,91 @@ export default function CreateDayActivity() {
       );
       Alert.alert("Day Activity saved!");
       setActivityName("");
-      return true;
+      return newDayActivity;
     } catch (error) {
       console.error("Error saving day activity", error);
       return false;
     }
   };
 
+  const saveWorkout = async (
+    dayActivityId: string,
+    selectedExercises: Exercise[]
+  ) => {
+    const today = new Date();
+    const formattedDate = today.toISOString().replace("T", " ").split(".")[0];
+
+    const workouts = selectedExercises.map((exercise) => {
+      const setsArray = exercise.sets.map((set) => set.set); // Extract set numbers
+      const repsArray = exercise.sets.map((set) => parseInt(set.reps, 10) || 0); // Extract reps for each set
+      const weightArray = exercise.sets.map(
+        (set) => parseFloat(set.kg, 10) || 0
+      );
+
+      return {
+        id: Date.now().toString(),
+        date: formattedDate,
+        exerciseId: exercise.id,
+        dayActivityId: dayActivityId,
+        sets: setsArray,
+        reps: repsArray,
+        weight: weightArray,
+        comment: "",
+      };
+    });
+
+    try {
+      const jsonValue = await AsyncStorage.getItem(WORKOUTS_KEY);
+      const existingWorkouts = jsonValue ? JSON.parse(jsonValue) : [];
+
+      // Combine existing workouts with new workouts
+      const updatedWorkouts = [...existingWorkouts, ...workouts];
+      await AsyncStorage.setItem(WORKOUTS_KEY, JSON.stringify(updatedWorkouts));
+
+      console.log("Workouts saved successfully!");
+      return true; // Indicate success
+    } catch (error) {
+      console.error("Error saving workouts", error);
+      return false; // Indicate failure
+    }
+  };
+
   const handleSave = async () => {
     console.log("ACTIVITYNAME-HANDLESAVE", activityName);
+
     if (!activityName.trim()) {
       Alert.alert("Please enter a name for the day activity");
       return;
     }
 
-    const success = await saveDayActivity(activityName);
-    if (success) {
-      // Now, after saving the activity, you can continue with further logic
-      // For example, save workouts or navigate to another screen
-      console.log("Activity saved. Proceeding to next steps...");
+    try {
+      // Step 1: Save the Day Activity
+      const savedDayActivity = await saveDayActivity(activityName);
+
+      if (savedDayActivity && savedDayActivity.uuid) {
+        console.log("Activity saved. Proceeding to save workouts...", savedDayActivity);
+
+        // Step 2: Save the workouts, passing the day activity's UUID and selected exercises
+        const successWorkoutsSave = await saveWorkout(
+          savedDayActivity.uuid,
+          selectedExercises
+        );
+
+        if (successWorkoutsSave) {
+          Alert.alert("Workouts and Day Activity saved successfully!");
+          router.back(); // Navigate back to the previous screen
+        } else {
+          Alert.alert("Error saving workouts. Please try again.");
+        }
+      } else {
+        Alert.alert("Error saving day activity. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error saving workout & day activity", error);
+      Alert.alert("An error occurred. Please try again.");
     }
   };
+
   return (
     <View style={Containers.screenContainer}>
       <View style={styles.inputContainer}>

@@ -34,8 +34,14 @@ export default function Workout() {
     });
   };
 
-  const handleSelectDayActivity = (selectedActivity: DayActivity) => {
-    console.log("Selected Activity:", selectedActivity);
+  const handleSelectDayActivity = (selectedDayActivity: DayActivity) => {
+    router.push({
+      pathname: "dayActivityDetailScreen",
+      params: {
+        selectedDayActivityId: selectedDayActivity.uuid,
+        selectedDayActivityName: selectedDayActivity.name,
+      },
+    });
   };
 
   useFocusEffect(
@@ -54,7 +60,7 @@ export default function Workout() {
 
   return (
     <View style={Containers.screenContainer}>
-      <Text> Workout Screen</Text>
+      <Text>Workout Screen</Text>
       <View>
         <Text>Activities</Text>
         <ButtonPrimary title={"New Activity"} onPress={handleNavigate} />

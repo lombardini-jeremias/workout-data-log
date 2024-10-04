@@ -14,7 +14,6 @@ export default function StackLayout() {
             backgroundColor: Colors.dark.background,
           },
           headerTintColor: Colors.secondary,
-
           headerShown: true,
         }}
       />
@@ -28,7 +27,6 @@ export default function StackLayout() {
             backgroundColor: Colors.dark.background,
           },
           headerTintColor: Colors.secondary,
-
           headerShown: true,
         }}
       />
@@ -60,6 +58,19 @@ export default function StackLayout() {
         name="createDayActivityScreen"
         options={{
           title: "Create Day Activity",
+          headerStyle: {
+            backgroundColor: Colors.dark.background,
+          },
+          headerTintColor: Colors.secondary,
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
+        name="dayActivityDetailScreen"
+        options={{
+          title: "Day Activity Detail",
+          headerBackTitle: "Back",
+          headerBackTitleStyle: {},
           headerStyle: {
             backgroundColor: Colors.dark.background,
           },
