@@ -20,34 +20,29 @@ import ButtonSecondary from "../../components/buttons/ButtonSecondary";
 import { Exercise } from "../../interfaces/Exercise.interfaces";
 import ButtonPrimary from "../../components/buttons/ButtonPrimary";
 
-const saveDayActivitiesToStorage = async (dayActivities) => {
-  try {
-    const jsonValue = JSON.stringify(dayActivities);
-    await AsyncStorage.setItem("dayActivities", jsonValue);
-  } catch (error) {
-    console.error("Error saving day activities", error);
-  }
-};
+// const saveDayActivitiesToStorage = async (dayActivities) => {
+//   try {
+//     const jsonValue = JSON.stringify(dayActivities);
+//     await AsyncStorage.setItem("dayActivities", jsonValue);
+//   } catch (error) {
+//     console.error("Error saving day activities", error);
+//   }
+// };
 
-const formatActivityName = (name) => {
-  return name.trim().toUpperCase().replace(/\s+/g, "_");
-};
+// const formatActivityName = (name) => {
+//   return name.trim().toUpperCase().replace(/\s+/g, "_");
+// };
 
 export default function CreateDayActivity() {
   const [activityName, setActivityName] = useState("");
   const navigation = useNavigation();
   const router = useRouter();
   const { selectedExercises: selectedExercisesString } = useLocalSearchParams();
-
-  // const selectedExercises =
-  //   typeof selectedExercisesString === "string"
-  //     ? JSON.parse(selectedExercisesString)
-  //     : selectedExercisesString;
+  const DAY_ACTIVITIES_KEY = "dayActivities";
+  const WORKOUTS_KEY = "workouts";
 
   const [selectedExercises, setSelectedExercises] = useState(() => {
-    // Check if selectedExercisesString is a string, then parse it
     let exercisesArray: Exercise[] = [];
-
     if (typeof selectedExercisesString === "string") {
       try {
         exercisesArray = JSON.parse(selectedExercisesString);
@@ -58,12 +53,57 @@ export default function CreateDayActivity() {
       exercisesArray = selectedExercisesString;
     }
 
-    // Map over the exercises array to add the sets property
     return exercisesArray.map((exercise) => ({
       ...exercise,
       sets: [{ set: 1, kg: "", reps: "" }],
     }));
   });
+
+  // const handleAddSet = (exerciseId) => {
+  //   setSelectedExercises((prevExercises) =>
+  //     prevExercises.map((exercise) =>
+  //       exercise.id === exerciseId
+  //         ? {
+  //             ...exercise,
+  //             sets: [
+  //               ...exercise.sets,
+  //               { set: exercise.sets.length + 1, kg: "", reps: "" },
+  //             ],
+  //           }
+  //         : exercise
+  //     )
+  //   );
+  // };
+
+  // const handleSetChange = (exerciseId, setIndex, field, value) => {
+  //   setSelectedExercises((prevExercises) =>
+  //     prevExercises.map((exercise) =>
+  //       exercise.id === exerciseId
+  //         ? {
+  //             ...exercise,
+  //             sets: exercise.sets.map((set, index) =>
+  //               index === setIndex ? { ...set, [field]: value } : set
+  //             ),
+  //           }
+  //         : exercise
+  //     )
+  //   );
+  // };
+
+  const handleSetChange = (exerciseId, setIndex, field, value) => {
+    setSelectedExercises((prevExercises) =>
+      prevExercises.map((exercise) =>
+        exercise.id === exerciseId
+          ? {
+              ...exercise,
+              sets: exercise.sets.map((set, index) =>
+                index === setIndex ? { ...set, [field]: value } : set
+              ),
+            }
+          : exercise
+      )
+    );
+  };
 
   const handleAddSet = (exerciseId) => {
     setSelectedExercises((prevExercises) =>
@@ -81,48 +121,6 @@ export default function CreateDayActivity() {
     );
   };
 
-  const handleSetChange = (exerciseId, setIndex, field, value) => {
-    setSelectedExercises((prevExercises) =>
-      prevExercises.map((exercise) =>
-        exercise.id === exerciseId
-          ? {
-              ...exercise,
-              sets: exercise.sets.map((set, index) =>
-                index === setIndex ? { ...set, [field]: value } : set
-              ),
-            }
-          : exercise
-      )
-    );
-  };
-
-  const addDayActivity = async () => {
-    // if (!activityName) {
-    //   Alert.alert("Please enter a name for the day activity");
-    //   return;
-    // }
-    // const formattedName = formatActivityName(activityName);
-    // const newDayActivity = { id: uuidv4(), name: formattedName };
-    // try {
-    //   const jsonValue = await AsyncStorage.getItem("dayActivities");
-    //   const dayActivities = jsonValue != null ? JSON.parse(jsonValue) : [];
-    //   const activityExists = dayActivities.some(
-    //     (activity) => activity.name === formattedName
-    //   );
-    //   if (activityExists) {
-    //     Alert.alert("Activity already exists!");
-    //     return;
-    //   }
-    //   const updatedDayActivities = [...dayActivities, newDayActivity];
-    //   await saveDayActivitiesToStorage(updatedDayActivities);
-    //   Alert.alert("Day Activity saved!");
-    //   setActivityName("");
-    //   navigation.goBack();
-    // } catch (error) {
-    //   console.error("Error loading or saving day activities", error);
-    // }
-  };
-
   useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => <CancelButton />,
@@ -134,7 +132,70 @@ export default function CreateDayActivity() {
     router.push("exerciseListScreen");
   };
 
-  const handleSave = () => {};
+  const handleSave = async () => {
+    if (!activityName.trim()) {
+      Alert.alert("Please enter a name for the day activity");
+      return;
+    }
+
+    try {
+      // Generate dayActivity object
+      const dayActivity = {
+        name: activityName.trim(),
+        uuid: uuidv4(), // Unique identifier for the day activity
+      };
+
+      // Get current date for the workout
+      const today = new Date();
+      const formattedDate = today.toISOString().replace("T", " ").split(".")[0];
+
+      // Create workout objects for each selected exercise
+      const workouts = selectedExercises.map((exercise) => {
+        const setsArray = exercise.sets.map((set) => set.set);
+        const repsArray = exercise.sets.map(
+          (set) => parseInt(set.reps, 10) || 0
+        );
+        const weightArray = exercise.sets.map(
+          (set) => parseFloat(set.kg, 10) || 0
+        );
+
+        return {
+          id: Date.now().toString(), // Unique id for the workout
+          date: formattedDate,
+          exerciseId: exercise.id,
+          dayActivityId: dayActivity.uuid, // Associate with dayActivity
+          sets: setsArray, // Array of set numbers
+          reps: repsArray, // Array of reps for each set
+          weight: weightArray, // Array of weights for each set
+          comment: "", // Add any comment as needed
+        };
+      });
+
+      // Save dayActivity to AsyncStorage
+      const storedDayActivities = await AsyncStorage.getItem(
+        DAY_ACTIVITIES_KEY
+      );
+      const dayActivities = storedDayActivities
+        ? JSON.parse(storedDayActivities)
+        : [];
+      const updatedDayActivities = [...dayActivities, dayActivity];
+      await AsyncStorage.setItem(
+        DAY_ACTIVITIES_KEY,
+        JSON.stringify(updatedDayActivities)
+      );
+
+      // Save workouts to AsyncStorage
+      const storedWorkouts = await AsyncStorage.getItem(WORKOUTS_KEY);
+      const existingWorkouts = storedWorkouts ? JSON.parse(storedWorkouts) : [];
+      const updatedWorkouts = [...existingWorkouts, ...workouts];
+      await AsyncStorage.setItem(WORKOUTS_KEY, JSON.stringify(updatedWorkouts));
+
+      Alert.alert("Day Activity and Workouts saved!");
+      router.back(); // Go back to previous screen
+    } catch (error) {
+      console.error("Error saving day activity and workouts", error);
+    }
+  };
 
   return (
     <View style={Containers.screenContainer}>

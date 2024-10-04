@@ -8,6 +8,10 @@ import TitleScreen from "../../components/TitleScreen";
 export default function HomeScreen() {
   const router = useRouter();
 
+  const handleNavigate = () => {
+    router.push("storageViewerScreen");
+  };
+
   return (
     <ThemedView style={Containers.tabContainer}>
       <ScrollView>
@@ -18,6 +22,14 @@ export default function HomeScreen() {
             <ThemedView style={styles.stepContainer}>
               <ThemedText type="card">
                 <ThemedText type="cardText">Day Activity</ThemedText>
+              </ThemedText>
+            </ThemedView>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={handleNavigate}>
+            <ThemedView style={styles.stepContainer}>
+              <ThemedText type="card">
+                <ThemedText type="cardText">StorageViewer</ThemedText>
               </ThemedText>
             </ThemedView>
           </TouchableOpacity>
