@@ -90,6 +90,7 @@ export default function ExerciseList() {
   };
 
   const handleExerciseDetails = (item: Exercise) => {
+    console.log("EX- ID", item);
     router.push({
       pathname: "exerciseDetailScreen",
       params: { exerciseId: item.id },

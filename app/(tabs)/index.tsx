@@ -8,42 +8,23 @@ import TitleScreen from "../../components/TitleScreen";
 export default function HomeScreen() {
   const router = useRouter();
 
+  const handleNavigate = () => {
+    router.push("storageViewerScreen");
+  };
+
   return (
     <ThemedView style={Containers.tabContainer}>
       <ScrollView>
         <TitleScreen title="Workout Data Log" />
 
         <ThemedView style={styles.cardContainers}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleNavigate}>
             <ThemedView style={styles.stepContainer}>
               <ThemedText type="card">
-                <ThemedText type="cardText">Day Activity</ThemedText>
+                <ThemedText type="cardText">StorageViewer</ThemedText>
               </ThemedText>
             </ThemedView>
           </TouchableOpacity>
-
-          {/* <TouchableOpacity
-            onPress={() =>
-              (router as any).push({
-                pathname: "ExerciseListScreen",
-                params: { fromScreen: "Index" },
-              })
-            }
-          >
-            <ThemedView style={styles.stepContainer}>
-              <ThemedView style={styles.card}>
-                <Text style={styles.cardText}>Exercises List</Text>
-              </ThemedView>
-            </ThemedView>
-          </TouchableOpacity> */}
-
-          {/* <TouchableOpacity>
-            <ThemedView style={styles.stepContainer}>
-              <ThemedText type="card">
-                <ThemedText type="cardText">Export data</ThemedText>
-              </ThemedText>
-            </ThemedView>
-          </TouchableOpacity> */}
         </ThemedView>
       </ScrollView>
     </ThemedView>

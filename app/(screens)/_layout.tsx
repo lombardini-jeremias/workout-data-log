@@ -5,6 +5,19 @@ export default function StackLayout() {
   return (
     <Stack>
       <Stack.Screen
+        name="storageViewerScreen"
+        options={{
+          title: "Storage Viewer",
+          headerBackTitle: "Back",
+          headerBackTitleStyle: {},
+          headerStyle: {
+            backgroundColor: Colors.dark.background,
+          },
+          headerTintColor: Colors.secondary,
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
         name="exerciseListScreen"
         options={{
           title: "Exercise List",
@@ -14,11 +27,9 @@ export default function StackLayout() {
             backgroundColor: Colors.dark.background,
           },
           headerTintColor: Colors.secondary,
-
           headerShown: true,
         }}
       />
-
       <Stack.Screen
         name="createExerciseScreen"
         options={{
@@ -43,11 +54,23 @@ export default function StackLayout() {
           headerShown: true,
         }}
       />
-
       <Stack.Screen
         name="createDayActivityScreen"
         options={{
           title: "Create Day Activity",
+          headerStyle: {
+            backgroundColor: Colors.dark.background,
+          },
+          headerTintColor: Colors.secondary,
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
+        name="dayActivityDetailScreen"
+        options={{
+          title: "Day Activity Detail",
+          headerBackTitle: "Back",
+          headerBackTitleStyle: {},
           headerStyle: {
             backgroundColor: Colors.dark.background,
           },

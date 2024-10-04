@@ -1,10 +1,10 @@
 export interface Workout {
-  id: number;
-  date: number;
+  id: string;
+  date: string;
   exerciseId: string;
   dayActivityId: string;
-  sets: number;
-  reps: number;
-  weight: number;
-  comment: string;
+  sets: number[];
+  reps: number[];
+  weight: number[];
+  comment?: string;
 }

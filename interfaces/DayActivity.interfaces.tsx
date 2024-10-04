@@ -1,4 +1,4 @@
 export interface DayActivity {
-  id: number;
+  uuid: string;
   name: string;
 }

@@ -1,7 +1,7 @@
 export interface Exercise {
   id: number;
   name: string;
-  force: string;
+  force: "pull" | "push" | "static";
   level: "beginner" | "intermediate" | "advanced";
   mechanic: "compound" | "isolation";
   equipment: string;
