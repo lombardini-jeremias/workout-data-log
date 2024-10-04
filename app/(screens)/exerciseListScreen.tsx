@@ -33,6 +33,7 @@ export default function ExerciseList() {
   const router = useRouter();
 
   const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
+
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filteredExercises, setFilteredExercises] = useState<Exercise[]>([]);
@@ -82,13 +83,12 @@ export default function ExerciseList() {
   };
 
   const handleAddExercises = () => {
-    console.log("Selected exercises:", selectedExercises);
-    // Add logic to proceed with selected exercises
+    router.push({
+      pathname: "createDayActivityScreen",
+      params: { selectedExercises: JSON.stringify(selectedExercises) },
+    });
   };
 
-  // const handleExerciseDetails = (item: Exercise) => {
-  //   navigation.navigate("exerciseDetailScreen", { item });
-  // };
   const handleExerciseDetails = (item: Exercise) => {
     router.push({
       pathname: "exerciseDetailScreen",
@@ -116,7 +116,7 @@ export default function ExerciseList() {
             <View
               style={[
                 styles.exerciseItemContainer,
-                isSelected && styles.selectedExerciseItemContainer, // Conditionally apply the selected style
+                isSelected && styles.selectedExerciseItemContainer,
               ]}
             >
               <TouchableOpacity

@@ -30,7 +30,7 @@ export default function Workout() {
 
   const handleNavigate = () => {
     router.push({
-      pathname: "createDayActivity",
+      pathname: "createDayActivityScreen",
     });
   };
 

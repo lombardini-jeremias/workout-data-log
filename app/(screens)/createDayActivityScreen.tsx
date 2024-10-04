@@ -6,16 +6,18 @@ import {
   ScrollView,
   Alert,
   StyleSheet,
+  FlatList,
 } from "react-native";
 import React, { useLayoutEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { v4 as uuidv4 } from "uuid";
-import { useNavigation } from "expo-router";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { Colors } from "../../constants/Colors";
 import { Containers } from "../../constants/Container";
 import SaveButton from "../../components/navigation/SaveButton";
 import CancelButton from "../../components/navigation/CancelButton";
 import ButtonSecondary from "../../components/buttons/ButtonSecondary";
+import { Exercise } from "../../interfaces/Exercise.interfaces";
 
 const saveDayActivitiesToStorage = async (dayActivities) => {
   try {
@@ -33,6 +35,13 @@ const formatActivityName = (name) => {
 export default function CreateDayActivity() {
   const [activityName, setActivityName] = useState("");
   const navigation = useNavigation();
+  const router = useRouter();
+  const { selectedExercises: selectedExercisesString } = useLocalSearchParams();
+
+  const selectedExercises =
+    typeof selectedExercisesString === "string"
+      ? JSON.parse(selectedExercisesString)
+      : selectedExercisesString;
 
   const addDayActivity = async () => {
     // if (!activityName) {
@@ -68,13 +77,14 @@ export default function CreateDayActivity() {
     });
   }, [navigation]);
 
+  // const handleNavigate = () => {
+  //   navigation.navigate("exerciseListScreen");
+  // };
   const handleNavigate = () => {
-    navigation.navigate("exerciseListScreen");
+    router.push("exerciseListScreen");
   };
 
   const handleSave = () => {};
-
-  const handleSelectEquipment = () => {};
 
   return (
     <View style={Containers.screenContainer}>
@@ -89,9 +99,26 @@ export default function CreateDayActivity() {
       </View>
       <View style={styles.separator} />
 
-      <ScrollView>
-        <ButtonSecondary title="Add Exercise" onPress={handleNavigate} />
-      </ScrollView>
+      <View>
+        <FlatList
+          data={selectedExercises}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => {
+            return (
+              <View>
+                <Text style={styles.exerciseText}>Name: {item.name}</Text>
+              </View>
+            );
+          }}
+          ListEmptyComponent={
+            <Text style={styles.noExercisesText}>
+              Start adding an Exercise to the Day Activity.
+            </Text>
+          }
+        />
+      </View>
+
+      <ButtonSecondary title="Add Exercise" onPress={handleNavigate} />
     </View>
   );
 }
@@ -105,12 +132,21 @@ const styles = StyleSheet.create({
     textAlign: "left",
     fontSize: 20,
     fontWeight: "bold",
-    color: Colors.text,
+    color: "white",
   },
   separator: {
     height: 1,
     backgroundColor: Colors.gray,
     marginVertical: 10,
+  },
+  exerciseText: {
+    color: "white",
+  },
+  noExercisesText: {
+    color: Colors.gray,
+    textAlign: "center",
+    fontSize: 18,
+    marginTop: 20,
   },
   saveButton: {
     backgroundColor: Colors.primary,

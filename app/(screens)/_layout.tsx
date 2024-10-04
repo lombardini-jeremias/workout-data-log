@@ -45,7 +45,7 @@ export default function StackLayout() {
       />
 
       <Stack.Screen
-        name="createDayActivity"
+        name="createDayActivityScreen"
         options={{
           title: "Create Day Activity",
           headerStyle: {
