@@ -17,30 +17,25 @@ import { Containers } from "../../constants/Container";
 export default function ExerciseDetailScreen() {
   const navigation = useNavigation();
   const { exerciseId } = useLocalSearchParams();
-  const [exercise, setExercise] = useState<Exercise | null>(null);
+  const [exercise, setExercise] = useState<Exercise | null | undefined>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadExerciseDetails = () => {
-      const exerciseIdNumber = Array.isArray(exerciseId)
-        ? Number(exerciseId[0])
-        : Number(exerciseId);
-      if (isNaN(exerciseIdNumber)) {
+      if (!exerciseId) {
+        console.log("exerciseId", exerciseId);
         setError("Invalid exercise ID");
         setLoading(false);
         return;
       }
 
-      const foundExercise = exercisesData.exercises.find(
-        (exercise) => exercise.id === exerciseIdNumber
+      const foundExercise: Exercise = exercisesData.exercises.find(
+        (exercise) => exercise.id === exerciseId
       );
 
       if (foundExercise) {
-        setExercise({
-          ...foundExercise,
-          force: foundExercise.force as "pull" | "push" | "static",
-        } as Exercise);
+        setExercise(foundExercise);
       } else {
         setError("Exercise not found");
       }
@@ -52,15 +47,13 @@ export default function ExerciseDetailScreen() {
 
   if (loading) {
     return (
-      <View style={Colors.dark.background}>
-        <View style={Containers.screenContainer}>
-          <ThemedView style={styles.centered}>
-            <ActivityIndicator size="large" color={Colors.primary} />
-            <ThemedText style={styles.loadingText}>
-              Loading exercise details...
-            </ThemedText>
-          </ThemedView>
-        </View>
+      <View style={Containers.screenContainer}>
+        <ThemedView style={styles.centered}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <ThemedText style={styles.loadingText}>
+            Loading exercise details...
+          </ThemedText>
+        </ThemedView>
       </View>
     );
   }
