@@ -62,7 +62,7 @@ export default function Workout() {
         <View>
           <FlatList
             data={dayActivities}
-            keyExtractor={(item: DayActivity) => item.id.toString()}
+            keyExtractor={(item: DayActivity) => item.uuid}
             renderItem={({ item }) => (
               <TouchableOpacity onPress={() => handleSelectDayActivity(item)}>
                 <View style={styles.itemContainer}>

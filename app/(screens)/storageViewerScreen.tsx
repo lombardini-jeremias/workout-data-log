@@ -48,7 +48,7 @@ const StorageViewerScreen = () => {
   }, []);
 
   return (
-    <ScrollView style={Containers.screenContainer}>
+    <ScrollView style={styles.screenContainer}>
       <Button
         title="Reload Storage"
         onPress={loadStorageData}
@@ -71,6 +71,9 @@ const StorageViewerScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  screenContainer: {
+    backgroundColor: "white",
+  },
   storageItem: {
     padding: 10,
     borderBottomWidth: 1,
