@@ -1,50 +1,25 @@
-# Welcome to your Expo app 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## TO DO:
+1. createExerciseScreen setup Save function:
+   1. Setup selection of Equipment
+   2. Setup selection of Force
+   3. Setup selection of mechanic
+   4. Setup selection of Level
+   5. Setup selection of Muscles
+   6. Setup selection of Category
 
-## Get started
+2. exerciseListScreen setup:
+   1. setup Styles.
+   2. setup function onSelect more >1 exercise
+   3. Create button "Add Exercise" 
+      (function: add selected Exercises to createDayActivityScreen Flatlist )
 
-1. Install dependencies
 
-   ```bash
-   npm install
-   ```
+3.  createDayActivityScreen setup:
+    1.  Setup configuration of saving right.
+    2.  Maybe more setting ones we get to here.
 
-2. Start the app
+4.  workoutTab:
+    1.  Setup Flatlist to visualize all Day Activities saved under "New Activity" button.
 
-   ```bash
-    npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+5.   exerciseListScreen on Styles need to config Colors constants so when we use Colors.text its one for all, for light or dark theme.

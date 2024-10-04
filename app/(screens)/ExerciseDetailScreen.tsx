@@ -4,9 +4,8 @@ import {
   ScrollView,
   View,
   Text,
-  TouchableOpacity,
 } from "react-native";
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import exercisesData from "../../db/exercises.json";
 import { Colors } from "@/constants/Colors";
 import { useLocalSearchParams, useNavigation } from "expo-router";
@@ -14,8 +13,6 @@ import { Exercise } from "../../interfaces/Exercise.interfaces";
 import { ThemedText } from "../../components/ThemedText";
 import { ThemedView } from "../../components/ThemedView";
 import { Containers } from "../../constants/Container";
-import { Ionicons } from "@expo/vector-icons";
-import BackButton from "../../components/BackBotton";
 
 export default function ExerciseDetailScreen() {
   const navigation = useNavigation();
@@ -52,12 +49,6 @@ export default function ExerciseDetailScreen() {
 
     loadExerciseDetails();
   }, [exerciseId]);
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerLeft: () => <BackButton />,
-    });
-  }, [navigation]);
 
   if (loading) {
     return (

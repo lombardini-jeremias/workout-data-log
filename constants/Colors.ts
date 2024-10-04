@@ -27,10 +27,10 @@ export const Colors = {
     tabIconSelected: tintColorDark,
     button: "#1D3D47",
   },
-  error: "#cf6679",
   text: "#ECEDEE",
-  primary: "#04d8f9",
-  secondary: "#36dff8",
+  primary: '#151718', // light-dark 
+  secondary: "#2196F3", // darker-blue
+  error: "#cf6679",
   border: "#066d89",
   accent: "#5c6ca4",
   gray: "#808080",

@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   searchInput: {
-    height: 40,
+    height: 50,
     borderColor: "#FFF",
     borderWidth: 1,
     borderRadius: 8,
@@ -37,5 +37,6 @@ const styles = StyleSheet.create({
     paddingRight: 12,
     backgroundColor: Colors.dark.background,
     color: Colors.text,
+    fontSize: 18,
   },
 });
