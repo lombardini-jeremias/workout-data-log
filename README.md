@@ -30,7 +30,7 @@
       weight: weightArray,
       comment: "",) **_DONE_**
    4. Fix Alert popups when dayActivity saved and workout Saved
-      (only one pop up "workout saved!")
+      (only one pop up "workout saved!") **_DONE_**
    5. Keep data saved on screen when navigating to exerciseListScreen and coming back.
 
 4. workoutTab:

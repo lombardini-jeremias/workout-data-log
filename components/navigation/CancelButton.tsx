@@ -1,20 +1,26 @@
 import React from "react";
-import { TouchableOpacity, Text, StyleSheet } from "react-native";
-import { useNavigation } from "expo-router";
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  GestureResponderEvent,
+} from "react-native";
 import { Colors } from "../../constants/Colors";
 
-export default function CancelButton() {
-  const navigation = useNavigation();
+interface CancelButtonProps {
+  title: string;
+  onPress: (event: GestureResponderEvent) => void;
+}
 
+const CancelButton: React.FC<CancelButtonProps> = ({ onPress }) => {
   return (
-    <TouchableOpacity
-      onPress={() => navigation.goBack()}
-      style={styles.container}
-    >
+    <TouchableOpacity onPress={onPress} style={styles.container}>
       <Text style={styles.text}>Cancel</Text>
     </TouchableOpacity>
   );
-}
+};
+
+export default CancelButton;
 
 const styles = StyleSheet.create({
   container: {

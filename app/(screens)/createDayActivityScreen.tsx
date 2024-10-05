@@ -51,11 +51,15 @@ export default function CreateDayActivity() {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => <CancelButton />,
+      headerLeft: () => <CancelButton onPress={handleCancelButton} />,
       headerRight: () => <SaveButton onPress={handleSave} />,
     });
   }, [navigation, activityName]);
 
+  const handleCancelButton = () => {
+    navigation.navigate("workout");
+  };
+  
   const handleSetChange = (exerciseId, setIndex, field, value) => {
     setSelectedExercises((prevExercises) =>
       prevExercises.map((exercise) =>
@@ -94,8 +98,6 @@ export default function CreateDayActivity() {
   const saveDayActivity = async (name: string) => {
     const formattedName = formatActivityName(name);
     const newDayActivity = { uuid: uuid(), name: formattedName };
-    console.log("newDayActivity", newDayActivity);
-
     try {
       const jsonValue = await AsyncStorage.getItem(DAY_ACTIVITIES_KEY);
       const dayActivities = jsonValue ? JSON.parse(jsonValue) : [];
@@ -112,7 +114,7 @@ export default function CreateDayActivity() {
         DAY_ACTIVITIES_KEY,
         JSON.stringify(updatedDayActivities)
       );
-      Alert.alert("Day Activity saved!");
+      console.log("DayActivity saved successfully!");
       setActivityName("");
       return newDayActivity;
     } catch (error) {
@@ -156,37 +158,33 @@ export default function CreateDayActivity() {
       await AsyncStorage.setItem(WORKOUTS_KEY, JSON.stringify(updatedWorkouts));
 
       console.log("Workouts saved successfully!");
-      return true; // Indicate success
+      return true;
     } catch (error) {
       console.error("Error saving workouts", error);
-      return false; // Indicate failure
+      return false;
     }
   };
 
   const handleSave = async () => {
-    console.log("ACTIVITYNAME-HANDLESAVE", activityName);
-
     if (!activityName.trim()) {
       Alert.alert("Please enter a name for the day activity");
       return;
     }
-
     try {
-      // Step 1: Save the Day Activity
       const savedDayActivity = await saveDayActivity(activityName);
-
       if (savedDayActivity && savedDayActivity.uuid) {
-        console.log("Activity saved. Proceeding to save workouts...", savedDayActivity);
+        console.log(
+          "Activity saved. Proceeding to save workouts...",
+          savedDayActivity
+        );
 
-        // Step 2: Save the workouts, passing the day activity's UUID and selected exercises
         const successWorkoutsSave = await saveWorkout(
           savedDayActivity.uuid,
           selectedExercises
         );
-
         if (successWorkoutsSave) {
           Alert.alert("Workouts and Day Activity saved successfully!");
-          router.back(); // Navigate back to the previous screen
+          router.push("workout");
         } else {
           Alert.alert("Error saving workouts. Please try again.");
         }
