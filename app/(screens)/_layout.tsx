@@ -54,6 +54,7 @@ export default function StackLayout() {
           headerShown: true,
         }}
       />
+
       <Stack.Screen
         name="createDayActivityScreen"
         options={{
@@ -69,6 +70,19 @@ export default function StackLayout() {
         name="dayActivityDetailScreen"
         options={{
           title: "Day Activity Detail",
+          headerBackTitle: "Back",
+          headerBackTitleStyle: {},
+          headerStyle: {
+            backgroundColor: Colors.dark.background,
+          },
+          headerTintColor: Colors.secondary,
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
+        name="dayActivityEditScreen"
+        options={{
+          title: "Edit Day Activity",
           headerBackTitle: "Back",
           headerBackTitleStyle: {},
           headerStyle: {
