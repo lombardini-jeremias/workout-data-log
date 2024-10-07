@@ -20,6 +20,7 @@ const WORKOUTS_KEY = "workouts";
 export default function DayActivityDetailScreen() {
   const navigation = useNavigation();
   const router = useRouter();
+  // const { selectedDayActivityId, selectedDayActivityName } = useDayActivity();
 
   const { selectedDayActivityId } = useLocalSearchParams<{
     selectedDayActivityId: string;
@@ -134,7 +135,7 @@ export default function DayActivityDetailScreen() {
               </View>
 
               {item.sets.map((set, index) => (
-                <View style={styles.tableHeader}>
+                <View style={styles.tableHeader} key={index}>
                   <Text style={styles.setText}>{index + 1}</Text>
                   <Text style={styles.setText}>{item.weight[index]}</Text>
                   <Text style={styles.setText}>{item.reps[index]}</Text>

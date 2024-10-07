@@ -1,33 +1,47 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useContext, useState, ReactNode } from "react";
 
-interface DayActivityContextProps {
-  activityName: string;
-  setActivityName: (name: string) => void;
+// Define the shape of the context state
+interface DayActivityContextType {
+  selectedDayActivityId: string | null;
+  setSelectedDayActivityId: (id: string | null) => void;
+  selectedDayActivityName: string | null;
+  setSelectedDayActivityName: (name: string | null) => void;
 }
 
-const DayActivityContext = createContext<DayActivityContextProps | undefined>(
+const DayActivityContext = createContext<DayActivityContextType | undefined>(
   undefined
 );
 
-export function useDayActivity() {
-  const context = useContext(DayActivityContext);
-  if (!context) {
-    throw new Error("useDayActivity must be used within a DayActivityProvider");
-  }
-  return context;
-}
-
-export function DayActivityProvider({ children }) {
-  const [activityName, setActivityName] = useState<string>("");
+// Context provider component
+export const DayActivityProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
+  const [selectedDayActivityId, setSelectedDayActivityId] = useState<
+    string | null
+  >(null);
+  const [selectedDayActivityName, setSelectedDayActivityName] = useState<
+    string | null
+  >(null);
 
   return (
     <DayActivityContext.Provider
       value={{
-        activityName,
-        setActivityName,
+        selectedDayActivityId,
+        setSelectedDayActivityId,
+        selectedDayActivityName,
+        setSelectedDayActivityName,
       }}
     >
       {children}
     </DayActivityContext.Provider>
   );
-}
+};
+
+// Custom hook to use the DayActivityContext
+export const useDayActivity = (): DayActivityContextType => {
+  const context = useContext(DayActivityContext);
+  if (!context) {
+    throw new Error("useDayActivity must be used within a DayActivityProvider");
+  }
+  return context;
+};

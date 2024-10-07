@@ -46,7 +46,7 @@ export default function dayActivityEditScreen() {
   }, [navigation, workouts, activityName]);
 
   const handleCancelButton = () => {
-    navigation.navigate("dayActivityDetailScreen");
+    router.back();
   };
 
   useEffect(() => {
