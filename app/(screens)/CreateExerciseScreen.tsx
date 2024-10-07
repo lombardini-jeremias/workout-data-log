@@ -13,7 +13,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Colors } from "@/constants/Colors";
 import { Containers } from "@/constants/Container";
 import { useNavigation } from "expo-router";
-import SaveButton from "../../components/navigation/SaveButton";
+import SaveButton from "../../components/navigation/RightSecondaryButton";
 import SecondaryInput from "../../components/inputs/SecondaryInput";
 import PrimaryInput from "../../components/inputs/PrimaryInput";
 
@@ -119,12 +119,17 @@ export default function CreateExercise() {
 
         <SecondaryInput title={"Mechanic"} onPress={handleSelectEquipment} />
 
-        <SecondaryInput title={"Primary Muscle"} onPress={handleSelectEquipment} />
+        <SecondaryInput
+          title={"Primary Muscle"}
+          onPress={handleSelectEquipment}
+        />
 
-        <SecondaryInput title={"Primary Muscle"} onPress={handleSelectEquipment} />
+        <SecondaryInput
+          title={"Primary Muscle"}
+          onPress={handleSelectEquipment}
+        />
 
         <SecondaryInput title={"Category"} onPress={handleSelectEquipment} />
-        
       </View>
     </View>
   );

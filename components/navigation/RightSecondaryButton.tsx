@@ -6,19 +6,23 @@ import {
   GestureResponderEvent,
 } from "react-native";
 
-interface SaveButtonProps {
+interface RightSecondaryButtonProps {
+  title: string;
   onPress: (event: GestureResponderEvent) => void;
 }
 
-const SaveButton: React.FC<SaveButtonProps> = ({ onPress }) => {
+const RightSecondaryButton: React.FC<RightSecondaryButtonProps> = ({
+  title,
+  onPress,
+}) => {
   return (
     <TouchableOpacity onPress={onPress} style={styles.container}>
-      <Text style={styles.text}>Save</Text>
+      <Text style={styles.text}>{title}</Text>
     </TouchableOpacity>
   );
 };
 
-export default SaveButton;
+export default RightSecondaryButton;
 
 const styles = StyleSheet.create({
   container: {

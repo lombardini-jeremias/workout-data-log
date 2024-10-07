@@ -8,7 +8,6 @@ import {
 import { Colors } from "../../constants/Colors";
 
 interface CancelButtonProps {
-  title: string;
   onPress: (event: GestureResponderEvent) => void;
 }
 
