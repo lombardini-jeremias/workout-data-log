@@ -1,7 +1,6 @@
 import {
   DarkTheme,
   DefaultTheme,
-  NavigationContainer,
   ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
