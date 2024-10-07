@@ -273,7 +273,6 @@ export default function CreateDayActivity() {
 }
 
 const styles = StyleSheet.create({
-  title: {},
   inputContainer: {
     paddingTop: 10,
   },
@@ -306,7 +305,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   exerciseContainer: {
-    marginBottom: 20,
+    marginBottom: 5,
   },
   tableHeader: {
     flexDirection: "row",

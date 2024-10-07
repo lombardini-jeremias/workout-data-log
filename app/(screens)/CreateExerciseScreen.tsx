@@ -67,7 +67,7 @@ export default function CreateExercise() {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () => <SaveButton onPress={addExercise} />,
+      headerRight: () => <SaveButton title={"Save"} onPress={addExercise} />,
     });
   }, [navigation]);
 

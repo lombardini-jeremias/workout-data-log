@@ -15,8 +15,6 @@ import { Containers } from "@/constants/Container";
 import ButtonPrimary from "@/components/buttons/ButtonPrimary";
 import { DayActivity } from "@/interfaces/DayActivity.interfaces";
 
-import { DayActivityProvider } from "@/context/DayActivityProvider";
-
 // loadData
 const loadDayActivitiesFromStorage = async () => {
   try {
@@ -40,7 +38,7 @@ export default function Workout() {
 
   const handleSelectDayActivity = (selectedDayActivity: DayActivity) => {
     router.push({
-      pathname: "dayActivityDetailScreen",
+      pathname: "/(screens)/dayActivityDetailScreen",
       params: {
         selectedDayActivityId: selectedDayActivity.uuid,
         selectedDayActivityName: selectedDayActivity.name,
@@ -63,29 +61,27 @@ export default function Workout() {
   );
 
   return (
-    <DayActivityProvider>
-      <View style={Containers.screenContainer}>
-        <Text>Workout Screen</Text>
-        <View>
-          <Text>Activities</Text>
-          <ButtonPrimary title={"New Activity"} onPress={handleNavigate} />
+    <View style={Containers.screenContainer}>
+      <Text>Workout Screen</Text>
+      <View>
+        <Text>Activities</Text>
+        <ButtonPrimary title={"New Activity"} onPress={handleNavigate} />
 
-          <View>
-            <FlatList
-              data={dayActivities}
-              keyExtractor={(item: DayActivity) => item.uuid}
-              renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => handleSelectDayActivity(item)}>
-                  <View style={styles.itemContainer}>
-                    <Text style={styles.title}>{item.name}</Text>
-                  </View>
-                </TouchableOpacity>
-              )}
-            />
-          </View>
+        <View>
+          <FlatList
+            data={dayActivities}
+            keyExtractor={(item: DayActivity) => item.uuid}
+            renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => handleSelectDayActivity(item)}>
+                <View style={styles.itemContainer}>
+                  <Text style={styles.title}>{item.name}</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+          />
         </View>
       </View>
-    </DayActivityProvider>
+    </View>
   );
 }
 
