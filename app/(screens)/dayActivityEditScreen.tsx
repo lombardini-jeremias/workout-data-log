@@ -163,6 +163,14 @@ export default function dayActivityEditScreen() {
     }
   };
 
+  const handleExerciseDetailById = (exerciseId: string) => {
+    console.log("exerciseID", exerciseId);
+    router.push({
+      pathname: "/(screens)/exerciseDetailScreen",
+      params: { exerciseId },
+    });
+  };
+
   const availableExercises = exercisesData.exercises;
 
   if (loading) {
@@ -190,54 +198,62 @@ export default function dayActivityEditScreen() {
       <FlatList
         data={workouts}
         keyExtractor={(item) => item.uuid}
-        renderItem={({ item }) => (
-          <View>
-            <Text style={styles.exerciseName}>
-              {availableExercises.find(
-                (exercise) => exercise.id === item.exerciseId
-              )?.name || "Unknown Exercise"}
-            </Text>
+        renderItem={({ item }) => {
+          const exercise = availableExercises.find(
+            (exercise) => exercise.id === item.exerciseId
+          );
+          const exerciseName = exercise ? exercise.name : "Unknown Exercise";
 
-            <View style={styles.tableHeader}>
-              <Text style={styles.columnText}>SET</Text>
-              <Text style={styles.columnText}>KG</Text>
-              <Text style={styles.columnText}>REPS</Text>
-            </View>
+          return (
+            <View>
+              {/* Navigate to Exercise Detail Screen when the user presses the exercise name */}
+              <TouchableOpacity
+                onPress={() => handleExerciseDetailById(item.exerciseId)}
+              >
+                <Text style={styles.exerciseName}>{exerciseName}</Text>
+              </TouchableOpacity>
 
-            {item.sets.map((set, index) => (
-              <View style={styles.inputRow} key={index}>
-                <Text style={styles.setNumber}>{set.set}</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="KG"
-                  placeholderTextColor={Colors.gray}
-                  keyboardType="numeric"
-                  value={set.kg}
-                  onChangeText={(value) =>
-                    handleSetChange(item.uuid, index, "kg", value)
-                  }
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Reps"
-                  placeholderTextColor={Colors.gray}
-                  keyboardType="numeric"
-                  value={set.reps}
-                  onChangeText={(value) =>
-                    handleSetChange(item.uuid, index, "reps", value)
-                  }
-                />
+              <View style={styles.tableHeader}>
+                <Text style={styles.columnText}>SET</Text>
+                <Text style={styles.columnText}>KG</Text>
+                <Text style={styles.columnText}>REPS</Text>
               </View>
-            ))}
 
-            <ButtonPrimary
-              title="+ Add Set"
-              onPress={() => handleAddSet(item.uuid)}
-            />
+              {item.sets.map((set, index) => (
+                <View style={styles.inputRow} key={index}>
+                  <Text style={styles.setNumber}>{set.set}</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="KG"
+                    placeholderTextColor={Colors.gray}
+                    keyboardType="numeric"
+                    value={set.kg}
+                    onChangeText={(value) =>
+                      handleSetChange(item.uuid, index, "kg", value)
+                    }
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Reps"
+                    placeholderTextColor={Colors.gray}
+                    keyboardType="numeric"
+                    value={set.reps}
+                    onChangeText={(value) =>
+                      handleSetChange(item.uuid, index, "reps", value)
+                    }
+                  />
+                </View>
+              ))}
 
-            <View style={styles.separator} />
-          </View>
-        )}
+              <ButtonPrimary
+                title="+ Add Set"
+                onPress={() => handleAddSet(item.uuid)}
+              />
+
+              <View style={styles.separator} />
+            </View>
+          );
+        }}
         ListEmptyComponent={
           <Text style={styles.noExercisesText}>
             Start adding an Exercise to the Day Activity.

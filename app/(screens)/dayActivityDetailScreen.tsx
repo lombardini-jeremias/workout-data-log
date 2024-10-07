@@ -82,8 +82,12 @@ export default function DayActivityDetailScreen() {
   };
 
   const handleExerciseDetailById = (exerciseId: string) => {
-    navigation.navigate("exerciseDetailScreen", { exerciseId });
-    console.log("exerciseID", exerciseId);
+    router.push({
+      pathname: "/(screens)/exerciseDetailScreen",
+      params: { exerciseId },
+    });
+    // navigation.navigate("exerciseDetailScreen", { exerciseId });
+    console.log("exerciseID nav", exerciseId);
   };
 
   const handleEditDayActivity = (selectedDayActivityId: string) => {
