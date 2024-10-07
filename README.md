@@ -51,3 +51,4 @@
    5.
 
 Reorder Tabs screen and Stack Screen : "https://www.youtube.com/watch?v=4-shpLyYBLc"
+Add "ellipsis-horizontal-sharp" on workoutTab on each dayActivity as touchable options

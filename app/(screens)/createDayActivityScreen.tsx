@@ -130,9 +130,6 @@ export default function CreateDayActivity() {
     dayActivityId: string,
     selectedExercises: Exercise[]
   ) => {
-    const today = new Date();
-    const formattedDate = today.toISOString().replace("T", " ").split(".")[0];
-
     const workouts = selectedExercises.map((exercise) => {
       const setsArray = exercise.sets.map((set) => set.set); // Extract set numbers
       const repsArray = exercise.sets.map((set) => parseInt(set.reps, 10) || 0); // Extract reps for each set
@@ -141,8 +138,8 @@ export default function CreateDayActivity() {
       );
 
       return {
-        id: Date.now().toString(),
-        date: formattedDate,
+        uuid: uuid(),
+        date: Date.now().toString(),
         exerciseId: exercise.id,
         dayActivityId: dayActivityId,
         sets: setsArray,

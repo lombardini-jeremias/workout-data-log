@@ -1,5 +1,5 @@
 export interface Workout {
-  id: string;
+  uuid: string;
   date: string;
   exerciseId: string;
   dayActivityId: string;
