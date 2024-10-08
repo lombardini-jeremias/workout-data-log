@@ -178,8 +178,6 @@ export default function dayActivityEditScreen() {
     return exercise ? exercise.name : "Unknown Exercise";
   };
 
-  const availableExercises = exercisesData.exercises;
-
   if (loading) {
     return (
       <View style={Containers.screenContainer}>
@@ -225,6 +223,7 @@ export default function dayActivityEditScreen() {
           No workouts found for this day activity.
         </Text>
       )}
+      <ButtonSecondary title="Add Exercise" onPress={handleAddExercise} />
     </View>
   );
 }
