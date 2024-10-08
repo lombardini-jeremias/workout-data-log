@@ -18,6 +18,7 @@ import CancelButton from "../../components/navigation/CancelButton";
 import ButtonSecondary from "../../components/buttons/ButtonSecondary";
 import { Exercise } from "../../interfaces/Exercise.interfaces";
 import ButtonPrimary from "../../components/buttons/ButtonPrimary";
+import ExerciseItem from "../../components/ExerciseItem";
 
 const formatActivityName = (name: string) => {
   return name.trim().toUpperCase().replace(/\s+/g, "_");
@@ -216,49 +217,11 @@ export default function CreateDayActivity() {
         data={selectedExercises}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.exerciseContainer}>
-            <Text style={styles.exerciseName}>{item.name}</Text>
-            <Text style={styles.exerciseText}>Equipment: {item.equipment}</Text>
-
-            <View style={styles.tableHeader}>
-              <Text style={styles.columnText}>SET</Text>
-              <Text style={styles.columnText}>KG</Text>
-              <Text style={styles.columnText}>REPS</Text>
-            </View>
-
-            {item.sets.map((set, index) => (
-              <View style={styles.inputRow} key={index}>
-                <Text style={styles.setNumber}>{set.set}</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="KG"
-                  placeholderTextColor={Colors.gray}
-                  keyboardType="numeric"
-                  value={set.kg}
-                  onChangeText={(value) =>
-                    handleSetChange(item.id, index, "kg", value)
-                  }
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Reps"
-                  placeholderTextColor={Colors.gray}
-                  keyboardType="numeric"
-                  value={set.reps}
-                  onChangeText={(value) =>
-                    handleSetChange(item.id, index, "reps", value)
-                  }
-                />
-              </View>
-            ))}
-
-            <ButtonPrimary
-              title="+ Add Set"
-              onPress={() => handleAddSet(item.id)}
-            />
-
-            <View style={styles.separator} />
-          </View>
+          <ExerciseItem
+            exercise={item}
+            onSetChange={handleSetChange}
+            onAddSet={handleAddSet}
+          />
         )}
         ListEmptyComponent={
           <Text style={styles.noExercisesText}>
@@ -287,57 +250,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.gray,
     marginVertical: 10,
   },
-  exerciseName: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-  exerciseText: {
-    color: "white",
-    fontSize: 18,
-    marginBottom: 5,
-  },
   noExercisesText: {
     color: Colors.gray,
     textAlign: "center",
     fontSize: 18,
     marginTop: 20,
-  },
-  exerciseContainer: {
-    marginBottom: 5,
-  },
-  tableHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginVertical: 5,
-  },
-  columnText: {
-    color: Colors.gray,
-    fontWeight: "bold",
-    flex: 1,
-    textAlign: "center",
-  },
-  inputRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingBottom: 5,
-  },
-  setNumber: {
-    color: "white",
-    flex: 1,
-    textAlign: "center",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  input: {
-    flex: 1,
-    backgroundColor: Colors.darkGray,
-    color: "white",
-    borderRadius: 5,
-    padding: 10,
-    textAlign: "center",
-    marginHorizontal: 5,
   },
 });
