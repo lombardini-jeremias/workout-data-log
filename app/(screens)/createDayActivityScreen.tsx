@@ -18,7 +18,8 @@ import CancelButton from "../../components/navigation/CancelButton";
 import ButtonSecondary from "../../components/buttons/ButtonSecondary";
 import { Exercise } from "../../interfaces/Exercise.interfaces";
 import ButtonPrimary from "../../components/buttons/ButtonPrimary";
-import ExerciseItem from "../../components/ExerciseItem";
+import ExerciseItem from "../../components/reusables/ExerciseItem";
+import TextOrInput from "../../components/reusables/TextOrInput";
 
 const formatActivityName = (name: string) => {
   return name.trim().toUpperCase().replace(/\s+/g, "_");
@@ -200,17 +201,13 @@ export default function CreateDayActivity() {
 
   return (
     <View style={Containers.screenContainer}>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.inputText}
-          placeholder="Day Activity Name"
-          placeholderTextColor={Colors.gray}
-          value={activityName}
-          onChangeText={(text) => {
-            setActivityName(text);
-          }}
-        />
-      </View>
+      <TextOrInput
+        isEditable={true}
+        value={activityName}
+        placeholder="Day Activity Name"
+        onChangeText={(text) => setActivityName(text)}
+      />
+
       <View style={styles.separator} />
 
       <FlatList

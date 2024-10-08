@@ -1,9 +1,8 @@
 import React from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
-import ButtonPrimary from "./buttons/ButtonPrimary";
-import { Colors } from "../constants/Colors";
+import { View, Text, StyleSheet } from "react-native";
+import { Colors } from "@/constants/Colors";
 
-export default function ExerciseItem({ exercise, onSetChange, onAddSet }) {
+export default function ExerciseDetails({ exercise }) {
   return (
     <View style={styles.exerciseContainer}>
       <Text style={styles.exerciseName}>{exercise.name}</Text>
@@ -13,48 +12,24 @@ export default function ExerciseItem({ exercise, onSetChange, onAddSet }) {
         <View style={styles.column}>
           <Text style={styles.columnText}>SET</Text>
           {exercise.sets.map((set, index) => (
-            <Text style={styles.setNumber} key={index}>
-              {set.set}
-            </Text>
+            <Text style={styles.setNumber}>{index + 1}</Text>
           ))}
         </View>
 
         <View style={styles.column}>
           <Text style={styles.columnText}>KG</Text>
           {exercise.sets.map((set, index) => (
-            <TextInput
-              key={index}
-              style={styles.input}
-              placeholder="-"
-              placeholderTextColor={Colors.gray}
-              keyboardType="numeric"
-              value={set.kg}
-              onChangeText={(value) =>
-                onSetChange(exercise.id, index, "kg", value)
-              }
-            />
+            <Text style={styles.setNumber}>{exercise.weight[index]}</Text>
           ))}
         </View>
 
         <View style={styles.column}>
           <Text style={styles.columnText}>REPS</Text>
           {exercise.sets.map((set, index) => (
-            <TextInput
-              key={index}
-              style={styles.input}
-              placeholder="-"
-              placeholderTextColor={Colors.gray}
-              keyboardType="numeric"
-              value={set.reps}
-              onChangeText={(value) =>
-                onSetChange(exercise.id, index, "reps", value)
-              }
-            />
+            <Text style={styles.setNumber}>{exercise.reps[index]}</Text>
           ))}
         </View>
       </View>
-
-      <ButtonPrimary title="+ Add Set" onPress={() => onAddSet(exercise.id)} />
 
       <View style={styles.separator} />
     </View>
@@ -66,13 +41,13 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   exerciseName: {
-    color: "white",
+    color: Colors.text,
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 5,
+    marginVertical: 5,
   },
   exerciseText: {
-    color: "white",
+    color: Colors.text,
     fontSize: 18,
     marginBottom: 5,
   },
@@ -98,18 +73,9 @@ const styles = StyleSheet.create({
     lineHeight: 30,
     marginVertical: 5,
   },
-  input: {
-    color: "white",
-    borderRadius: 5,
-    padding: 10,
-    fontSize: 16,
-    textAlign: "center",
-    height: 30,
-    marginVertical: 5,
-  },
   separator: {
     height: 1,
     backgroundColor: Colors.gray,
-    marginVertical: 10,
+    marginVertical: 5,
   },
 });
