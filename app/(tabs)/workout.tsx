@@ -57,10 +57,6 @@ export default function Workout() {
         setDayActivities(activities);
       };
       loadDayActivities();
-
-      return () => {
-        console.log("Screen unfocused");
-      };
     }, [])
   );
 

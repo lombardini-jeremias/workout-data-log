@@ -16,6 +16,7 @@ import exercisesData from "../../db/exercises.json";
 import BackButton from "../../components/navigation/BackButton";
 import ExerciseDetails from "../../components/reusables/ExerciseDetail";
 import TextOrInput from "../../components/reusables/TextOrInput";
+import ExerciseItemOrDetails from "../../components/reusables/ExerciseItemOrDetails";
 
 const WORKOUTS_KEY = "workouts";
 
@@ -122,9 +123,8 @@ export default function DayActivityDetailScreen() {
               {item.comment && (
                 <Text style={styles.commentText}>Comment: {item.comment}</Text>
               )}
-
-              {/* Use ExerciseDetails component to render workout info */}
-              <ExerciseDetails exercise={item} />
+              {/* <ExerciseDetails exercise={item} /> */}
+              <ExerciseItemOrDetails isEditable={false} exercise={item} />
             </View>
           )}
         />

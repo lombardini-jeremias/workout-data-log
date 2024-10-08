@@ -24,7 +24,6 @@ export default function ExerciseDetailScreen() {
   useEffect(() => {
     const loadExerciseDetails = () => {
       if (!exerciseId) {
-        console.log("exerciseId", exerciseId);
         setError("Invalid exercise ID");
         setLoading(false);
         return;

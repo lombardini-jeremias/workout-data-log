@@ -20,6 +20,7 @@ import { Exercise } from "../../interfaces/Exercise.interfaces";
 import ButtonPrimary from "../../components/buttons/ButtonPrimary";
 import ExerciseItem from "../../components/reusables/ExerciseItem";
 import TextOrInput from "../../components/reusables/TextOrInput";
+import ExerciseItemOrDetails from "../../components/reusables/ExerciseItemOrDetails";
 
 const formatActivityName = (name: string) => {
   return name.trim().toUpperCase().replace(/\s+/g, "_");
@@ -214,7 +215,13 @@ export default function CreateDayActivity() {
         data={selectedExercises}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <ExerciseItem
+          // <ExerciseItem
+          //   exercise={item}
+          //   onSetChange={handleSetChange}
+          //   onAddSet={handleAddSet}
+          // />
+          <ExerciseItemOrDetails
+            isEditable={true}
             exercise={item}
             onSetChange={handleSetChange}
             onAddSet={handleAddSet}
