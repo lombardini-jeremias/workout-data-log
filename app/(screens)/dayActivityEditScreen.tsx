@@ -20,6 +20,7 @@ import CancelButton from "../../components/navigation/CancelButton";
 import ButtonSecondary from "../../components/buttons/ButtonSecondary";
 import ExerciseItem from "../../components/reusables/ExerciseItem";
 import TextOrInput from "../../components/reusables/TextOrInput";
+import ExerciseItemOrDetails from "../../components/reusables/ExerciseItemOrDetails";
 
 const WORKOUTS_KEY = "workouts";
 const DAY_ACTIVITIES_KEY = "dayActivities";
@@ -35,6 +36,8 @@ export default function dayActivityEditScreen() {
   const [activityName, setActivityName] = useState("");
   const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [isEditable, setIsEditable] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -125,18 +128,15 @@ export default function dayActivityEditScreen() {
 
   const handleUpdate = async () => {
     try {
-      // Save updated workouts
       const storedWorkouts = await AsyncStorage.getItem(WORKOUTS_KEY);
       const parsedWorkouts = storedWorkouts ? JSON.parse(storedWorkouts) : [];
 
-      // Update the workouts list with the modified ones
       const updatedWorkouts = parsedWorkouts.map(
         (workout) => workouts.find((w) => w.uuid === workout.uuid) || workout
       );
 
       await AsyncStorage.setItem(WORKOUTS_KEY, JSON.stringify(updatedWorkouts));
 
-      // Save updated day activity name
       const storedDayActivities = await AsyncStorage.getItem(
         DAY_ACTIVITIES_KEY
       );
@@ -156,6 +156,7 @@ export default function dayActivityEditScreen() {
       );
 
       Alert.alert("Success", "Day activity and workouts updated.");
+      setIsEditable(false); // Reset editable mode
       navigation.goBack();
     } catch (error) {
       console.error("Error updating data:", error);
@@ -168,6 +169,13 @@ export default function dayActivityEditScreen() {
       pathname: "/(screens)/exerciseDetailScreen",
       params: { exerciseId },
     });
+  };
+
+  const getExerciseNameById = (id: string) => {
+    const exercise = exercisesData.exercises.find(
+      (exercise) => exercise.id === id
+    );
+    return exercise ? exercise.name : "Unknown Exercise";
   };
 
   const availableExercises = exercisesData.exercises;
@@ -190,39 +198,55 @@ export default function dayActivityEditScreen() {
       />
       <View style={styles.separator} />
 
-      <FlatList
-        data={workouts}
-        keyExtractor={(item) => item.uuid}
-        renderItem={({ item }) => {
-          const exercise = availableExercises.find(
-            (exercise) => exercise.id === item.exerciseId
-          );
-          const exerciseName = exercise ? exercise.name : "Unknown Exercise";
+      {workouts.length > 0 ? (
+        <FlatList
+          data={workouts}
+          keyExtractor={(item) => item.uuid}
+          renderItem={({ item }) => (
+            <View>
+              <TouchableOpacity
+                onPress={() => handleExerciseDetailById(item.exerciseId)}
+              >
+                <Text style={styles.exerciseText}>
+                  {getExerciseNameById(item.exerciseId)}
+                </Text>
+              </TouchableOpacity>
 
-          return (
-            <ExerciseItem
-              exercise={{
-                ...exercise,
-                name: exerciseName,
-                sets: item.sets,
-                equipment: exercise?.equipment || "No Equipment",
-              }}
-              onSetChange={handleSetChange}
-              onAddSet={handleAddSet}
-            />
-          );
-        }}
-        ListEmptyComponent={
-          <Text style={styles.noExercisesText}>
-            Start adding an Exercise to the Day Activity.
-          </Text>
-        }
-      />
+              {item.comment && (
+                <Text style={styles.commentText}>Comment: {item.comment}</Text>
+              )}
 
-      <ButtonSecondary title="Add Exercise" onPress={handleAddExercise} />
+              <ExerciseItemOrDetails isEditable={false} exercise={item} />
+            </View>
+          )}
+        />
+      ) : (
+        <Text style={styles.noWorkoutsText}>
+          No workouts found for this day activity.
+        </Text>
+      )}
     </View>
   );
 }
+//     const exercise = availableExercises.find(
+//       (exercise) => exercise.id === item.exerciseId
+//     );
+//     const exerciseName = exercise ? exercise.name : "Unknown Exercise";
+
+//     return (
+//       <ExerciseItemOrDetails
+//         isEditable={isEditable}
+//         exercise={item}
+//         onSetChange={handleSetChange}
+//         onAddSet={handleAddSet}
+//       />
+//     );
+//   }}
+//   ListEmptyComponent={
+//     <Text style={styles.noExercisesText}>
+//       No workouts found for this day activity.
+//     </Text>
+// <ButtonSecondary title="Add Exercise" onPress={handleAddExercise} />
 
 const styles = StyleSheet.create({
   inputContainer: {
@@ -234,15 +258,27 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "white",
   },
+  exerciseText: {
+    fontSize: 18,
+    color: Colors.text,
+    marginBottom: 8,
+    fontWeight: "bold",
+  },
+  commentText: {
+    fontSize: 16,
+    fontStyle: "italic",
+    color: Colors.text,
+    marginTop: 8,
+  },
   separator: {
     height: 1,
     backgroundColor: Colors.gray,
     marginVertical: 10,
   },
-  noExercisesText: {
-    color: Colors.gray,
-    textAlign: "center",
+  noWorkoutsText: {
     fontSize: 18,
     marginTop: 20,
+    textAlign: "center",
+    color: Colors.gray,
   },
 });

@@ -215,11 +215,7 @@ export default function CreateDayActivity() {
         data={selectedExercises}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          // <ExerciseItem
-          //   exercise={item}
-          //   onSetChange={handleSetChange}
-          //   onAddSet={handleAddSet}
-          // />
+    
           <ExerciseItemOrDetails
             isEditable={true}
             exercise={item}

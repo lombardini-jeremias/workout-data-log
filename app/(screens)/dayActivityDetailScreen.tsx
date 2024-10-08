@@ -111,7 +111,7 @@ export default function DayActivityDetailScreen() {
           data={workouts}
           keyExtractor={(item) => item.uuid}
           renderItem={({ item }) => (
-            <View style={styles.workoutContainer}>
+            <View>
               <TouchableOpacity
                 onPress={() => handleExerciseDetailById(item.exerciseId)}
               >
@@ -123,7 +123,7 @@ export default function DayActivityDetailScreen() {
               {item.comment && (
                 <Text style={styles.commentText}>Comment: {item.comment}</Text>
               )}
-              {/* <ExerciseDetails exercise={item} /> */}
+
               <ExerciseItemOrDetails isEditable={false} exercise={item} />
             </View>
           )}
@@ -157,7 +157,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#2196F3",
   },
-  workoutContainer: {},
   exerciseText: {
     fontSize: 18,
     color: Colors.text,
