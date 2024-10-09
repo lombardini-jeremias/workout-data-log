@@ -3,7 +3,6 @@ import {
   FlatList,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -20,6 +19,8 @@ import CancelButton from "../../components/navigation/CancelButton";
 import ButtonSecondary from "../../components/buttons/ButtonSecondary";
 import TextOrInput from "../../components/reusables/TextOrInput";
 import ExerciseItemOrDetails from "../../components/reusables/ExerciseItemOrDetails";
+import ExerciseNameSmall from "../../components/reusables/ExerciseNameSmall";
+import ExerciseNote from "../../components/reusables/ExerciseNote";
 
 const WORKOUTS_KEY = "workouts";
 const DAY_ACTIVITIES_KEY = "dayActivities";
@@ -201,17 +202,13 @@ export default function dayActivityEditScreen() {
           keyExtractor={(item) => item.uuid}
           renderItem={({ item }) => (
             <View>
-              <TouchableOpacity
-                onPress={() => handleExerciseDetailById(item.exerciseId)}
-              >
-                <Text style={styles.exerciseText}>
-                  {getExerciseNameById(item.exerciseId)}
-                </Text>
-              </TouchableOpacity>
+              <ExerciseNameSmall
+                exerciseId={item.exerciseId}
+                onPress={handleExerciseDetailById}
+                getExerciseNameById={getExerciseNameById}
+              />
 
-              {item.comment && (
-                <Text style={styles.commentText}>Comment: {item.comment}</Text>
-              )}
+              <ExerciseNote note={item.comment} />
 
               <ExerciseItemOrDetails
                 isEditable={isEditable}
@@ -231,25 +228,6 @@ export default function dayActivityEditScreen() {
     </View>
   );
 }
-//     const exercise = availableExercises.find(
-//       (exercise) => exercise.id === item.exerciseId
-//     );
-//     const exerciseName = exercise ? exercise.name : "Unknown Exercise";
-
-//     return (
-//       <ExerciseItemOrDetails
-//         isEditable={isEditable}
-//         exercise={item}
-//         onSetChange={handleSetChange}
-//         onAddSet={handleAddSet}
-//       />
-//     );
-//   }}
-//   ListEmptyComponent={
-//     <Text style={styles.noExercisesText}>
-//       No workouts found for this day activity.
-//     </Text>
-// <ButtonSecondary title="Add Exercise" onPress={handleAddExercise} />
 
 const styles = StyleSheet.create({
   inputContainer: {

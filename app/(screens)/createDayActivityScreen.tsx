@@ -16,11 +16,12 @@ import { Containers } from "../../constants/Container";
 import RightSecondaryButton from "../../components/navigation/RightSecondaryButton";
 import CancelButton from "../../components/navigation/CancelButton";
 import ButtonSecondary from "../../components/buttons/ButtonSecondary";
-import { Exercise } from "../../interfaces/Exercise.interfaces";
+import { Exercise } from "../../interfaces/Exercise.interface";
 import ButtonPrimary from "../../components/buttons/ButtonPrimary";
 import ExerciseItem from "../../components/reusables/ExerciseItem";
 import TextOrInput from "../../components/reusables/TextOrInput";
 import ExerciseItemOrDetails from "../../components/reusables/ExerciseItemOrDetails";
+import ExerciseNameSmall from "../../components/reusables/ExerciseNameSmall";
 
 const formatActivityName = (name: string) => {
   return name.trim().toUpperCase().replace(/\s+/g, "_");
@@ -200,6 +201,20 @@ export default function CreateDayActivity() {
     }
   };
 
+  const handleExerciseDetailById = (exerciseId: string) => {
+    router.push({
+      pathname: "/(screens)/exerciseDetailScreen",
+      params: { exerciseId },
+    });
+  };
+
+  const getExerciseNameById = (id: string) => {
+    const exercise = exercisesData.exercises.find(
+      (exercise) => exercise.id === id
+    );
+    return exercise ? exercise.name : "Unknown Exercise";
+  };
+
   return (
     <View style={Containers.screenContainer}>
       <TextOrInput
@@ -215,13 +230,18 @@ export default function CreateDayActivity() {
         data={selectedExercises}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-    
-          <ExerciseItemOrDetails
-            isEditable={true}
-            exercise={item}
-            onSetChange={handleSetChange}
-            onAddSet={handleAddSet}
-          />
+          <View>
+            <Text style={styles.exerciseName}>{item.name}</Text>
+            <Text style={styles.exerciseText}>Equipment: {item.equipment}</Text>
+            <Text style={styles.exerciseText}>Note: {item.comment}</Text>
+
+            <ExerciseItemOrDetails
+              isEditable={true}
+              exercise={item}
+              onSetChange={handleSetChange}
+              onAddSet={handleAddSet}
+            />
+          </View>
         )}
         ListEmptyComponent={
           <Text style={styles.noExercisesText}>
@@ -238,6 +258,17 @@ export default function CreateDayActivity() {
 const styles = StyleSheet.create({
   inputContainer: {
     paddingTop: 10,
+  },
+  exerciseName: {
+    color: Colors.text,
+    fontSize: 18,
+    fontWeight: "bold",
+    marginVertical: 5,
+  },
+  exerciseText: {
+    color: Colors.text,
+    fontSize: 18,
+    marginBottom: 5,
   },
   inputText: {
     textAlign: "left",

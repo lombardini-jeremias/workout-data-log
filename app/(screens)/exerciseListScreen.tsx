@@ -12,7 +12,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRouter } from "expo-router";
-import { Exercise } from "../../interfaces/Exercise.interfaces";
+import { Exercise } from "../../interfaces/Exercise.interface";
 import { Containers } from "../../constants/Container";
 import SearchBar from "../../components/navigation/SearchBar";
 import CreateButton from "../../components/navigation/CreateButton";

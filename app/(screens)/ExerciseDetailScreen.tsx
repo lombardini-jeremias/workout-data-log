@@ -9,7 +9,7 @@ import React, { useEffect, useState } from "react";
 import exercisesData from "../../db/exercises.json";
 import { Colors } from "@/constants/Colors";
 import { useLocalSearchParams, useNavigation } from "expo-router";
-import { Exercise } from "../../interfaces/Exercise.interfaces";
+import { Exercise } from "../../interfaces/Exercise.interface";
 import { ThemedText } from "../../components/ThemedText";
 import { ThemedView } from "../../components/ThemedView";
 import { Containers } from "../../constants/Container";

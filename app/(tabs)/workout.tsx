@@ -13,7 +13,7 @@ import { Colors } from "@/constants/Colors";
 import { Containers } from "@/constants/Container";
 
 import ButtonPrimary from "@/components/buttons/ButtonPrimary";
-import { DayActivity } from "@/interfaces/DayActivity.interfaces";
+import { DayActivity } from "@/interfaces/DayActivity.interface";
 import {
   DayActivityProvider,
   useDayActivity,
