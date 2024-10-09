@@ -18,7 +18,6 @@ import { Containers } from "../../constants/Container";
 import RightSecondaryButton from "../../components/navigation/RightSecondaryButton";
 import CancelButton from "../../components/navigation/CancelButton";
 import ButtonSecondary from "../../components/buttons/ButtonSecondary";
-import ExerciseItem from "../../components/reusables/ExerciseItem";
 import TextOrInput from "../../components/reusables/TextOrInput";
 import ExerciseItemOrDetails from "../../components/reusables/ExerciseItemOrDetails";
 
@@ -214,7 +213,12 @@ export default function dayActivityEditScreen() {
                 <Text style={styles.commentText}>Comment: {item.comment}</Text>
               )}
 
-              <ExerciseItemOrDetails isEditable={false} exercise={item} />
+              <ExerciseItemOrDetails
+                isEditable={isEditable}
+                exercise={item}
+                onSetChange={handleSetChange}
+                onAddSet={handleAddSet}
+              />
             </View>
           )}
         />
