@@ -23,8 +23,8 @@ export default function ExerciseItemOrDetails({
 }: ExerciseItemOrDetailsProps) {
   return (
     <View style={styles.exerciseContainer}>
-      <Text style={styles.exerciseName}>{exercise.name}</Text>
-      <Text style={styles.exerciseText}>Equipment: {exercise.equipment}</Text>
+      {/* <Text style={styles.exerciseName}>{exercise.name}</Text>
+      <Text style={styles.exerciseText}>Equipment: {exercise.equipment}</Text> */}
 
       <View style={styles.tableHeader}>
         <View style={styles.column}>
