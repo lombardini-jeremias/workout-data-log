@@ -1,39 +1,56 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { useNavigation } from "expo-router";
-import { preloadAllDataService } from "../../services/preloadData.service";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
+import { useRouter } from "expo-router";
 import { Containers } from "@/constants/Container";
 import { Colors } from "@/constants/Colors";
+import { MuscleGroup } from "../../interfaces/MuscleGroup.interface";
+import { MuscleGroupService } from "../../services/MuscleGroup.service";
 
 export default function MuscleGroupSelectionScreen() {
-  const navigation = useNavigation();
-  const [muscleGroupList, setMuscleGroupList] = useState([]);
+  const router = useRouter();
+  const [muscleGroupList, setMuscleGroupList] = useState<MuscleGroup[]>([]);
 
   useEffect(() => {
     const loadPreloadedData = async () => {
-      const data = await preloadAllDataService();
-      setMuscleGroupList(data.muscleGroups); // Assuming preloadAllDataService returns muscle groups
+      try {
+        const fetchData = await MuscleGroupService.getAll();
+        setMuscleGroupList(fetchData);
+        console.log("fetchData", fetchData);
+      } catch (error) {
+        console.error("Error loading equipment data", error);
+      }
     };
     loadPreloadedData();
   }, []);
 
-  const handleSelect = (muscleGroup) => {
-    // Handle selection logic
-    navigation.goBack(); // Or handle accordingly
+  const handleSelect = (muscleGroup: MuscleGroup) => {
+    router.push({
+      pathname: "/(screens)/createExerciseScreen",
+      params: { selectedMuscleGroup: muscleGroup.name },
+    });
+    console.log("selected-muscleGroup", muscleGroup);
   };
 
   return (
-    <View style={Containers.screenContainer}>
-      {muscleGroupList.map((muscleGroup, index) => (
-        <TouchableOpacity
-          key={index}
-          onPress={() => handleSelect(muscleGroup)}
-          style={styles.muscleGroupItem}
-        >
-          <Text style={styles.muscleGroupText}>{muscleGroup.name}</Text>
-        </TouchableOpacity>
-      ))}
-    </View>
+    <ScrollView>
+      <View style={Containers.screenContainer}>
+        {muscleGroupList.map((muscleGroup, index) => (
+          <TouchableOpacity
+            key={index}
+            onPress={() => handleSelect(muscleGroup)}
+            style={styles.muscleGroupItem}
+          >
+            <Text style={styles.muscleGroupText}>{muscleGroup.name}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </ScrollView>
   );
 }
 

@@ -1,25 +1,34 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { useNavigation } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import { preloadAllDataService } from "../../services/preloadData.service";
 import { Containers } from "@/constants/Container";
 import { Colors } from "@/constants/Colors";
+import { ExerciseTypeService } from "../../services/ExerciseType.service";
+import { ExerciseType } from "../../interfaces/ExerciseType.interface";
 
 export default function ExerciseTypeSelectionScreen() {
-  const navigation = useNavigation();
-  const [exerciseTypeList, setExerciseTypeList] = useState([]);
+  const router = useRouter();
+  const [exerciseTypeList, setExerciseTypeList] = useState<ExerciseType[]>([]);
 
   useEffect(() => {
     const loadPreloadedData = async () => {
-      const data = await preloadAllDataService();
-      setExerciseTypeList(data.exerciseTypes); // Assuming preloadAllDataService returns exercise types
+      try {
+        const fetchData = await ExerciseTypeService.getAll();
+        setExerciseTypeList(fetchData);
+      } catch (error) {
+        console.error("Error loading exercise types data", error);
+      }
     };
     loadPreloadedData();
   }, []);
 
-  const handleSelect = (exerciseType) => {
-    // Handle selection logic
-    navigation.goBack(); // Or handle accordingly
+  const handleSelect = (exerciseType: ExerciseType) => {
+    router.push({
+      pathname: "/(screens)/createExerciseScreen",
+      params: { selectedExerciseType: exerciseType.type },
+    });
+    console.log("selected-exerciseType", exerciseType);
   };
 
   return (

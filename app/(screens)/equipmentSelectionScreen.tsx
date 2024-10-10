@@ -1,14 +1,12 @@
-import React, { useState, useEffect, useLayoutEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { useNavigation, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { Containers } from "@/constants/Container";
 import { Colors } from "@/constants/Colors";
 import { Equipment } from "../../interfaces/Equipment.interface";
 import { EquipmentService } from "../../services/Equipment.service";
-import SecondaryInput from "../../components/inputs/SecondaryInput";
 
 export default function EquipmentSelectionScreen() {
-  const navigation = useNavigation();
   const router = useRouter();
   const [equipmentList, setEquipmentList] = useState<Equipment[]>([]);
 

@@ -20,9 +20,15 @@ export default function CreateExercise() {
   const [newExercise, setNewExercise] = useState("");
 
   const [equipment, setEquipment] = useState("Select");
+  const [muscleGroup, setMuscleGroup] = useState("Select");
+  const [exerciseType, setExerciseType] = useState("Select");
+  // const [force, setForce] = useState("Select");
+  // const [mechanic, setMechanic] = useState("Select");
 
-  const { selectedEquipment } = useLocalSearchParams();
-  console.log("selectedEquipment", selectedEquipment);
+  const { selectedEquipment, selectedMuscleGroup, selectedExerciseType } =
+    useLocalSearchParams();
+
+  console.log("selectedExerciseType", selectedExerciseType);
 
   useEffect(() => {
     const loadPreloadedData = async () => {
@@ -37,7 +43,33 @@ export default function CreateExercise() {
           : selectedEquipment
       );
     }
-  }, [selectedEquipment]);
+
+    if (selectedMuscleGroup) {
+      setMuscleGroup(
+        Array.isArray(selectedMuscleGroup)
+          ? selectedMuscleGroup[0]
+          : selectedMuscleGroup
+      );
+    }
+
+    if (selectedExerciseType) {
+      setExerciseType(
+        Array.isArray(selectedExerciseType)
+          ? selectedExerciseType[0]
+          : selectedExerciseType
+      );
+    }
+
+    // if (selectedForce) {
+    //   setForce(Array.isArray(selectedForce) ? selectedForce[0] : selectedForce);
+    // }
+
+    // if (selectedMechanic) {
+    //   setMechanic(
+    //     Array.isArray(selectedMechanic) ? selectedMechanic[0] : selectedMechanic
+    //   );
+    // }
+  }, [selectedEquipment, selectedMuscleGroup, selectedExerciseType]);
 
   const addExercise = async () => {
     //   if (!newExercise) {
@@ -105,13 +137,35 @@ export default function CreateExercise() {
     // }
   };
 
-  const handleSelectEquipment = () => {
+  const handleSelectingEquipment = () => {
     router.push({
       pathname: "/(screens)/equipmentSelectionScreen",
     });
   };
 
-  const handleSelectExerciseType = () => {};
+  const handleSelectingMuscleGroup = () => {
+    router.push({
+      pathname: "/(screens)/muscleGroupSelectionScreen",
+    });
+  };
+
+  const handleSelectingExerciseType = () => {
+    router.push({
+      pathname: "/(screens)/exerciseTypeSelectionScreen",
+    });
+  };
+
+  // const handleSelectingMechanic = () => {
+  //   router.push({
+  //     pathname: "/(screens)/mechanicSelectionScreen",
+  //   });
+  // };
+
+  // const handleSelectingForce = () => {
+  //   router.push({
+  //     pathname: "/(screens)/forceSelectionScreen",
+  //   });
+  // };
 
   return (
     <View style={Containers.screenContainer}>
@@ -123,29 +177,38 @@ export default function CreateExercise() {
         />
         <SecondaryInput
           title={"Equipment Type"}
-          onPress={handleSelectEquipment}
-          selectedEquipment={equipment || "Select"}
+          onPress={handleSelectingEquipment}
+          selectedItem={equipment || "Select"}
         />
 
-        <SecondaryInput title={"Force"} onPress={handleSelectEquipment} />
-
-        <SecondaryInput title={"Level"} onPress={handleSelectEquipment} />
-
-        <SecondaryInput title={"Mechanic"} onPress={handleSelectEquipment} />
-
-        <SecondaryInput
-          title={"Primary Muscle"}
-          onPress={handleSelectEquipment}
+        {/* <SecondaryInput
+          title={"Force"}
+          onPress={handleSelectingForce}
+          selectedItem={force || "Select"}
         />
 
         <SecondaryInput
+          title={"Mechanic"}
+          onPress={handleSelectingMechanic}
+          selectedItem={mechanic || "Select"}
+        /> */}
+
+        <SecondaryInput
           title={"Primary Muscle"}
-          onPress={handleSelectEquipment}
+          onPress={handleSelectingMuscleGroup}
+          selectedItem={muscleGroup || "Select"}
+        />
+
+        <SecondaryInput
+          title={"Secondary Muscle"}
+          onPress={handleSelectingMuscleGroup}
+          selectedItem={muscleGroup || "Select"}
         />
 
         <SecondaryInput
           title={"Exercise Type"}
-          onPress={handleSelectExerciseType}
+          onPress={handleSelectingExerciseType}
+          selectedItem={exerciseType || "Select"}
         />
       </View>
     </View>
