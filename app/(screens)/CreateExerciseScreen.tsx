@@ -1,31 +1,14 @@
-import React, { useLayoutEffect, useState } from "react";
-import {
-  TextInput,
-  TouchableOpacity,
-  Alert,
-  StyleSheet,
-  View,
-  Text,
-} from "react-native";
-import { v4 as uuidv4 } from "uuid";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useEffect, useLayoutEffect, useState } from "react";
+import { StyleSheet, View } from "react-native";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 
 import { Colors } from "@/constants/Colors";
 import { Containers } from "@/constants/Container";
-import { useNavigation } from "expo-router";
+
 import SaveButton from "../../components/navigation/RightSecondaryButton";
 import SecondaryInput from "../../components/inputs/SecondaryInput";
 import PrimaryInput from "../../components/inputs/PrimaryInput";
-
-const saveUserExercisesToStorage = async (exercises) => {
-  try {
-    const jsonValue = JSON.stringify(exercises);
-    await AsyncStorage.setItem("userExercises", jsonValue);
-    console.log("EX-LOCAL-STORAGE: ", exercises);
-  } catch (error) {
-    console.error("Error saving user exercises", error);
-  }
-};
+import { preloadAllDataService } from "../../services/preloadData.service";
 
 const formatExerciseName = (name: string) => {
   return name.trim().toUpperCase().replace(/\s+/g, "_");
@@ -33,7 +16,28 @@ const formatExerciseName = (name: string) => {
 
 export default function CreateExercise() {
   const navigation = useNavigation();
+  const router = useRouter();
   const [newExercise, setNewExercise] = useState("");
+
+  const [equipment, setEquipment] = useState("Select");
+
+  const { selectedEquipment } = useLocalSearchParams();
+  console.log("selectedEquipment", selectedEquipment);
+
+  useEffect(() => {
+    const loadPreloadedData = async () => {
+      await preloadAllDataService();
+    };
+    loadPreloadedData();
+
+    if (selectedEquipment) {
+      setEquipment(
+        Array.isArray(selectedEquipment)
+          ? selectedEquipment[0]
+          : selectedEquipment
+      );
+    }
+  }, [selectedEquipment]);
 
   const addExercise = async () => {
     //   if (!newExercise) {
@@ -101,7 +105,13 @@ export default function CreateExercise() {
     // }
   };
 
-  const handleSelectEquipment = () => {};
+  const handleSelectEquipment = () => {
+    router.push({
+      pathname: "/(screens)/equipmentSelectionScreen",
+    });
+  };
+
+  const handleSelectExerciseType = () => {};
 
   return (
     <View style={Containers.screenContainer}>
@@ -111,7 +121,11 @@ export default function CreateExercise() {
           value={newExercise}
           onChangeText={setNewExercise}
         />
-        <SecondaryInput title={"Equipment"} onPress={handleSelectEquipment} />
+        <SecondaryInput
+          title={"Equipment Type"}
+          onPress={handleSelectEquipment}
+          selectedEquipment={equipment || "Select"}
+        />
 
         <SecondaryInput title={"Force"} onPress={handleSelectEquipment} />
 
@@ -129,7 +143,10 @@ export default function CreateExercise() {
           onPress={handleSelectEquipment}
         />
 
-        <SecondaryInput title={"Category"} onPress={handleSelectEquipment} />
+        <SecondaryInput
+          title={"Exercise Type"}
+          onPress={handleSelectExerciseType}
+        />
       </View>
     </View>
   );

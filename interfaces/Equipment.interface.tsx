@@ -14,5 +14,5 @@ export interface Equipment {
   uuid: string;
   name: string;
   image?: string;
-  equipment_type: EquipmentType;
+  equipmentType: EquipmentType;
 }

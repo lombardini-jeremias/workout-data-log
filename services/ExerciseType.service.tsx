@@ -15,7 +15,7 @@ export class ExerciseTypeService {
 
     try {
       const newExerciseType: ExerciseType = {
-        uuid: uuidv4(), // Generate UUID
+        uuid: uuidv4(),
         ...exerciseTypeData,
       };
 

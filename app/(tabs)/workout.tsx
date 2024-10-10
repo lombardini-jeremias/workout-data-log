@@ -14,10 +14,6 @@ import { Containers } from "@/constants/Container";
 
 import ButtonPrimary from "@/components/buttons/ButtonPrimary";
 import { DayActivity } from "@/interfaces/DayActivity.interface";
-import {
-  DayActivityProvider,
-  useDayActivity,
-} from "../../context/DayActivityProvider";
 
 // loadData
 const loadDayActivitiesFromStorage = async () => {

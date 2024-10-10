@@ -1,15 +1,19 @@
+export enum ExerciseTypeCategory {
+  WEIGHTED_REPS = "Weighted & Reps",
+  BODYWEIGHT_REPS = "Bodyweight Reps",
+  BODYWEIGHT_WEIGHTED = "Bodyweight Weighted",
+  ASSISTED_BODYWEIGHT = "Assisted Bodyweight",
+  DURATION = "Duration",
+  DURATION_WEIGHT = "Duration & Weight",
+  DISTANCE_DURATION = "Distance & Duration",
+  WEIGHT_DISTANCE = "Weight & Distance",
+}
+
 export interface ExerciseType {
   uuid: string;
-  type:
-    | "Weighted & Reps"
-    | "Bodyweight Reps"
-    | "Assisted Bodyweight"
-    | "Duration"
-    | "Duration & Weight"
-    | "Distance & Duration"
-    | "Weight & Distance";
+  type: ExerciseTypeCategory;
   reps?: number;
-  weight_kg?: number;
-  duration_seconds?: number;
-  distance_km?: number;
+  weightKg?: number;
+  durationSeconds?: number;
+  distanceKm?: number;
 }

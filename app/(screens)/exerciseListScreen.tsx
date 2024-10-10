@@ -57,7 +57,9 @@ export default function ExerciseList() {
   }, [navigation]);
 
   const handleCreate = () => {
-    navigation.navigate("createExerciseScreen");
+    router.push({
+      pathname: "/(screens)/createExerciseScreen",
+    });
   };
 
   const handleSearch = (text: string) => {
@@ -84,7 +86,7 @@ export default function ExerciseList() {
 
   const handleAddExercises = () => {
     router.push({
-      pathname: "createDayActivityScreen",
+      pathname: "/(screens)/createDayActivityScreen",
       params: { selectedExercises: JSON.stringify(selectedExercises) },
     });
   };
@@ -92,11 +94,9 @@ export default function ExerciseList() {
   const handleExerciseDetails = (item: Exercise) => {
     console.log("EX- ID", item);
     router.push({
-      pathname: "exerciseDetailScreen",
-      params: { exerciseId: item.id },
+      pathname: "/(screens)/exerciseDetailScreen",
+      params: { exerciseId: item.uuid },
     });
-
-    return console.log("Router Details");
   };
 
   return (
@@ -106,12 +106,12 @@ export default function ExerciseList() {
       <FlatList
         data={filteredExercises}
         showsVerticalScrollIndicator={false}
-        keyExtractor={(item: Exercise) => item.id.toString()}
+        keyExtractor={(item: Exercise) => item.uuid}
         initialNumToRender={20}
         maxToRenderPerBatch={20}
         renderItem={({ item }) => {
           const isSelected = selectedExercises.some(
-            (exercise) => exercise.id === item.id
+            (exercise) => exercise.uuid === item.uuid
           );
           return (
             <View

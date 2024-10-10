@@ -43,6 +43,18 @@ export default function StackLayout() {
         }}
       />
       <Stack.Screen
+        name="equipmentSelectionScreen"
+        options={{
+          title: "Select Equipment Type",
+          headerBackTitle: "Back",
+          headerStyle: {
+            backgroundColor: Colors.dark.background,
+          },
+          headerTintColor: Colors.secondary,
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
         name="exerciseDetailScreen"
         options={{
           title: "Exercise Detail",

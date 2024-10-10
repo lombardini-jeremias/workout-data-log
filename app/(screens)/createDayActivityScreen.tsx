@@ -1,7 +1,6 @@
 import {
   Text,
   View,
-  TextInput,
   Alert,
   StyleSheet,
   FlatList,
@@ -17,11 +16,8 @@ import RightSecondaryButton from "../../components/navigation/RightSecondaryButt
 import CancelButton from "../../components/navigation/CancelButton";
 import ButtonSecondary from "../../components/buttons/ButtonSecondary";
 import { Exercise } from "../../interfaces/Exercise.interface";
-import ButtonPrimary from "../../components/buttons/ButtonPrimary";
-import ExerciseItem from "../../components/reusables/ExerciseItem";
 import TextOrInput from "../../components/reusables/TextOrInput";
 import ExerciseItemOrDetails from "../../components/reusables/ExerciseItemOrDetails";
-import ExerciseNameSmall from "../../components/reusables/ExerciseNameSmall";
 
 const formatActivityName = (name: string) => {
   return name.trim().toUpperCase().replace(/\s+/g, "_");
@@ -99,7 +95,7 @@ export default function CreateDayActivity() {
   };
 
   const handleNavigate = () => {
-    router.push("exerciseListScreen");
+    router.push("/(screens)/exerciseListScreen");
   };
 
   const saveDayActivity = async (name: string) => {
@@ -223,17 +219,14 @@ export default function CreateDayActivity() {
         placeholder="Day Activity Name"
         onChangeText={(text) => setActivityName(text)}
       />
-
       <View style={styles.separator} />
 
       <FlatList
         data={selectedExercises}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.uuid}
         renderItem={({ item }) => (
           <View>
             <Text style={styles.exerciseName}>{item.name}</Text>
-            <Text style={styles.exerciseText}>Equipment: {item.equipment}</Text>
-            <Text style={styles.exerciseText}>Note: {item.comment}</Text>
 
             <ExerciseItemOrDetails
               isEditable={true}
