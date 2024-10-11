@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Exercise } from "../interfaces/Exercise.interface";
 
 export class ExerciseService {
-  private static readonly STORAGE_KEY = "exercises";
+  private static readonly STORAGE_KEY = "personalExercises";
 
   // CREATE Exercise
   public static async create(
@@ -15,25 +15,35 @@ export class ExerciseService {
 
     try {
       const newExercise: Exercise = {
-        uuid: uuidv4(), // Generate UUID
+        uuid: uuidv4(),
         ...exerciseData,
       };
 
-      // Retrieve existing exercises from AsyncStorage
       const storedExercises = await AsyncStorage.getItem(this.STORAGE_KEY);
       const exercises: Exercise[] = storedExercises
         ? JSON.parse(storedExercises)
         : [];
 
-      // Add the new exercise
-      exercises.push(newExercise);
+      const isDuplicate = exercises.some(
+        (exercise) =>
+          exercise.name.toLowerCase() === exerciseData.name.toLowerCase()
+      );
+      if (isDuplicate) {
+        throw new Error(
+          `An exercise with the name "${exerciseData.name}" already exists.`
+        );
+      }
 
-      // Save back to AsyncStorage
+      exercises.push(newExercise);
       await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(exercises));
 
       return newExercise;
     } catch (error) {
-      throw new Error("Error creating new Exercise: " + error.message);
+      if (error instanceof Error) {
+        throw new Error("Error creating new Exercise: " + error.message);
+      } else {
+        throw new Error("Unknown error occurred while creating new Exercise.");
+      }
     }
   }
 
@@ -42,7 +52,6 @@ export class ExerciseService {
     if (!uuid) {
       throw new Error("UUID is required.");
     }
-
     try {
       // Retrieve exercises from AsyncStorage
       const storedExercises = await AsyncStorage.getItem(this.STORAGE_KEY);
@@ -65,7 +74,6 @@ export class ExerciseService {
   // GET all Exercises
   public static async getAll(): Promise<Exercise[]> {
     try {
-      // Retrieve exercises from AsyncStorage
       const storedExercises = await AsyncStorage.getItem(this.STORAGE_KEY);
       const exercises: Exercise[] = storedExercises
         ? JSON.parse(storedExercises)
@@ -85,9 +93,7 @@ export class ExerciseService {
     if (!uuid) {
       throw new Error("UUID is required for updating an exercise.");
     }
-
     try {
-      // Retrieve existing exercises from AsyncStorage
       const storedExercises = await AsyncStorage.getItem(this.STORAGE_KEY);
       const exercises: Exercise[] = storedExercises
         ? JSON.parse(storedExercises)
@@ -101,11 +107,8 @@ export class ExerciseService {
 
       // Merge updates into the exercise
       const updatedExercise = { ...exercises[exerciseIndex], ...updates };
-
       // Update the exercise in the list
       exercises[exerciseIndex] = updatedExercise;
-
-      // Save updated exercises list back to AsyncStorage
       await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(exercises));
 
       return updatedExercise;
@@ -119,9 +122,7 @@ export class ExerciseService {
     if (!uuid) {
       throw new Error("UUID is required for deleting an exercise.");
     }
-
     try {
-      // Retrieve existing exercises from AsyncStorage
       const storedExercises = await AsyncStorage.getItem(this.STORAGE_KEY);
       const exercises: Exercise[] = storedExercises
         ? JSON.parse(storedExercises)
@@ -135,8 +136,6 @@ export class ExerciseService {
 
       // Remove the exercise from the array
       exercises.splice(exerciseIndex, 1);
-
-      // Save updated exercises list back to AsyncStorage
       await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(exercises));
 
       return true;

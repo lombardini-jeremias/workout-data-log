@@ -3,45 +3,47 @@ import { Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { Containers } from "@/constants/Container";
 import { Colors } from "@/constants/Colors";
-import { ExerciseTypeService } from "../../services/ExerciseType.service";
-import { ExerciseType } from "../../interfaces/ExerciseType.interface";
+import { MuscleGroup } from "../../interfaces/MuscleGroup.interface";
+import { MuscleGroupService } from "../../services/MuscleGroup.service";
 import { useExerciseForm } from "../../context/ExerciseFormProvider";
 
-export default function ExerciseTypeSelectionScreen() {
+export default function MuscleGroupSecondarySelectionScreen() {
   const router = useRouter();
-  const [exerciseTypeList, setExerciseTypeList] = useState<ExerciseType[]>([]);
+  const [muscleGroupList, setMuscleGroupList] = useState<MuscleGroup[]>([]);
   const { setExerciseForm } = useExerciseForm();
 
   useEffect(() => {
     const loadPreloadedData = async () => {
       try {
-        const fetchData = await ExerciseTypeService.getAll();
-        setExerciseTypeList(fetchData);
+        const fetchData = await MuscleGroupService.getAll();
+        setMuscleGroupList(fetchData);
       } catch (error) {
-        console.error("Error loading exercise types data", error);
+        console.error("Error loading muscle groups data", error);
       }
     };
     loadPreloadedData();
   }, []);
 
-  const handleSelect = (exerciseType: ExerciseType) => {
+  const handleSelect = (secondaryMuscleGroup: MuscleGroup) => {
     setExerciseForm((prev) => ({
       ...prev,
-      exerciseTypeId: exerciseType.uuid,
-      exerciseTypeName: exerciseType.type,
+      secondaryMuscleGroupId: secondaryMuscleGroup.uuid,
+      secondaryMuscleGroupName: secondaryMuscleGroup.name,
     }));
     router.back();
   };
 
   return (
     <ScrollView style={Containers.screenContainer}>
-      {exerciseTypeList.map((exerciseType, index) => (
+      {muscleGroupList.map((secondaryMuscleGroup, index) => (
         <TouchableOpacity
           key={index}
-          onPress={() => handleSelect(exerciseType)}
-          style={styles.exerciseTypeItem}
+          onPress={() => handleSelect(secondaryMuscleGroup)}
+          style={styles.muscleGroupItem}
         >
-          <Text style={styles.exerciseTypeText}>{exerciseType.type}</Text>
+          <Text style={styles.muscleGroupText}>
+            {secondaryMuscleGroup.name}
+          </Text>
         </TouchableOpacity>
       ))}
     </ScrollView>
@@ -49,12 +51,12 @@ export default function ExerciseTypeSelectionScreen() {
 }
 
 const styles = StyleSheet.create({
-  exerciseTypeItem: {
+  muscleGroupItem: {
     paddingVertical: 15,
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray,
   },
-  exerciseTypeText: {
+  muscleGroupText: {
     fontSize: 18,
     color: Colors.text,
   },

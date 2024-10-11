@@ -105,32 +105,6 @@ export default function StackLayout() {
         }}
       />
 
-      {/* <Stack.Screen
-        name="forceSelectionScreen"
-        options={{
-          title: "Select Force Type",
-          headerBackTitle: "Back",
-          headerStyle: {
-            backgroundColor: Colors.dark.background,
-          },
-          headerTintColor: Colors.secondary,
-          headerShown: true,
-        }}
-      /> */}
-
-      {/* <Stack.Screen
-        name="mechanicSelectionScreen"
-        options={{
-          title: "Select Mechanic Type",
-          headerBackTitle: "Back",
-          headerStyle: {
-            backgroundColor: Colors.dark.background,
-          },
-          headerTintColor: Colors.secondary,
-          headerShown: true,
-        }}
-      /> */}
-
       <Stack.Screen
         name="muscleGroupSelectionScreen"
         options={{
@@ -144,6 +118,18 @@ export default function StackLayout() {
         }}
       />
 
+      <Stack.Screen
+        name="muscleGroupSecondarySelectionScreen"
+        options={{
+          title: "Select Muscle Group Type",
+          headerBackTitle: "Back",
+          headerStyle: {
+            backgroundColor: Colors.dark.background,
+          },
+          headerTintColor: Colors.secondary,
+          headerShown: true,
+        }}
+      />
       <Stack.Screen
         name="exerciseTypeSelectionScreen"
         options={{

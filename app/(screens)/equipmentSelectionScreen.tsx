@@ -5,10 +5,12 @@ import { Containers } from "@/constants/Container";
 import { Colors } from "@/constants/Colors";
 import { Equipment } from "../../interfaces/Equipment.interface";
 import { EquipmentService } from "../../services/Equipment.service";
+import { useExerciseForm } from "../../context/ExerciseFormProvider";
 
 export default function EquipmentSelectionScreen() {
   const router = useRouter();
   const [equipmentList, setEquipmentList] = useState<Equipment[]>([]);
+  const { setExerciseForm } = useExerciseForm();
 
   useEffect(() => {
     const loadPreloadedData = async () => {
@@ -23,11 +25,12 @@ export default function EquipmentSelectionScreen() {
   }, []);
 
   const handleSelect = (equipment: Equipment) => {
-    router.push({
-      pathname: "/(screens)/createExerciseScreen",
-      params: { selectedEquipment: equipment.name },
-    });
-    console.log("selected-Equipment", equipment);
+    setExerciseForm((prev) => ({
+      ...prev,
+      equipmentId: equipment.uuid,
+      equipmentName: equipment.name,
+    }));
+    router.back();
   };
 
   return (
