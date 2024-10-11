@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   exerciseTypeItem: {
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.gray,
+    borderBottomColor: "gray",
   },
   exerciseTypeText: {
     fontSize: 18,
