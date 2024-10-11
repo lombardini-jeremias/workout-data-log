@@ -8,19 +8,25 @@ import {
   TouchableOpacity,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useLocalSearchParams, useNavigation } from "expo-router";
-import { Workout } from "../../interfaces/Workout.interfaces"; // Assuming you have this interface defined
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import { Workout } from "../../interfaces/Workout.interface";
 import { Colors } from "../../constants/Colors";
 import { Containers } from "../../constants/Container";
 import exercisesData from "../../db/exercises.json";
 import BackButton from "../../components/navigation/BackButton";
+import ExerciseDetails from "../../components/reusables/ExerciseDetail";
+import TextOrInput from "../../components/reusables/TextOrInput";
+import ExerciseItemOrDetails from "../../components/reusables/ExerciseItemOrDetails";
 
 const WORKOUTS_KEY = "workouts";
 
 export default function DayActivityDetailScreen() {
   const navigation = useNavigation();
+  const router = useRouter();
+
   const { selectedDayActivityId } = useLocalSearchParams();
   const { selectedDayActivityName } = useLocalSearchParams();
+
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,7 +42,6 @@ export default function DayActivityDetailScreen() {
         const storedWorkouts = await AsyncStorage.getItem(WORKOUTS_KEY);
         const parsedWorkouts = storedWorkouts ? JSON.parse(storedWorkouts) : [];
 
-        // Filter the workouts to only show those related to the selected dayActivity
         const filteredWorkouts = parsedWorkouts.filter(
           (workout: Workout) => workout.dayActivityId === selectedDayActivityId
         );
@@ -55,14 +60,6 @@ export default function DayActivityDetailScreen() {
     }
   }, [selectedDayActivityId]);
 
-  if (loading) {
-    return (
-      <View style={Containers.screenContainer}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
-
   const getExerciseNameById = (id: string) => {
     const exercise = exercisesData.exercises.find(
       (exercise) => exercise.id === id
@@ -71,22 +68,40 @@ export default function DayActivityDetailScreen() {
   };
 
   const handleExerciseDetailById = (exerciseId: string) => {
-    navigation.navigate("exerciseDetailScreen", { exerciseId });
-    console.log("exerciseID", exerciseId);
+    router.push({
+      pathname: "/(screens)/exerciseDetailScreen",
+      params: { exerciseId },
+    });
   };
 
   const handleEditDayActivity = (selectedDayActivityId: string) => {
-    navigation.navigate("dayActivityEditScreen", { selectedDayActivityId });
-    console.log("dayActivityId", selectedDayActivityId);
+    if (!selectedDayActivityId) {
+      console.error("No Day Activity ID provided.");
+      return;
+    }
+    router.push({
+      pathname: "/(screens)/dayActivityEditScreen",
+      params: { selectedDayActivityId },
+    });
   };
+
+  if (loading) {
+    return (
+      <View style={Containers.screenContainer}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={Containers.screenContainer}>
-      <Text style={styles.headerText}>{selectedDayActivityName}</Text>
+      <TextOrInput isEditable={false} value={selectedDayActivityName} />
 
       <View style={styles.subheaderContainer}>
         <Text style={styles.subheaderText}>Exercises</Text>
-        <TouchableOpacity onPress={handleEditDayActivity}>
+        <TouchableOpacity
+          onPress={() => handleEditDayActivity(selectedDayActivityId)}
+        >
           <Text style={styles.subheaderButton}>Edit Day Activity</Text>
         </TouchableOpacity>
       </View>
@@ -94,9 +109,9 @@ export default function DayActivityDetailScreen() {
       {workouts.length > 0 ? (
         <FlatList
           data={workouts}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.uuid}
           renderItem={({ item }) => (
-            <View style={styles.workoutContainer}>
+            <View>
               <TouchableOpacity
                 onPress={() => handleExerciseDetailById(item.exerciseId)}
               >
@@ -109,21 +124,7 @@ export default function DayActivityDetailScreen() {
                 <Text style={styles.commentText}>Comment: {item.comment}</Text>
               )}
 
-              <View style={styles.tableHeader}>
-                <Text style={styles.tableText}>SET</Text>
-                <Text style={styles.tableText}>KG</Text>
-                <Text style={styles.tableText}>REPS</Text>
-              </View>
-
-              {item.sets.map((set, index) => (
-                <View style={styles.tableHeader}>
-                  <Text style={styles.setText}>{index + 1}</Text>
-                  <Text style={styles.setText}>{item.weight[index]}</Text>
-                  <Text style={styles.setText}>{item.reps[index]}</Text>
-                </View>
-              ))}
-
-              <View style={styles.separator} />
+              <ExerciseItemOrDetails isEditable={false} exercise={item} />
             </View>
           )}
         />
@@ -154,18 +155,7 @@ const styles = StyleSheet.create({
   },
   subheaderButton: {
     fontSize: 18,
-
     color: "#2196F3",
-  },
-  workoutContainer: {
-    backgroundColor: Colors.primary,
-    padding: 16,
-    marginBottom: 16,
-    borderRadius: 8,
-    shadowColor: "white",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
   },
   exerciseText: {
     fontSize: 18,
@@ -178,26 +168,6 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     color: Colors.text,
     marginTop: 8,
-  },
-  tableHeader: {
-    flexDirection: "row",
-    marginVertical: 5,
-  },
-  tableText: {
-    color: Colors.gray,
-    fontWeight: "bold",
-    flex: 1,
-  },
-  setText: {
-    color: Colors.text,
-    fontWeight: "bold",
-    flex: 1,
-    marginStart: 10,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: Colors.gray,
-    marginTop: 16,
   },
   noWorkoutsText: {
     fontSize: 18,

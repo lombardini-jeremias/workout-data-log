@@ -1,7 +1,6 @@
 import {
   Text,
   View,
-  TextInput,
   Alert,
   StyleSheet,
   FlatList,
@@ -16,8 +15,9 @@ import { Containers } from "../../constants/Container";
 import RightSecondaryButton from "../../components/navigation/RightSecondaryButton";
 import CancelButton from "../../components/navigation/CancelButton";
 import ButtonSecondary from "../../components/buttons/ButtonSecondary";
-import { Exercise } from "../../interfaces/Exercise.interfaces";
-import ButtonPrimary from "../../components/buttons/ButtonPrimary";
+import { Exercise } from "../../interfaces/Exercise.interface";
+import TextOrInput from "../../components/reusables/TextOrInput";
+import ExerciseItemOrDetails from "../../components/reusables/ExerciseItemOrDetails";
 
 const formatActivityName = (name: string) => {
   return name.trim().toUpperCase().replace(/\s+/g, "_");
@@ -95,7 +95,7 @@ export default function CreateDayActivity() {
   };
 
   const handleNavigate = () => {
-    router.push("exerciseListScreen");
+    router.push("/(screens)/exerciseListScreen");
   };
 
   const saveDayActivity = async (name: string) => {
@@ -197,67 +197,43 @@ export default function CreateDayActivity() {
     }
   };
 
+  const handleExerciseDetailById = (exerciseId: string) => {
+    router.push({
+      pathname: "/(screens)/exerciseDetailScreen",
+      params: { exerciseId },
+    });
+  };
+
+  const getExerciseNameById = (id: string) => {
+    const exercise = exercisesData.exercises.find(
+      (exercise) => exercise.id === id
+    );
+    return exercise ? exercise.name : "Unknown Exercise";
+  };
+
   return (
     <View style={Containers.screenContainer}>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.inputText}
-          placeholder="Day Activity Name"
-          placeholderTextColor={Colors.gray}
-          value={activityName}
-          onChangeText={(text) => {
-            setActivityName(text);
-          }}
-        />
-      </View>
+      <TextOrInput
+        isEditable={true}
+        value={activityName}
+        placeholder="Day Activity Name"
+        onChangeText={(text) => setActivityName(text)}
+      />
       <View style={styles.separator} />
 
       <FlatList
         data={selectedExercises}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.uuid}
         renderItem={({ item }) => (
-          <View style={styles.exerciseContainer}>
+          <View>
             <Text style={styles.exerciseName}>{item.name}</Text>
-            <Text style={styles.exerciseText}>Equipment: {item.equipment}</Text>
 
-            <View style={styles.tableHeader}>
-              <Text style={styles.columnText}>SET</Text>
-              <Text style={styles.columnText}>KG</Text>
-              <Text style={styles.columnText}>REPS</Text>
-            </View>
-
-            {item.sets.map((set, index) => (
-              <View style={styles.inputRow} key={index}>
-                <Text style={styles.setNumber}>{set.set}</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="KG"
-                  placeholderTextColor={Colors.gray}
-                  keyboardType="numeric"
-                  value={set.kg}
-                  onChangeText={(value) =>
-                    handleSetChange(item.id, index, "kg", value)
-                  }
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Reps"
-                  placeholderTextColor={Colors.gray}
-                  keyboardType="numeric"
-                  value={set.reps}
-                  onChangeText={(value) =>
-                    handleSetChange(item.id, index, "reps", value)
-                  }
-                />
-              </View>
-            ))}
-
-            <ButtonPrimary
-              title="+ Add Set"
-              onPress={() => handleAddSet(item.id)}
+            <ExerciseItemOrDetails
+              isEditable={true}
+              exercise={item}
+              onSetChange={handleSetChange}
+              onAddSet={handleAddSet}
             />
-
-            <View style={styles.separator} />
           </View>
         )}
         ListEmptyComponent={
@@ -273,9 +249,19 @@ export default function CreateDayActivity() {
 }
 
 const styles = StyleSheet.create({
-  title: {},
   inputContainer: {
     paddingTop: 10,
+  },
+  exerciseName: {
+    color: Colors.text,
+    fontSize: 18,
+    fontWeight: "bold",
+    marginVertical: 5,
+  },
+  exerciseText: {
+    color: Colors.text,
+    fontSize: 18,
+    marginBottom: 5,
   },
   inputText: {
     textAlign: "left",
@@ -288,57 +274,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.gray,
     marginVertical: 10,
   },
-  exerciseName: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-  exerciseText: {
-    color: "white",
-    fontSize: 18,
-    marginBottom: 5,
-  },
   noExercisesText: {
     color: Colors.gray,
     textAlign: "center",
     fontSize: 18,
     marginTop: 20,
-  },
-  exerciseContainer: {
-    marginBottom: 20,
-  },
-  tableHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginVertical: 5,
-  },
-  columnText: {
-    color: Colors.gray,
-    fontWeight: "bold",
-    flex: 1,
-    textAlign: "center",
-  },
-  inputRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingBottom: 5,
-  },
-  setNumber: {
-    color: "white",
-    flex: 1,
-    textAlign: "center",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  input: {
-    flex: 1,
-    backgroundColor: Colors.darkGray,
-    color: "white",
-    borderRadius: 5,
-    padding: 10,
-    textAlign: "center",
-    marginHorizontal: 5,
   },
 });

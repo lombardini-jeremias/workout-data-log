@@ -1,135 +1,209 @@
-import React, { useLayoutEffect, useState } from "react";
-import {
-  TextInput,
-  TouchableOpacity,
-  Alert,
-  StyleSheet,
-  View,
-  Text,
-} from "react-native";
-import { v4 as uuidv4 } from "uuid";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useEffect, useLayoutEffect, useState } from "react";
+import { Alert, StyleSheet, View } from "react-native";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 
 import { Colors } from "@/constants/Colors";
 import { Containers } from "@/constants/Container";
-import { useNavigation } from "expo-router";
+
 import SaveButton from "../../components/navigation/RightSecondaryButton";
 import SecondaryInput from "../../components/inputs/SecondaryInput";
 import PrimaryInput from "../../components/inputs/PrimaryInput";
-
-const saveUserExercisesToStorage = async (exercises) => {
-  try {
-    const jsonValue = JSON.stringify(exercises);
-    await AsyncStorage.setItem("userExercises", jsonValue);
-    console.log("EX-LOCAL-STORAGE: ", exercises);
-  } catch (error) {
-    console.error("Error saving user exercises", error);
-  }
-};
-
-const formatExerciseName = (name: string) => {
-  return name.trim().toUpperCase().replace(/\s+/g, "_");
-};
+import { preloadAllDataService } from "../../services/preloadData.service";
+import { ExerciseService } from "../../services/Exercise.service";
+import { Equipment } from "../../interfaces/Equipment.interface";
+import { MuscleGroup } from "../../interfaces/MuscleGroup.interface";
+import { ExerciseType } from "../../interfaces/ExerciseType.interface";
+import { useExerciseForm } from "../../context/ExerciseFormProvider";
 
 export default function CreateExercise() {
   const navigation = useNavigation();
-  const [newExercise, setNewExercise] = useState("");
+  const router = useRouter();
+  const { exerciseForm, setExerciseForm } = useExerciseForm();
 
-  const addExercise = async () => {
-    //   if (!newExercise) {
-    //     Alert.alert("Please enter a name for the exercise");
-    //     return;
-    //   }
-    //   const formattedName = formatExerciseName(newExercise);
-    //   const newUserExercise = { id: uuidv4(), name: formattedName };
-    //   try {
-    //     const jsonValue = await AsyncStorage.getItem("userExercises");
-    //     const userExercises = jsonValue != null ? JSON.parse(jsonValue) : [];
-    //     const exerciseExists = userExercises.some(
-    //       (exercise) => exercise.name === formattedName
-    //     );
-    //     if (exerciseExists) {
-    //       Alert.alert("Exercise already exists!");
-    //       return;
-    //     }
-    //     // Add new exercise to the list
-    //     const updatedUserExercises = [...userExercises, newUserExercise];
-    //     // Save updated list to AsyncStorage
-    //     await saveUserExercisesToStorage(updatedUserExercises);
-    //     Alert.alert("Exercise saved!");
-    //     // Clear the input field
-    //     setNewExercise("");
-    //     navigation.goBack();
-    //   } catch (error) {
-    //     console.error("Error loading or saving exercises", error);
-    //   }
-  };
+  const [equipment, setEquipment] = useState<Equipment["name"] | string>(
+    "Select"
+  );
+  const [primaryMuscleGroup, setPrimaryMuscleGroup] = useState<
+    MuscleGroup["name"] | string
+  >("Select");
+  const [secondaryMuscleGroup, setSecondaryMuscleGroup] = useState<
+    MuscleGroup["name"] | string
+  >("Select");
+  const [exerciseType, setExerciseType] = useState<
+    ExerciseType["type"] | string
+  >("Select");
+
+  const { selectedEquipment, selectedMuscleGroup, selectedExerciseType } =
+    useLocalSearchParams();
+
+  useEffect(() => {
+    const loadPreloadedData = async () => {
+      await preloadAllDataService();
+    };
+    loadPreloadedData();
+
+    if (selectedEquipment) {
+      setEquipment(
+        Array.isArray(selectedEquipment)
+          ? selectedEquipment[0]
+          : selectedEquipment
+      );
+    }
+
+    if (selectedMuscleGroup) {
+      setMuscleGroup(
+        Array.isArray(selectedMuscleGroup)
+          ? selectedMuscleGroup[0]
+          : selectedMuscleGroup
+      );
+    }
+
+    if (selectedExerciseType) {
+      setExerciseType(
+        Array.isArray(selectedExerciseType)
+          ? selectedExerciseType[0]
+          : selectedExerciseType
+      );
+    }
+
+    // if (selectedForce) {
+    //   setForce(Array.isArray(selectedForce) ? selectedForce[0] : selectedForce);
+    // }
+
+    // if (selectedMechanic) {
+    //   setMechanic(
+    //     Array.isArray(selectedMechanic) ? selectedMechanic[0] : selectedMechanic
+    //   );
+    // }
+  }, [selectedEquipment, selectedMuscleGroup, selectedExerciseType]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () => <SaveButton onPress={addExercise} />,
+      headerRight: () => <SaveButton title={"Save"} onPress={handleSave} />,
     });
-  }, [navigation]);
+  }, [navigation, exerciseForm]);
 
-  const handleSave = () => {
-    // if (!newExercise) {
-    //   Alert.alert("Please enter a name for the exercise");
-    //   return;
-    // }
-    // const formattedName = formatExerciseName(newExercise);
-    // const newUserExercise = { id: uuidv4(), name: formattedName };
-    // try {
-    //   const jsonValue = await AsyncStorage.getItem("userExercises");
-    //   const userExercises = jsonValue != null ? JSON.parse(jsonValue) : [];
-    //   const exerciseExists = userExercises.some(
-    //     (exercise) => exercise.name === formattedName
-    //   );
-    //   if (exerciseExists) {
-    //     Alert.alert("Exercise already exists!");
-    //     return;
-    //   }
-    //   // Add new exercise to the list
-    //   const updatedUserExercises = [...userExercises, newUserExercise];
-    //   // Save updated list to AsyncStorage
-    //   await saveUserExercisesToStorage(updatedUserExercises);
-    //   Alert.alert("Exercise saved!");
-    //   // Clear the input field
-    //   setNewExercise("");
-    //   navigation.goBack();
-    // } catch (error) {
-    //   console.error("Error loading or saving exercises", error);
-    // }
+  const handleSave = async () => {
+    const {
+      name,
+      equipmentName,
+      primaryMuscleGroupName,
+      secondaryMuscleGroupName,
+      exerciseTypeName,
+    } = exerciseForm;
+
+    if (!name || name.trim() === "") {
+      Alert.alert("Please enter a name for the exercise");
+      return;
+    }
+    if (equipmentName === "Select") {
+      Alert.alert("Please select equipment");
+      return;
+    }
+    if (primaryMuscleGroupName === "Select") {
+      Alert.alert("Please select a primary muscle group");
+      return;
+    }
+    if (exerciseTypeName === "Select") {
+      Alert.alert("Please select an exercise type");
+      return;
+    }
+
+    const formattedExercise = {
+      name: exerciseForm.name.trim(),
+      equipmentId: exerciseForm.equipmentId,
+      primaryMuscleGroupId: exerciseForm.primaryMuscleGroupId,
+      secondaryMuscleGroupId: exerciseForm.secondaryMuscleGroupId,
+      exerciseTypeId: exerciseForm.exerciseTypeId,
+    };
+
+    try {
+      const savedExercise = await ExerciseService.create(formattedExercise);
+      console.log("Newly created exercise:", savedExercise);
+
+      Alert.alert("Success", "Exercise created successfully!");
+      setExerciseForm({
+        ...exerciseForm,
+        name: "",
+      });
+
+      navigation.goBack();
+    } catch (error) {
+      if (error instanceof Error) {
+        Alert.alert("Error", error.message);
+      } else {
+        Alert.alert(
+          "Unknown Error",
+          "An unknown error occurred while saving the exercise."
+        );
+      }
+    }
   };
 
-  const handleSelectEquipment = () => {};
+  const handleSelectingEquipment = () => {
+    setExerciseForm({
+      ...exerciseForm,
+      name: exerciseForm.name.trim(),
+    });
+    router.push("/(screens)/equipmentSelectionScreen");
+  };
+
+  const handleSelectingMuscleGroup = () => {
+    setExerciseForm({
+      ...exerciseForm,
+      name: exerciseForm.name.trim(),
+    });
+    router.push("/(screens)/muscleGroupSelectionScreen");
+  };
+
+  const handleSecondarySelectingMuscleGroup = () => {
+    setExerciseForm({
+      ...exerciseForm,
+      name: exerciseForm.name.trim(),
+    });
+    router.push("/(screens)/muscleGroupSecondarySelectionScreen");
+  };
+
+  const handleSelectingExerciseType = () => {
+    setExerciseForm({
+      ...exerciseForm,
+      name: exerciseForm.name.trim(),
+    });
+    router.push("/(screens)/exerciseTypeSelectionScreen");
+  };
 
   return (
     <View style={Containers.screenContainer}>
       <View>
         <PrimaryInput
           placeholder={"Exercise Name"}
-          value={newExercise}
-          onChangeText={setNewExercise}
+          value={exerciseForm.name}
+          onChangeText={(text) =>
+            setExerciseForm({ ...exerciseForm, name: text })
+          }
         />
-        <SecondaryInput title={"Equipment"} onPress={handleSelectEquipment} />
-
-        <SecondaryInput title={"Force"} onPress={handleSelectEquipment} />
-
-        <SecondaryInput title={"Level"} onPress={handleSelectEquipment} />
-
-        <SecondaryInput title={"Mechanic"} onPress={handleSelectEquipment} />
-
+        <SecondaryInput
+          title={"Equipment Type"}
+          onPress={handleSelectingEquipment}
+          selectedItem={exerciseForm.equipmentName || "Select"}
+        />
         <SecondaryInput
           title={"Primary Muscle"}
-          onPress={handleSelectEquipment}
+          onPress={handleSelectingMuscleGroup}
+          selectedItem={exerciseForm.primaryMuscleGroupName || "Select"}
         />
 
         <SecondaryInput
-          title={"Primary Muscle"}
-          onPress={handleSelectEquipment}
+          title={"Secondary Muscle"}
+          onPress={handleSecondarySelectingMuscleGroup}
+          selectedItem={exerciseForm.secondaryMuscleGroupName || "Select"}
         />
 
-        <SecondaryInput title={"Category"} onPress={handleSelectEquipment} />
+        <SecondaryInput
+          title={"Exercise Type"}
+          onPress={handleSelectingExerciseType}
+          selectedItem={exerciseForm.exerciseTypeName || "Select"}
+        />
       </View>
     </View>
   );

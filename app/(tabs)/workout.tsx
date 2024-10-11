@@ -6,14 +6,16 @@ import {
   View,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback, useEffect, useState } from "react";
-import { Colors } from "@/constants/Colors";
-
-import { Containers } from "../../constants/Container";
-import ButtonPrimary from "../../components/buttons/ButtonPrimary";
-import { DayActivity } from "../../interfaces/DayActivity.interfaces";
+import { useCallback, useState } from "react";
 import { useFocusEffect, useRouter } from "expo-router";
 
+import { Colors } from "@/constants/Colors";
+import { Containers } from "@/constants/Container";
+
+import ButtonPrimary from "@/components/buttons/ButtonPrimary";
+import { DayActivity } from "@/interfaces/DayActivity.interface";
+
+// loadData
 const loadDayActivitiesFromStorage = async () => {
   try {
     const jsonValue = await AsyncStorage.getItem("dayActivities");
@@ -36,7 +38,7 @@ export default function Workout() {
 
   const handleSelectDayActivity = (selectedDayActivity: DayActivity) => {
     router.push({
-      pathname: "dayActivityDetailScreen",
+      pathname: "/(screens)/dayActivityDetailScreen",
       params: {
         selectedDayActivityId: selectedDayActivity.uuid,
         selectedDayActivityName: selectedDayActivity.name,
@@ -51,10 +53,6 @@ export default function Workout() {
         setDayActivities(activities);
       };
       loadDayActivities();
-
-      return () => {
-        console.log("Screen unfocused");
-      };
     }, [])
   );
 

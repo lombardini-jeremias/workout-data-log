@@ -1,18 +1,23 @@
 import React from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
-import { Colors } from "@/constants/Colors"; // Adjust the path as necessary
+import { Colors } from "@/constants/Colors";
 
 interface SecondaryInputProps {
   title: string;
   onPress: () => void;
+  selectedItem: string;
 }
 
-const SecondaryInput: React.FC<SecondaryInputProps> = ({ title, onPress }) => {
+const SecondaryInput: React.FC<SecondaryInputProps> = ({
+  title,
+  onPress,
+  selectedItem,
+}) => {
   return (
     <View>
       <TouchableOpacity onPress={onPress}>
         <Text style={styles.inputText}>{title}</Text>
-        <Text style={styles.inputSelect}>Select</Text>
+        <Text style={styles.inputSelect}>{selectedItem || "Select"}</Text>
         <View style={styles.separator} />
       </TouchableOpacity>
     </View>

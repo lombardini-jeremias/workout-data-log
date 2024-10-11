@@ -92,6 +92,56 @@ export default function StackLayout() {
           headerShown: true,
         }}
       />
+      <Stack.Screen
+        name="equipmentSelectionScreen"
+        options={{
+          title: "Select Equipment Type",
+          headerBackTitle: "Back",
+          headerStyle: {
+            backgroundColor: Colors.dark.background,
+          },
+          headerTintColor: Colors.secondary,
+          headerShown: true,
+        }}
+      />
+
+      <Stack.Screen
+        name="muscleGroupSelectionScreen"
+        options={{
+          title: "Select Muscle Group Type",
+          headerBackTitle: "Back",
+          headerStyle: {
+            backgroundColor: Colors.dark.background,
+          },
+          headerTintColor: Colors.secondary,
+          headerShown: true,
+        }}
+      />
+
+      <Stack.Screen
+        name="muscleGroupSecondarySelectionScreen"
+        options={{
+          title: "Select Muscle Group Type",
+          headerBackTitle: "Back",
+          headerStyle: {
+            backgroundColor: Colors.dark.background,
+          },
+          headerTintColor: Colors.secondary,
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
+        name="exerciseTypeSelectionScreen"
+        options={{
+          title: "Select Exercise Type",
+          headerBackTitle: "Back",
+          headerStyle: {
+            backgroundColor: Colors.dark.background,
+          },
+          headerTintColor: Colors.secondary,
+          headerShown: true,
+        }}
+      />
     </Stack>
   );
 }

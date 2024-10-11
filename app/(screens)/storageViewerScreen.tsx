@@ -52,7 +52,7 @@ const StorageViewerScreen = () => {
       <Button
         title="Reload Storage"
         onPress={loadStorageData}
-        color={Colors.text}
+        color={"black"}
       />
       {storageData.map(([key, value], index) => (
         <View key={index} style={styles.storageItem}>
