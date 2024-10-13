@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { v4 as uuidv4 } from "uuid";
+import "react-native-get-random-values";
 import { Exercise } from "../interfaces/Exercise.interface";
 
 export class ExerciseService {
@@ -64,7 +65,7 @@ export class ExerciseService {
       if (!exercise) {
         throw new Error(`Exercise with UUID: ${uuid} not found.`);
       }
-      console.log("GET-BY-ID", exercise);
+
       return exercise;
     } catch (error) {
       throw new Error("Error retrieving exercise: " + error.message);

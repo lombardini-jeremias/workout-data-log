@@ -16,12 +16,13 @@
 //   rpe?: number;
 // }
 
+import { WorkoutExercise } from "./WorkoutExercise.interface";
+
 export interface Workout {
   id: string;
   name: string;
   startTime?: string;
   endTime?: string;
   description?: string;
-  exercisesId: string[]; // List of exercises performed in this workout (association)
-  // exercises: WorkoutExercise[];
+  exercises: WorkoutExercise[];// List of exercises performed in this workout (association)
 }

@@ -1,4 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
+import "react-native-get-random-values";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Set } from "../interfaces/Set.interface";
 import { WorkoutExercise } from "../interfaces/WorkoutExercise.interface";
@@ -15,75 +17,59 @@ export class SetService {
   ): Promise<WorkoutExercise | undefined> {
     try {
       const newSet: Set = {
-        id: uuidv4(),               // Generate unique ID for the set
-        ...setData,                 // Spread the rest of the setData into the newSet
+        id: uuidv4(),
+        ...setData,
       };
-
-      // Retrieve the workout and corresponding exercise
       const workout = await WorkoutService.getById(workoutId);
-      if (!workout) {
-        throw new Error(`Workout with ID: ${workoutId} not found.`);
-      }
-
-      const storedWorkoutExercises = await AsyncStorage.getItem(this.STORAGE_KEY);
+      if (!workout) throw new Error(`Workout with ID: ${workoutId} not found.`);
+      const storedWorkoutExercises = await AsyncStorage.getItem(
+        this.STORAGE_KEY
+      );
       const workoutExercises: WorkoutExercise[] = storedWorkoutExercises
         ? JSON.parse(storedWorkoutExercises)
         : [];
-
-      // Find the correct workoutExercise instance
       const workoutExercise = workoutExercises.find(
         (we) => we.workoutId === workoutId && we.exerciseId === exerciseId
       );
-
-      if (!workoutExercise) {
+      if (!workoutExercise)
         throw new Error(`Workout Exercise with ID: ${exerciseId} not found.`);
-      }
-
-      // Add the new set to the workout exercise
       workoutExercise.sets.push(newSet);
-
-      // Save back to AsyncStorage
-      await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(workoutExercises));
+      await AsyncStorage.setItem(
+        this.STORAGE_KEY,
+        JSON.stringify(workoutExercises)
+      );
       return workoutExercise;
     } catch (error) {
-      if (error instanceof Error) {
-        throw new Error("Error creating set: " + error.message);
-      } else {
-        throw new Error("Unknown error occurred while creating set.");
-      }
+      throw new Error(`Error creating set: ${error.message}`);
     }
   }
 
-  // GET Sets for a specific WorkoutExercise
+  // GET Sets by WorkoutExercise
+  // It retrieves all sets for a specific exercise within a workout.
+  // This is useful when displaying the performance history for that exercise.
   public static async getSetsByExercise(
     workoutId: string,
     exerciseId: string
   ): Promise<Set[] | undefined> {
     try {
-      const storedWorkoutExercises = await AsyncStorage.getItem(this.STORAGE_KEY);
+      const storedWorkoutExercises = await AsyncStorage.getItem(
+        this.STORAGE_KEY
+      );
       const workoutExercises: WorkoutExercise[] = storedWorkoutExercises
         ? JSON.parse(storedWorkoutExercises)
         : [];
-
       const workoutExercise = workoutExercises.find(
         (we) => we.workoutId === workoutId && we.exerciseId === exerciseId
       );
-
-      if (!workoutExercise) {
+      if (!workoutExercise)
         throw new Error(`Workout Exercise with ID: ${exerciseId} not found.`);
-      }
-
       return workoutExercise.sets;
     } catch (error) {
-      if (error instanceof Error) {
-        throw new Error("Error retrieving sets: " + error.message);
-      } else {
-        throw new Error("Unknown error occurred while retrieving sets.");
-      }
+      throw new Error(`Error retrieving sets: ${error.message}`);
     }
   }
 
-  // UPDATE a specific Set
+  // UPDATE Set
   public static async updateSet(
     workoutId: string,
     exerciseId: string,
@@ -91,77 +77,59 @@ export class SetService {
     updates: Partial<Set>
   ): Promise<Set | undefined> {
     try {
-      const storedWorkoutExercises = await AsyncStorage.getItem(this.STORAGE_KEY);
+      const storedWorkoutExercises = await AsyncStorage.getItem(
+        this.STORAGE_KEY
+      );
       const workoutExercises: WorkoutExercise[] = storedWorkoutExercises
         ? JSON.parse(storedWorkoutExercises)
         : [];
-
       const workoutExercise = workoutExercises.find(
         (we) => we.workoutId === workoutId && we.exerciseId === exerciseId
       );
-
-      if (!workoutExercise) {
+      if (!workoutExercise)
         throw new Error(`Workout Exercise with ID: ${exerciseId} not found.`);
-      }
-
       const setIndex = workoutExercise.sets.findIndex((s) => s.id === setId);
-      if (setIndex === -1) {
-        throw new Error(`Set with ID: ${setId} not found.`);
-      }
-
-      // Apply updates to the existing set
+      if (setIndex === -1) throw new Error(`Set with ID: ${setId} not found.`);
       const updatedSet = { ...workoutExercise.sets[setIndex], ...updates };
       workoutExercise.sets[setIndex] = updatedSet;
-
-      // Save back to AsyncStorage
-      await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(workoutExercises));
+      await AsyncStorage.setItem(
+        this.STORAGE_KEY,
+        JSON.stringify(workoutExercises)
+      );
       return updatedSet;
     } catch (error) {
-      if (error instanceof Error) {
-        throw new Error("Error updating set: " + error.message);
-      } else {
-        throw new Error("Unknown error occurred while updating set.");
-      }
+      throw new Error(`Error updating set: ${error.message}`);
     }
   }
 
-  // DELETE a specific Set
+  // DELETE Set
   public static async deleteSet(
     workoutId: string,
     exerciseId: string,
     setId: string
   ): Promise<boolean> {
     try {
-      const storedWorkoutExercises = await AsyncStorage.getItem(this.STORAGE_KEY);
+      const storedWorkoutExercises = await AsyncStorage.getItem(
+        this.STORAGE_KEY
+      );
       const workoutExercises: WorkoutExercise[] = storedWorkoutExercises
         ? JSON.parse(storedWorkoutExercises)
         : [];
-
       const workoutExercise = workoutExercises.find(
         (we) => we.workoutId === workoutId && we.exerciseId === exerciseId
       );
-
-      if (!workoutExercise) {
+      if (!workoutExercise)
         throw new Error(`Workout Exercise with ID: ${exerciseId} not found.`);
-      }
-
       const setIndex = workoutExercise.sets.findIndex((s) => s.id === setId);
-      if (setIndex === -1) {
-        throw new Error(`Set with ID: ${setId} not found.`);
-      }
-
-      // Remove the set from the workoutExercise
+      if (setIndex === -1) throw new Error(`Set with ID: ${setId} not found.`);
       workoutExercise.sets.splice(setIndex, 1);
-
-      // Save back to AsyncStorage
-      await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(workoutExercises));
+      await AsyncStorage.setItem(
+        this.STORAGE_KEY,
+        JSON.stringify(workoutExercises)
+      );
       return true;
     } catch (error) {
-      if (error instanceof Error) {
-        throw new Error("Error deleting set: " + error.message);
-      } else {
-        throw new Error("Unknown error occurred while deleting set.");
-      }
+      throw new Error(`Error deleting set: ${error.message}`);
     }
   }
 }

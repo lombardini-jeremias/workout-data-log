@@ -123,7 +123,7 @@ export default function dayActivityEditScreen() {
   };
 
   const handleAddExercise = () => {
-    router.push("/(screens)/exerciseListScreen");
+    router.push("/(screens)/personalExerciseListScreen");
   };
 
   const handleUpdate = async () => {

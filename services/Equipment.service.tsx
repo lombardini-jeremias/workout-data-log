@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { v4 as uuidv4 } from "uuid";
+import "react-native-get-random-values";
 import { Equipment } from "../interfaces/Equipment.interface";
 
 export class EquipmentService {
@@ -47,13 +48,11 @@ export class EquipmentService {
     }
 
     try {
-      // Retrieve equipment list from AsyncStorage
       const storedEquipment = await AsyncStorage.getItem(this.STORAGE_KEY);
       const equipmentList: Equipment[] = storedEquipment
         ? JSON.parse(storedEquipment)
         : [];
 
-      // Find the equipment by UUID
       const equipment = equipmentList.find((e) => e.id === uuid);
       if (!equipment) {
         throw new Error(`Equipment with UUID: ${uuid} not found.`);

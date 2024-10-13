@@ -27,7 +27,7 @@ export default function ExerciseTypeSelectionScreen() {
   const handleSelect = (exerciseType: ExerciseType) => {
     setExerciseForm((prev) => ({
       ...prev,
-      exerciseTypeId: exerciseType.uuid,
+      exerciseTypeId: exerciseType.id,
       exerciseTypeName: exerciseType.type,
     }));
     router.back();

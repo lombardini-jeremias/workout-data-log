@@ -17,7 +17,7 @@ export default function StackLayout() {
           headerShown: true,
         }}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="exerciseListScreen"
         options={{
           title: "Exercise List",
@@ -29,7 +29,34 @@ export default function StackLayout() {
           headerTintColor: Colors.secondary,
           headerShown: true,
         }}
+      /> */}
+      <Stack.Screen
+        name="personalExerciseListScreen"
+        options={{
+          title: "Personal Exercise List",
+          headerBackTitle: "Back",
+          headerBackTitleStyle: {},
+          headerStyle: {
+            backgroundColor: Colors.dark.background,
+          },
+          headerTintColor: Colors.secondary,
+          headerShown: true,
+        }}
       />
+      <Stack.Screen
+        name="personalExerciseDetailScreen"
+        options={{
+          title: "Personal Exercise Detail",
+          headerBackTitle: "Back",
+          headerBackTitleStyle: {},
+          headerStyle: {
+            backgroundColor: Colors.dark.background,
+          },
+          headerTintColor: Colors.secondary,
+          headerShown: true,
+        }}
+      />
+
       <Stack.Screen
         name="createExerciseScreen"
         options={{
@@ -42,7 +69,7 @@ export default function StackLayout() {
           headerShown: true,
         }}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="exerciseDetailScreen"
         options={{
           title: "Exercise Detail",
@@ -53,7 +80,7 @@ export default function StackLayout() {
           headerTintColor: Colors.secondary,
           headerShown: true,
         }}
-      />
+      /> */}
 
       <Stack.Screen
         name="createDayActivityScreen"

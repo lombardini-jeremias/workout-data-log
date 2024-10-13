@@ -1,5 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { v4 as uuidv4 } from "uuid";
+import "react-native-get-random-values";
+
 import { ExerciseType } from "../interfaces/ExerciseType.interface";
 
 export class ExerciseTypeService {

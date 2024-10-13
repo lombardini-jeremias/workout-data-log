@@ -2,8 +2,8 @@ export interface Exercise {
   id: string;
   name: string;
   equipmentId: string;
-  primaryMusclesGroupId: string;
-  secondaryMusclesGroupId: string | string[];
+  primaryMuscleGroupId: string;
+  secondaryMuscleGroupId: string | string[];
   exerciseTypeId: string;
   forceType?: "pull" | "push" | "static";
   mechanicType?: "compound" | "isolation";

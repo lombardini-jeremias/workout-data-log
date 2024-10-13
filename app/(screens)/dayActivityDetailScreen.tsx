@@ -14,7 +14,6 @@ import { Colors } from "../../constants/Colors";
 import { Containers } from "../../constants/Container";
 import exercisesData from "../../db/exercises.json";
 import BackButton from "../../components/navigation/BackButton";
-import ExerciseDetails from "../../components/reusables/ExerciseDetail";
 import TextOrInput from "../../components/reusables/TextOrInput";
 import ExerciseItemOrDetails from "../../components/reusables/ExerciseItemOrDetails";
 
@@ -69,7 +68,7 @@ export default function DayActivityDetailScreen() {
 
   const handleExerciseDetailById = (exerciseId: string) => {
     router.push({
-      pathname: "/(screens)/exerciseDetailScreen",
+      pathname: "/(screens)/personalExerciseDetailScreen",
       params: { exerciseId },
     });
   };
