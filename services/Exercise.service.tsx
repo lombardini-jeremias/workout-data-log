@@ -7,7 +7,7 @@ export class ExerciseService {
 
   // CREATE Exercise
   public static async create(
-    exerciseData: Omit<Exercise, "uuid">
+    exerciseData: Omit<Exercise, "id">
   ): Promise<Exercise> {
     if (!exerciseData) {
       throw new Error("Exercise data is missing.");
@@ -15,7 +15,7 @@ export class ExerciseService {
 
     try {
       const newExercise: Exercise = {
-        uuid: uuidv4(),
+        id: uuidv4(),
         ...exerciseData,
       };
 
@@ -60,11 +60,11 @@ export class ExerciseService {
         : [];
 
       // Find the exercise with the given UUID
-      const exercise = exercises.find((e) => e.uuid === uuid);
+      const exercise = exercises.find((e) => e.id === uuid);
       if (!exercise) {
         throw new Error(`Exercise with UUID: ${uuid} not found.`);
       }
-
+      console.log("GET-BY-ID", exercise);
       return exercise;
     } catch (error) {
       throw new Error("Error retrieving exercise: " + error.message);
@@ -100,7 +100,7 @@ export class ExerciseService {
         : [];
 
       // Find the exercise to update
-      const exerciseIndex = exercises.findIndex((e) => e.uuid === uuid);
+      const exerciseIndex = exercises.findIndex((e) => e.id === uuid);
       if (exerciseIndex === -1) {
         throw new Error(`Exercise with UUID: ${uuid} not found.`);
       }
@@ -129,7 +129,7 @@ export class ExerciseService {
         : [];
 
       // Find the exercise to delete
-      const exerciseIndex = exercises.findIndex((e) => e.uuid === uuid);
+      const exerciseIndex = exercises.findIndex((e) => e.id === uuid);
       if (exerciseIndex === -1) {
         throw new Error(`Exercise with UUID: ${uuid} not found.`);
       }

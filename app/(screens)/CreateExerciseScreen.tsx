@@ -15,7 +15,7 @@ import { MuscleGroup } from "../../interfaces/MuscleGroup.interface";
 import { ExerciseType } from "../../interfaces/ExerciseType.interface";
 import { useExerciseForm } from "../../context/ExerciseFormProvider";
 
-export default function CreateExercise() {
+export default function CreateExerciseScreen() {
   const navigation = useNavigation();
   const router = useRouter();
   const { exerciseForm, setExerciseForm } = useExerciseForm();

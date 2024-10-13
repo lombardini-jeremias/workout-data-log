@@ -2,14 +2,12 @@ import { v4 as uuidv4 } from "uuid";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Workout } from "../interfaces/Workout.interface";
 
-let workouts: Workout[] = [];
-
 export class WorkoutService {
   private static readonly STORAGE_KEY = "workouts";
 
   // CREATE Workout
   public static async create(
-    workoutData: Omit<Workout, "uuid">
+    workoutData: Omit<Workout, "id">
   ): Promise<Workout> {
     if (!workoutData) {
       throw new Error("Workout data is missing.");
@@ -17,7 +15,7 @@ export class WorkoutService {
 
     try {
       const newWorkout: Workout = {
-        uuid: uuidv4(),
+        id: uuidv4(),
         ...workoutData,
       };
 
@@ -31,7 +29,11 @@ export class WorkoutService {
 
       return newWorkout;
     } catch (error) {
-      throw new Error("Error creating a new workout: " + error.message);
+      if (error instanceof Error) {
+        throw new Error("Error creating new Workout: " + error.message);
+      } else {
+        throw new Error("Unknown error occurred while creating new Workout.");
+      }
     }
   }
 
@@ -49,14 +51,20 @@ export class WorkoutService {
         : [];
 
       // Find the workout with the given UUID
-      const workout = workouts.find((w) => w.uuid === uuid);
+      const workout = workouts.find((w) => w.id === uuid);
       if (!workout) {
         throw new Error(`Workout with UUID: ${uuid} not found.`);
       }
 
       return workout;
     } catch (error) {
-      throw new Error("Error retrieving workout: " + error.message);
+      if (error instanceof Error) {
+        throw new Error("Error searching Workout by UUID" + error.message);
+      } else {
+        throw new Error(
+          "Unknown error occurred while searching Workout by UUID."
+        );
+      }
     }
   }
 
@@ -71,7 +79,11 @@ export class WorkoutService {
 
       return workouts;
     } catch (error) {
-      throw new Error("Error retrieving all workouts: " + error.message);
+      if (error instanceof Error) {
+        throw new Error("Error retrieving all workouts" + error.message);
+      } else {
+        throw new Error("Unknown error occurred retrieving all workouts.");
+      }
     }
   }
 
@@ -92,23 +104,22 @@ export class WorkoutService {
         : [];
 
       // Find the workout to update
-      const workoutIndex = workouts.findIndex((w) => w.uuid === uuid);
+      const workoutIndex = workouts.findIndex((w) => w.id === uuid);
       if (workoutIndex === -1) {
         throw new Error(`Workout with UUID: ${uuid} not found.`);
       }
-
-      // Merge updates into the workout
       const updatedWorkout = { ...workouts[workoutIndex], ...updates };
-
-      // Update the workout in the list
       workouts[workoutIndex] = updatedWorkout;
 
-      // Save updated workouts list back to AsyncStorage
       await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(workouts));
 
       return updatedWorkout;
     } catch (error) {
-      throw new Error("Error updating workout: " + error.message);
+      if (error instanceof Error) {
+        throw new Error("Error updating workout: " + error.message);
+      } else {
+        throw new Error("Unknown error occurred updating workout.");
+      }
     }
   }
 
@@ -119,27 +130,25 @@ export class WorkoutService {
     }
 
     try {
-      // Retrieve existing workouts from AsyncStorage
       const storedWorkouts = await AsyncStorage.getItem(this.STORAGE_KEY);
       const workouts: Workout[] = storedWorkouts
         ? JSON.parse(storedWorkouts)
         : [];
 
-      // Find the workout to delete
-      const workoutIndex = workouts.findIndex((w) => w.uuid === uuid);
+      const workoutIndex = workouts.findIndex((w) => w.id === uuid);
       if (workoutIndex === -1) {
         throw new Error(`Workout with UUID: ${uuid} not found.`);
       }
-
-      // Remove the workout from the array
       workouts.splice(workoutIndex, 1);
-
-      // Save updated workouts list back to AsyncStorage
       await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(workouts));
 
       return true;
     } catch (error) {
-      throw new Error("Error deleting workout: " + error.message);
+      if (error instanceof Error) {
+        throw new Error("Error deleting workout: " + error.message);
+      } else {
+        throw new Error("Unknown error occurred deleting workout.");
+      }
     }
   }
 }

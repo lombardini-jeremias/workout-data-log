@@ -1,14 +1,8 @@
-import {
-  Text,
-  View,
-  Alert,
-  StyleSheet,
-  FlatList,
-} from "react-native";
+import { Text, View, Alert, StyleSheet, FlatList } from "react-native";
 import React, { useLayoutEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import "react-native-get-random-values";
-import { v4 as uuid } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { Colors } from "../../constants/Colors";
 import { Containers } from "../../constants/Container";
@@ -18,6 +12,7 @@ import ButtonSecondary from "../../components/buttons/ButtonSecondary";
 import { Exercise } from "../../interfaces/Exercise.interface";
 import TextOrInput from "../../components/reusables/TextOrInput";
 import ExerciseItemOrDetails from "../../components/reusables/ExerciseItemOrDetails";
+import { WorkoutService } from "../../services/Workout.service";
 
 const formatActivityName = (name: string) => {
   return name.trim().toUpperCase().replace(/\s+/g, "_");
@@ -26,11 +21,12 @@ const formatActivityName = (name: string) => {
 const DAY_ACTIVITIES_KEY = "dayActivities";
 const WORKOUTS_KEY = "workouts";
 
-export default function CreateDayActivity() {
+export default function CreateDayActivityScreen() {
   const navigation = useNavigation();
   const router = useRouter();
 
   const [activityName, setActivityName] = useState("");
+
   const { selectedExercises: selectedExercisesString } = useLocalSearchParams();
   const [selectedExercises, setSelectedExercises] = useState(() => {
     let exercisesArray: Exercise[] = [];
@@ -59,11 +55,14 @@ export default function CreateDayActivity() {
     });
   }, [navigation, activityName]);
 
+  // CHECK CANCEL BUTTON TO CLEAN STATES AND NAVIGATE TO WORKOUT-TAB
   const handleCancelButton = () => {
-    navigation.navigate("workout");
+    router.push({
+      pathname: "/(tabs)/workout",
+    });
   };
 
-  const handleSetChange = (exerciseId, setIndex, field, value) => {
+  const handleSetChange = (exerciseId: string, setIndex, field, value) => {
     setSelectedExercises((prevExercises) =>
       prevExercises.map((exercise) =>
         exercise.id === exerciseId
@@ -78,7 +77,7 @@ export default function CreateDayActivity() {
     );
   };
 
-  const handleAddSet = (exerciseId) => {
+  const handleAddSet = (exerciseId: string) => {
     setSelectedExercises((prevExercises) =>
       prevExercises.map((exercise) =>
         exercise.id === exerciseId
@@ -98,36 +97,35 @@ export default function CreateDayActivity() {
     router.push("/(screens)/exerciseListScreen");
   };
 
-  const saveDayActivity = async (name: string) => {
-    const formattedName = formatActivityName(name);
-    const newDayActivity = { uuid: uuid(), name: formattedName };
-    try {
-      const jsonValue = await AsyncStorage.getItem(DAY_ACTIVITIES_KEY);
-      const dayActivities = jsonValue ? JSON.parse(jsonValue) : [];
-      const activityExists = dayActivities.some(
-        (activity) => activity.name === formattedName
-      );
-      if (activityExists) {
-        Alert.alert("Activity with this name already exists.");
-        return false;
-      }
+  // const saveDayActivity = async (name: string) => {
+  //   const formattedName = formatActivityName(name);
+  //   const newDayActivity = { uuid: uuid(), name: formattedName };
+  //   try {
+  //     const jsonValue = await AsyncStorage.getItem(DAY_ACTIVITIES_KEY);
+  //     const dayActivities = jsonValue ? JSON.parse(jsonValue) : [];
+  //     const activityExists = dayActivities.some(
+  //       (activity: any) => activity.name === formattedName
+  //     );
+  //     if (activityExists) {
+  //       Alert.alert("Activity with this name already exists.");
+  //       return false;
+  //     }
 
-      const updatedDayActivities = [...dayActivities, newDayActivity];
-      await AsyncStorage.setItem(
-        DAY_ACTIVITIES_KEY,
-        JSON.stringify(updatedDayActivities)
-      );
-      console.log("DayActivity saved successfully!");
-      setActivityName("");
-      return newDayActivity;
-    } catch (error) {
-      console.error("Error saving day activity", error);
-      return false;
-    }
-  };
+  //     const updatedDayActivities = [...dayActivities, newDayActivity];
+  //     await AsyncStorage.setItem(
+  //       DAY_ACTIVITIES_KEY,
+  //       JSON.stringify(updatedDayActivities)
+  //     );
+  //     console.log("DayActivity saved successfully!");
+  //     setActivityName("");
+  //     return newDayActivity;
+  //   } catch (error) {
+  //     console.error("Error saving day activity", error);
+  //     return false;
+  //   }
+  // };
 
   const saveWorkout = async (
-    dayActivityId: string,
     selectedExercises: Exercise[]
   ) => {
     const workouts = selectedExercises.map((exercise) => {
@@ -138,14 +136,14 @@ export default function CreateDayActivity() {
       );
 
       return {
-        uuid: uuid(),
+        uuid: uuidv4(),
+        title: title,
         date: Date.now().toString(),
         exerciseId: exercise.id,
-        dayActivityId: dayActivityId,
         sets: setsArray,
         reps: repsArray,
         weight: weightArray,
-        comment: "",
+        exerciseNote: "",
       };
     });
 
@@ -171,45 +169,28 @@ export default function CreateDayActivity() {
       return;
     }
     try {
-      const savedDayActivity = await saveDayActivity(activityName);
-      if (savedDayActivity && savedDayActivity.uuid) {
-        console.log(
-          "Activity saved. Proceeding to save workouts...",
-          savedDayActivity
-        );
+      const newWorkout = await WorkoutService.create();
 
-        const successWorkoutsSave = await saveWorkout(
-          savedDayActivity.uuid,
-          selectedExercises
-        );
-        if (successWorkoutsSave) {
-          Alert.alert("Workouts and Day Activity saved successfully!");
-          router.push("workout");
-        } else {
-          Alert.alert("Error saving workouts. Please try again.");
-        }
-      } else {
-        Alert.alert("Error saving day activity. Please try again.");
-      }
+
     } catch (error) {
       console.error("Error saving workout & day activity", error);
       Alert.alert("An error occurred. Please try again.");
     }
   };
 
-  const handleExerciseDetailById = (exerciseId: string) => {
-    router.push({
-      pathname: "/(screens)/exerciseDetailScreen",
-      params: { exerciseId },
-    });
-  };
+  // const handleExerciseDetailById = (exerciseId: string) => {
+  //   router.push({
+  //     pathname: "/(screens)/exerciseDetailScreen",
+  //     params: { exerciseId },
+  //   });
+  // };
 
-  const getExerciseNameById = (id: string) => {
-    const exercise = exercisesData.exercises.find(
-      (exercise) => exercise.id === id
-    );
-    return exercise ? exercise.name : "Unknown Exercise";
-  };
+  // const getExerciseNameById = (uuid: string) => {
+  //   const exercise = exercisesData.exercises.find(
+  //     (exercise) => exercise.id === uuid
+  //   );
+  //   return exercise ? exercise.name : "Unknown Exercise";
+  // };
 
   return (
     <View style={Containers.screenContainer}>
@@ -223,7 +204,7 @@ export default function CreateDayActivity() {
 
       <FlatList
         data={selectedExercises}
-        keyExtractor={(item) => item.uuid}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View>
             <Text style={styles.exerciseName}>{item.name}</Text>
@@ -243,7 +224,7 @@ export default function CreateDayActivity() {
         }
       />
 
-      <ButtonSecondary title="Add Exercise" onPress={handleNavigate} />
+      <ButtonSecondary title="+ Add Exercise" onPress={handleNavigate} />
     </View>
   );
 }
@@ -281,3 +262,25 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 });
+
+
+      // const savedDayActivity = await saveDayActivity(activityName);
+      // if (savedDayActivity && savedDayActivity.uuid) {
+      //   console.log(
+      //     "Activity saved. Proceeding to save workouts...",
+      //     savedDayActivity
+      //   );
+
+      //   const successWorkoutsSave = await saveWorkout(
+      //     savedDayActivity.uuid,
+      //     selectedExercises
+      //   );
+      //   if (successWorkoutsSave) {
+      //     Alert.alert("Workouts and Day Activity saved successfully!");
+      //     router.push("workout");
+      //   } else {
+      //     Alert.alert("Error saving workouts. Please try again.");
+      //   }
+      // } else {
+      //   Alert.alert("Error saving day activity. Please try again.");
+      // }

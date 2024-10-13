@@ -1,5 +1,3 @@
-import { Exercise } from "./Exercise.interface";
-
 // export interface Workout {
 //   uuid: string;
 //   title: string;
@@ -19,14 +17,11 @@ import { Exercise } from "./Exercise.interface";
 // }
 
 export interface Workout {
-  uuid: string;
-  title: string;
-  start_time: string;
-  end_time?: string;
+  id: string;
+  name: string;
+  startTime?: string;
+  endTime?: string;
   description?: string;
-  exercise: Exercise;
-  exercise_note?: string;
-  set_index: number;
-  set_type?: "normal" | "warm up" | "failure" | "drop";
-  rpe?: number;
+  exercisesId: string[]; // List of exercises performed in this workout (association)
+  // exercises: WorkoutExercise[];
 }

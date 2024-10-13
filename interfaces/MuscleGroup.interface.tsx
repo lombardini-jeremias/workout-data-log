@@ -10,7 +10,7 @@ export enum MuscleGroupCategory {
 }
 
 export interface MuscleGroup {
-  uuid: string;
+  id: string;
   name: string;
   category: MuscleGroupCategory;
   image?: string;

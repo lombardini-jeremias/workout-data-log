@@ -8,15 +8,15 @@ import {
 import React, { useEffect, useState } from "react";
 import exercisesData from "../../db/exercises.json";
 import { Colors } from "@/constants/Colors";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { Exercise } from "../../interfaces/Exercise.interface";
 import { ThemedText } from "../../components/ThemedText";
 import { ThemedView } from "../../components/ThemedView";
 import { Containers } from "../../constants/Container";
 
 export default function ExerciseDetailScreen() {
-  const navigation = useNavigation();
-  const { exerciseId } = useLocalSearchParams();
+  const { exerciseId } = useLocalSearchParams() as { exerciseId: string };
+
   const [exercise, setExercise] = useState<Exercise | null | undefined>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +29,7 @@ export default function ExerciseDetailScreen() {
         return;
       }
 
+      // WE ONLY SEARCH ON .JSON FILE, NOT on PERSONALEXERCISES
       const foundExercise: Exercise = exercisesData.exercises.find(
         (exercise) => exercise.id === exerciseId
       );

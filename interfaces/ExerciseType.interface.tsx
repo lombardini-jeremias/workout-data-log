@@ -10,10 +10,6 @@ export enum ExerciseTypeCategory {
 }
 
 export interface ExerciseType {
-  uuid: string;
+  id: string;
   type: ExerciseTypeCategory;
-  reps?: number;
-  weightKg?: number;
-  durationSeconds?: number;
-  distanceKm?: number;
 }

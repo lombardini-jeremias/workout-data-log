@@ -20,7 +20,7 @@ import ButtonSecondary from "../../components/buttons/ButtonSecondary";
 
 const loadUserExercisesFromStorage = async (): Promise<Exercise[]> => {
   try {
-    const jsonValue = await AsyncStorage.getItem("userExercises");
+    const jsonValue = await AsyncStorage.getItem("personalExercises");
     return jsonValue != null ? JSON.parse(jsonValue) : [];
   } catch (error) {
     console.error("Error loading user exercises", error);
@@ -28,7 +28,7 @@ const loadUserExercisesFromStorage = async (): Promise<Exercise[]> => {
   }
 };
 
-export default function ExerciseList() {
+export default function ExerciseListScreen() {
   const navigation = useNavigation();
   const router = useRouter();
 
@@ -41,8 +41,8 @@ export default function ExerciseList() {
   useFocusEffect(
     useCallback(() => {
       const loadExercises = async () => {
-        const userExercises = await loadUserExercisesFromStorage();
-        const allExercises = [...exercisesData.exercises, ...userExercises];
+        const personalExercises = await loadUserExercisesFromStorage();
+        const allExercises = [...exercisesData.exercises, ...personalExercises];
         setExercises(allExercises);
         setFilteredExercises(allExercises);
       };
@@ -91,11 +91,10 @@ export default function ExerciseList() {
     });
   };
 
-  const handleExerciseDetails = (item: Exercise) => {
-    console.log("EX- ID", item);
+  const handleExerciseDetails = (exerciseId: string) => {
     router.push({
       pathname: "/(screens)/exerciseDetailScreen",
-      params: { exerciseId: item.uuid },
+      params: { exerciseId },
     });
   };
 
@@ -106,15 +105,16 @@ export default function ExerciseList() {
       <FlatList
         data={filteredExercises}
         showsVerticalScrollIndicator={false}
-        keyExtractor={(item: Exercise) => item.uuid}
+        keyExtractor={(item: Exercise) => item.id}
         initialNumToRender={20}
         maxToRenderPerBatch={20}
         renderItem={({ item }) => {
           const isSelected = selectedExercises.some(
-            (exercise) => exercise.uuid === item.uuid
+            (exercise) => exercise.id === item.id
           );
           return (
             <View
+              key={item.id}
               style={[
                 styles.exerciseItemContainer,
                 isSelected && styles.selectedExerciseItemContainer,
@@ -130,7 +130,7 @@ export default function ExerciseList() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => handleExerciseDetails(item)}
+                onPress={() => handleExerciseDetails(item.id)}
                 style={styles.iconContainer}
               >
                 <Ionicons

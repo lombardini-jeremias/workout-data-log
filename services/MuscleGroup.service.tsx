@@ -7,7 +7,7 @@ export class MuscleGroupService {
 
   // CREATE MuscleGroup
   public static async create(
-    muscleGroupData: Omit<MuscleGroup, "uuid">
+    muscleGroupData: Omit<MuscleGroup, "id">
   ): Promise<MuscleGroup> {
     if (!muscleGroupData) {
       throw new Error("MuscleGroup data is required.");
@@ -15,7 +15,7 @@ export class MuscleGroupService {
 
     try {
       const newMuscleGroup: MuscleGroup = {
-        uuid: uuidv4(), // Generate UUID
+        id: uuidv4(), // Generate UUID
         ...muscleGroupData,
       };
 
@@ -54,7 +54,7 @@ export class MuscleGroupService {
         : [];
 
       // Find the muscle group by UUID
-      const muscleGroup = muscleGroups.find((mg) => mg.uuid === uuid);
+      const muscleGroup = muscleGroups.find((mg) => mg.id === uuid);
       if (!muscleGroup) {
         throw new Error(`MuscleGroup with UUID: ${uuid} not found.`);
       }
@@ -97,7 +97,7 @@ export class MuscleGroupService {
         : [];
 
       // Find the muscle group to update
-      const muscleGroupIndex = muscleGroups.findIndex((mg) => mg.uuid === uuid);
+      const muscleGroupIndex = muscleGroups.findIndex((mg) => mg.id === uuid);
       if (muscleGroupIndex === -1) {
         throw new Error(`MuscleGroup with UUID: ${uuid} not found.`);
       }
@@ -137,7 +137,7 @@ export class MuscleGroupService {
         : [];
 
       // Find the muscle group to delete
-      const muscleGroupIndex = muscleGroups.findIndex((mg) => mg.uuid === uuid);
+      const muscleGroupIndex = muscleGroups.findIndex((mg) => mg.id === uuid);
       if (muscleGroupIndex === -1) {
         throw new Error(`MuscleGroup with UUID: ${uuid} not found.`);
       }

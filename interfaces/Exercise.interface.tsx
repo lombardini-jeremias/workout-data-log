@@ -1,5 +1,5 @@
 export interface Exercise {
-  uuid: string;
+  id: string;
   name: string;
   equipmentId: string;
   primaryMusclesGroupId: string;

@@ -11,7 +11,7 @@ export enum EquipmentType {
 }
 
 export interface Equipment {
-  uuid: string;
+  id: string;
   name: string;
   image?: string;
   equipmentType: EquipmentType;
