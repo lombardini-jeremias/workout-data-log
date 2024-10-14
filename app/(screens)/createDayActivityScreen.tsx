@@ -1,18 +1,16 @@
 import { Text, View, Alert, StyleSheet, FlatList } from "react-native";
 import React, { useLayoutEffect, useState, useEffect } from "react";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import { Colors } from "../../constants/Colors";
-import { Containers } from "../../constants/Container";
+import { Colors } from "@/constants/Colors";
+import { Containers } from "@/constants/Container";
 import RightSecondaryButton from "../../components/navigation/RightSecondaryButton";
 import CancelButton from "../../components/navigation/CancelButton";
 import ButtonSecondary from "../../components/buttons/ButtonSecondary";
 import TextOrInput from "../../components/reusables/TextOrInput";
 import ExerciseSetsManager from "../../components/reusables/ExerciseSetsManager";
-import { WorkoutService } from "../../services/Workout.service";
-import { ExerciseService } from "../../services/Exercise.service";
-import { EquipmentService } from "../../services/Equipment.service";
-import { MuscleGroupService } from "../../services/MuscleGroup.service";
 import { ExerciseTypeService } from "../../services/ExerciseType.service";
+import { SetService } from "../../services/Set.service";
+import { WorkoutPlanService } from "../../services/WorkoutPlan.service";
 
 export default function CreateDayActivityScreen() {
   const navigation = useNavigation();
@@ -36,22 +34,16 @@ export default function CreateDayActivityScreen() {
       try {
         const exercisesArray = JSON.parse(selectedExercisesString);
 
-        // Fetch details for each exercise
+        // Fetch exerciseType for each exercise
         const fetchExerciseDetails = async () => {
           const exercisesWithDetails = await Promise.all(
             exercisesArray.map(async (exercise) => {
-              const fetchedEquipment = await EquipmentService.getById(exercise.equipmentId);
-              const fetchedPrimaryMuscleGroup = await MuscleGroupService.getById(exercise.primaryMuscleGroupId);
-              const fetchedSecondaryMuscleGroup = exercise.secondaryMuscleGroupId
-                ? await MuscleGroupService.getById(exercise.secondaryMuscleGroupId)
-                : null;
-              const fetchedExerciseType = await ExerciseTypeService.getById(exercise.exerciseTypeId);
+              const fetchedExerciseType = await ExerciseTypeService.getById(
+                exercise.exerciseTypeId
+              );
 
               return {
                 ...exercise,
-                equipment: fetchedEquipment,
-                primaryMuscleGroup: fetchedPrimaryMuscleGroup,
-                secondaryMuscleGroup: fetchedSecondaryMuscleGroup,
                 exerciseType: fetchedExerciseType,
                 sets: [{ set: 1, kg: "", reps: "" }],
               };
@@ -90,7 +82,13 @@ export default function CreateDayActivityScreen() {
     setSelectedExercises((prevExercises) =>
       prevExercises.map((exercise) => {
         if (exercise.id === exerciseId) {
-          return { ...exercise, sets: [...exercise.sets, { set: exercise.sets.length + 1, kg: "", reps: "" }] };
+          return {
+            ...exercise,
+            sets: [
+              ...exercise.sets,
+              { set: exercise.sets.length + 1, kg: "", reps: "" },
+            ],
+          };
         }
         return exercise;
       })
@@ -99,19 +97,50 @@ export default function CreateDayActivityScreen() {
 
   const handleSave = async () => {
     if (!activityName.trim()) {
-      Alert.alert("Please enter a name for the day activity");
+      Alert.alert("Please enter a Name for the Day Activity");
       return;
     }
 
     try {
-      const workoutData = {
-        name: activityName,
-        exercises: selectedExercises,
-      };
-      const newWorkout = await WorkoutService.create(workoutData);
+      // Step 1: Iterate through selected exercises and save their sets, then create references in WorkoutPlan
+      for (const exercise of selectedExercises) {
+        const exerciseId = exercise.id;
 
-      // Save logic for creating workout exercises and sets...
-      
+        // Array to store all created set IDs for the current exercise
+        const setIds = [];
+
+        for (const set of exercise.sets) {
+          // Create each set related to the current exercise
+          const newSet = {
+            setIndex: set.set, // Set number (e.g., 1, 2, 3, etc.)
+            reps: set.reps ? parseInt(set.reps, 10) : undefined,
+            weight: set.kg ? parseFloat(set.kg) : undefined,
+            duration: set.duration ? parseInt(set.duration, 10) : undefined,
+            distance: set.distance ? parseFloat(set.distance) : undefined,
+            restTime: set.restTime ? parseInt(set.restTime, 10) : undefined,
+            rpe: set.rpe ? parseInt(set.rpe, 10) : undefined,
+            exerciseTypeId: exercise.exerciseTypeId, // Reference to the ExerciseType entity
+          };
+
+          // Save the set
+          const savedSet = await SetService.create(newSet);
+          console.log("SAVED-SET", savedSet);
+
+          // Add the set ID to the setIds array for the current exercise
+          setIds.push(savedSet.id);
+        }
+
+        // After all sets for this exercise have been saved, create a WorkoutPlan entry
+        const workoutPlan = {
+          name: activityName,
+          exerciseId: exerciseId, // Reference to the exercise
+          setId: setIds, // Array of all set IDs for this exercise
+        };
+
+        // Save the WorkoutPlan
+        await WorkoutPlanService.create(workoutPlan);
+      }
+
       Alert.alert("Workout saved successfully!");
       router.push({ pathname: "/(tabs)/workout" });
     } catch (error) {
@@ -145,10 +174,17 @@ export default function CreateDayActivityScreen() {
             />
           </View>
         )}
-        ListEmptyComponent={<Text style={styles.noExercisesText}>Start adding an Exercise to the Day Activity.</Text>}
+        ListEmptyComponent={
+          <Text style={styles.noExercisesText}>
+            Start adding an Exercise to the Day Activity.
+          </Text>
+        }
       />
 
-      <ButtonSecondary title="+ Add Exercise" onPress={() => router.push("/(screens)/personalExerciseListScreen")} />
+      <ButtonSecondary
+        title="+ Add Exercise"
+        onPress={() => router.push("/(screens)/personalExerciseListScreen")}
+      />
     </View>
   );
 }
@@ -172,7 +208,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 });
-
 
 // import { Text, View, Alert, StyleSheet, FlatList } from "react-native";
 // import React, { useLayoutEffect, useState } from "react";

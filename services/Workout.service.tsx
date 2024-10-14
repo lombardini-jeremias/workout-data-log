@@ -2,24 +2,36 @@ import { v4 as uuidv4 } from "uuid";
 import "react-native-get-random-values";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Workout } from "../interfaces/Workout.interface";
+import { WorkoutExecution } from "../interfaces/WorkoutExecution.interface";
 
 export class WorkoutService {
   private static readonly STORAGE_KEY = "workouts";
 
   // CREATE Workout
   public static async create(
-    workoutData: Omit<Workout, "id">
-  ): Promise<Workout> {
+    workoutData: Omit<WorkoutExecution, "id">
+  ): Promise<WorkoutExecution> {
     try {
-      const newWorkout: Workout = {
+      const newWorkout: WorkoutExecution = {
         id: uuidv4(),
         ...workoutData,
       };
       const storedWorkouts = await AsyncStorage.getItem(this.STORAGE_KEY);
-      const workouts: Workout[] = storedWorkouts
+      const workouts: WorkoutExecution[] = storedWorkouts
         ? JSON.parse(storedWorkouts)
         : [];
+
+        // const isDuplicate = workouts.some(
+        //   (workout) =>
+        //     workout.name.toLowerCase() === workoutData.name.toLowerCase()
+        // );
+    
+        // if (isDuplicate) {
+        //   throw new Error(
+        //     `A workout with the name "${workoutData.name}" already exists.`
+        //   );
+        // }
+
       workouts.push(newWorkout);
       await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(workouts));
       return newWorkout;
@@ -29,11 +41,12 @@ export class WorkoutService {
   }
 
   // GET a Workout by ID
-
-  public static async getById(uuid: string): Promise<Workout | undefined> {
+  public static async getById(
+    uuid: string
+  ): Promise<WorkoutExecution | undefined> {
     try {
       const storedWorkouts = await AsyncStorage.getItem(this.STORAGE_KEY);
-      const workouts: Workout[] = storedWorkouts
+      const workouts: WorkoutExecution[] = storedWorkouts
         ? JSON.parse(storedWorkouts)
         : [];
       return workouts.find((w) => w.id === uuid);
@@ -43,7 +56,7 @@ export class WorkoutService {
   }
 
   // GET all Workouts
-  public static async getAll(): Promise<Workout[]> {
+  public static async getAll(): Promise<WorkoutExecution[]> {
     try {
       const storedWorkouts = await AsyncStorage.getItem(this.STORAGE_KEY);
       return storedWorkouts ? JSON.parse(storedWorkouts) : [];
@@ -55,11 +68,11 @@ export class WorkoutService {
   // UPDATE Workout
   public static async update(
     uuid: string,
-    updates: Partial<Workout>
-  ): Promise<Workout | undefined> {
+    updates: Partial<WorkoutExecution>
+  ): Promise<WorkoutExecution | undefined> {
     try {
       const storedWorkouts = await AsyncStorage.getItem(this.STORAGE_KEY);
-      const workouts: Workout[] = storedWorkouts
+      const workouts: WorkoutExecution[] = storedWorkouts
         ? JSON.parse(storedWorkouts)
         : [];
       const workoutIndex = workouts.findIndex((w) => w.id === uuid);
@@ -78,7 +91,7 @@ export class WorkoutService {
   public static async delete(uuid: string): Promise<boolean> {
     try {
       const storedWorkouts = await AsyncStorage.getItem(this.STORAGE_KEY);
-      const workouts: Workout[] = storedWorkouts
+      const workouts: WorkoutExecution[] = storedWorkouts
         ? JSON.parse(storedWorkouts)
         : [];
       const workoutIndex = workouts.findIndex((w) => w.id === uuid);

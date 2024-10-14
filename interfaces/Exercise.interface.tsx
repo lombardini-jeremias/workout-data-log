@@ -6,7 +6,6 @@ export interface Exercise {
   secondaryMuscleGroupId: string | string[];
   exerciseTypeId: string;
   forceType?: "pull" | "push" | "static";
-  mechanicType?: "compound" | "isolation";
   instructions?: string[];
   image?: string;
 }

@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import { Workout } from "../../interfaces/Workout.interface";
+import { Workout } from "../../interfaces/WorkoutExecution.interface";
 import { Colors } from "../../constants/Colors";
 import { Containers } from "../../constants/Container";
 import exercisesData from "../../db/exercises.json";
