@@ -11,7 +11,6 @@ import ExerciseSetsManager from "../../components/reusables/ExerciseSetsManager"
 import { ExerciseTypeService } from "../../services/ExerciseType.service";
 import { SetService } from "../../services/Set.service";
 import { WorkoutPlanService } from "../../services/WorkoutPlan.service";
-import { ExercisePlanService } from "../../services/ExercisePlan.service";
 
 export default function CreateDayActivityScreen() {
   const navigation = useNavigation();
@@ -103,53 +102,47 @@ export default function CreateDayActivityScreen() {
   //   }
 
   //   try {
-  //     // Step 1: Iterate through selected exercises and save their sets, then create references in WorkoutPlan
+  //     // Array to hold all the exercise IDs used in this workout
+  //     const exerciseIds = [];
+  //     // Array to hold all the set IDs created for this workout plan
+  //     const allSetIds = [];
+
+  //     // Step 1: Iterate through selected exercises and save their sets
   //     for (const exercise of selectedExercises) {
   //       const exerciseId = exercise.id;
-
   //       // Array to store all created set IDs for the current exercise
   //       const setIds = [];
-
   //       for (const set of exercise.sets) {
-  //         // Create each set related to the current exercise
   //         const newSet = {
-  //           setIndex: set.set, // Set number (e.g., 1, 2, 3, etc.)
+  //           exerciseId: exerciseId,
+  //           setIndex: set.set,
   //           reps: set.reps ? parseInt(set.reps, 10) : undefined,
   //           weight: set.kg ? parseFloat(set.kg) : undefined,
   //           duration: set.duration ? parseInt(set.duration, 10) : undefined,
   //           distance: set.distance ? parseFloat(set.distance) : undefined,
   //           restTime: set.restTime ? parseInt(set.restTime, 10) : undefined,
   //           rpe: set.rpe ? parseInt(set.rpe, 10) : undefined,
-  //           exerciseTypeId: exercise.exerciseTypeId, // Reference to the ExerciseType entity
+  //           exerciseTypeId: exercise.exerciseTypeId,
   //         };
-
   //         // Save the set
   //         const savedSet = await SetService.create(newSet);
   //         console.log("SAVED-SET", savedSet);
   //         // Add the set ID to the setIds array for the current exercise
   //         setIds.push(savedSet.id);
+  //         // Also add the set ID to the allSetIds array for the workout plan
+  //         allSetIds.push(savedSet.id);
   //       }
-  //       // After all sets for this exercise have been saved, create a ExercisePlan entry
-  //       const exercisePlan = {
-  //         exerciseId: exerciseId, // Reference to the exercise
-  //         setId: setIds, // Array of all set IDs for this exercise
-  //       };
-
-  //       // Save the ExercisePlan
-  //       const createExercisePlan = await ExercisePlanService.create(
-  //         exercisePlan
-  //       );
-  //       if (!createExercisePlan) {
-  //         console.log("Error on CREATE-EXERCISE-PLAN", createExercisePlan);
-  //       }
-  //       const workoutPlan = {
-  //         name: activityName,
-  //         exercisePlanId: createExercisePlan.id,
-  //       };
-
-  //       // Save the WorkoutPlan
-  //       await WorkoutPlanService.create(workoutPlan);
+  //       // After saving sets, store the exerciseId in the workout plan
+  //       exerciseIds.push(exerciseId);
   //     }
+  //     // Step 2: Create the WorkoutPlan after all sets and exercises have been saved
+  //     const workoutPlan = {
+  //       name: activityName, // The name of the workout
+  //       exerciseId: exerciseIds, // Array of all exercise IDs used in this workout
+  //       setId: allSetIds, // Array of all set IDs created for this workout
+  //     };
+  //     // Save the WorkoutPlan
+  //     await WorkoutPlanService.create(workoutPlan);
 
   //     Alert.alert("Workout saved successfully!");
   //     router.push({ pathname: "/(tabs)/workout" });
@@ -159,6 +152,7 @@ export default function CreateDayActivityScreen() {
   //   }
   // };
 
+  // Main function to handle the save process
   const handleSave = async () => {
     if (!activityName.trim()) {
       Alert.alert("Please enter a Name for the Day Activity");
@@ -166,70 +160,103 @@ export default function CreateDayActivityScreen() {
     }
 
     try {
-      // Array to hold all created exercise plan IDs
-      const exercisePlanIds = [];
+      // Step 1: Save all sets for the selected exercises and get exercise IDs
+      const { exerciseIds, allSetIds } = await saveAllExercisesAndSets();
 
-      // Step 1: Iterate through selected exercises and save their sets, then create references in WorkoutPlan
-      for (const exercise of selectedExercises) {
-        const exerciseId = exercise.id;
+      // Step 2: Save the workout plan
+      await saveWorkoutPlan(exerciseIds, allSetIds);
 
-        // Array to store all created set IDs for the current exercise
-        const setIds = [];
-
-        for (const set of exercise.sets) {
-          // Create each set related to the current exercise
-          const newSet = {
-            setIndex: set.set, // Set number (e.g., 1, 2, 3, etc.)
-            reps: set.reps ? parseInt(set.reps, 10) : undefined,
-            weight: set.kg ? parseFloat(set.kg) : undefined,
-            duration: set.duration ? parseInt(set.duration, 10) : undefined,
-            distance: set.distance ? parseFloat(set.distance) : undefined,
-            restTime: set.restTime ? parseInt(set.restTime, 10) : undefined,
-            rpe: set.rpe ? parseInt(set.rpe, 10) : undefined,
-            exerciseTypeId: exercise.exerciseTypeId, // Reference to the ExerciseType entity
-          };
-
-          // Save the set
-          const savedSet = await SetService.create(newSet);
-          console.log("SAVED-SET", savedSet);
-
-          // Add the set ID to the setIds array for the current exercise
-          setIds.push(savedSet.id);
-        }
-
-        // After all sets for this exercise have been saved, create an ExercisePlan entry
-        const exercisePlan = {
-          exerciseId: exerciseId, // Reference to the exercise
-          setId: setIds, // Array of all set IDs for this exercise
-        };
-
-        // Save the ExercisePlan
-        const createExercisePlan = await ExercisePlanService.create(
-          exercisePlan
-        );
-        if (!createExercisePlan) {
-          console.log("Error on CREATE-EXERCISE-PLAN", createExercisePlan);
-          continue;
-        }
-
-        // Add the created ExercisePlan ID to the exercisePlanIds array
-        exercisePlanIds.push(createExercisePlan.id);
-      }
-
-      // Step 2: Create the WorkoutPlan after all exercise plans have been saved
-      const workoutPlan = {
-        name: activityName, // The name of the workout
-        exercisePlanId: exercisePlanIds, // Array of all exercise plan IDs
-      };
-
-      // Save the WorkoutPlan
-      await WorkoutPlanService.create(workoutPlan);
-
+      // Success message
       Alert.alert("Workout saved successfully!");
       router.push({ pathname: "/(tabs)/workout" });
     } catch (error) {
       console.error("Error saving workout", error);
       Alert.alert("An error occurred. Please try again.");
+    }
+  };
+
+  // Function to save all exercises and their sets
+  const saveAllExercisesAndSets = async () => {
+    const exerciseIds = [];
+    const allSetIds = [];
+
+    for (const exercise of selectedExercises) {
+      try {
+        const exerciseId = exercise.id;
+        // Save sets for the current exercise
+        const setIds = await saveSetsForExercise(exercise);
+
+        // Store the exercise ID and all set IDs
+        exerciseIds.push(exerciseId);
+        allSetIds.push(...setIds);
+      } catch (error) {
+        console.error(
+          `Error saving sets for exercise: ${exercise.name}`,
+          error
+        );
+        throw error;
+      }
+    }
+
+    return { exerciseIds, allSetIds };
+  };
+
+  // Function to save sets for a specific exercise
+  const saveSetsForExercise = async (exercise) => {
+    const setIds = [];
+
+    for (const set of exercise.sets) {
+      try {
+        // Prepare the set data to be saved
+        const newSet = prepareSetData(exercise, set);
+
+        // Save the set
+        const savedSet = await SetService.create(newSet);
+        console.log("SAVED-SET", savedSet);
+
+        // Add the saved set ID to the list
+        setIds.push(savedSet.id);
+      } catch (error) {
+        console.error(
+          `Error saving set for exercise: ${exercise.name}, Set: ${set.setIndex}`,
+          error
+        );
+        throw error;
+      }
+    }
+
+    return setIds;
+  };
+
+  // Function to prepare the set data for saving
+  const prepareSetData = (exercise, set) => {
+    return {
+      exerciseId: exercise.id,
+      setIndex: set.set,
+      reps: set.reps ? parseInt(set.reps, 10) : undefined,
+      weight: set.kg ? parseFloat(set.kg) : undefined,
+      duration: set.duration ? parseInt(set.duration, 10) : undefined,
+      distance: set.distance ? parseFloat(set.distance) : undefined,
+      restTime: set.restTime ? parseInt(set.restTime, 10) : undefined,
+      rpe: set.rpe ? parseInt(set.rpe, 10) : undefined,
+      exerciseTypeId: exercise.exerciseTypeId,
+    };
+  };
+
+  // Function to save the workout plan
+  const saveWorkoutPlan = async (exerciseIds, setIds) => {
+    try {
+      const workoutPlan = {
+        name: activityName,
+        exerciseId: exerciseIds,
+        setId: setIds,
+      };
+
+      // Save the workout plan
+      await WorkoutPlanService.create(workoutPlan);
+    } catch (error) {
+      console.error("Error saving workout plan", error);
+      throw error;
     }
   };
 

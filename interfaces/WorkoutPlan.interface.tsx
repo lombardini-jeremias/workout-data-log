@@ -1,5 +1,6 @@
 export interface WorkoutPlan {
   id: string;
   name: string;
-  exercisePlanId: string[];
+  exerciseId: string[];
+  setId: string[];
 }
