@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import { Workout } from "../../interfaces/WorkoutExecution.interface";
 import { Colors } from "../../constants/Colors";
 import { Containers } from "../../constants/Container";
 import exercisesData from "../../db/exercises.json";
@@ -19,7 +18,7 @@ import ExerciseItemOrDetails from "../../components/reusables/ExerciseItemOrDeta
 
 const WORKOUTS_KEY = "workouts";
 
-export default function DayActivityDetailScreen() {
+export default function workoutPlanDetailScreen() {
   const navigation = useNavigation();
   const router = useRouter();
 
@@ -79,7 +78,7 @@ export default function DayActivityDetailScreen() {
       return;
     }
     router.push({
-      pathname: "/(screens)/dayActivityEditScreen",
+      pathname: "/(screens)/workoutPlanEditScreen",
       params: { selectedDayActivityId },
     });
   };

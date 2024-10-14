@@ -25,7 +25,7 @@ import ExerciseNote from "../../components/reusables/ExerciseNote";
 const WORKOUTS_KEY = "workouts";
 const DAY_ACTIVITIES_KEY = "dayActivities";
 
-export default function dayActivityEditScreen() {
+export default function workoutPlanEditScreen() {
   const navigation = useNavigation();
   const router = useRouter();
 

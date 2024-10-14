@@ -12,7 +12,7 @@ import { ExerciseTypeService } from "../../services/ExerciseType.service";
 import { SetService } from "../../services/Set.service";
 import { WorkoutPlanService } from "../../services/WorkoutPlan.service";
 
-export default function CreateDayActivityScreen() {
+export default function workoutPlanCreateScreen() {
   const navigation = useNavigation();
   const router = useRouter();
 
@@ -208,7 +208,7 @@ export default function CreateDayActivityScreen() {
       <TextOrInput
         isEditable={true}
         value={activityName}
-        placeholder="Day Activity Name"
+        placeholder="Workout Plan Name"
         onChangeText={(text) => setActivityName(text)}
       />
       <View style={styles.separator} />

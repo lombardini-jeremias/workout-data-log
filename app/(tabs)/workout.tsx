@@ -13,69 +13,65 @@ import { Colors } from "@/constants/Colors";
 import { Containers } from "@/constants/Container";
 
 import ButtonPrimary from "@/components/buttons/ButtonPrimary";
-import { DayActivity } from "@/interfaces/DayActivity.interface";
 
-// loadData
-const loadDayActivitiesFromStorage = async () => {
+// Load workout plans from AsyncStorage
+const loadWorkoutPlansFromStorage = async () => {
   try {
-    const jsonValue = await AsyncStorage.getItem("dayActivities");
+    const jsonValue = await AsyncStorage.getItem("workoutPlans");
     return jsonValue != null ? JSON.parse(jsonValue) : [];
   } catch (error) {
-    console.error("Error loading day activities", error);
+    console.error("Error loading workout plans", error);
     return [];
   }
 };
 
 export default function Workout() {
   const router = useRouter();
-  const [dayActivities, setDayActivities] = useState<DayActivity[]>([]);
+  const [workoutPlans, setWorkoutPlans] = useState([]);
 
   const handleNavigate = () => {
     router.push({
-      pathname: "createDayActivityScreen",
+      pathname: "/(screens)/workoutPlanCreateScreen",
     });
   };
 
-  const handleSelectDayActivity = (selectedDayActivity: DayActivity) => {
+  const handleSelectWorkoutPlan = (selectedWorkoutPlan) => {
     router.push({
-      pathname: "/(screens)/dayActivityDetailScreen",
+      pathname: "/(screens)/workoutPlanDetailScreen",
       params: {
-        selectedDayActivityId: selectedDayActivity.uuid,
-        selectedDayActivityName: selectedDayActivity.name,
+        workoutPlanId: selectedWorkoutPlan.id,
+        workoutPlanName: selectedWorkoutPlan.name,
       },
     });
   };
 
   useFocusEffect(
     useCallback(() => {
-      const loadDayActivities = async () => {
-        const activities = await loadDayActivitiesFromStorage();
-        setDayActivities(activities);
+      const loadWorkoutPlans = async () => {
+        const plans = await loadWorkoutPlansFromStorage();
+        setWorkoutPlans(plans);
       };
-      loadDayActivities();
+      loadWorkoutPlans();
     }, [])
   );
 
   return (
     <View style={Containers.screenContainer}>
-      <Text>Workout Screen</Text>
-      <View>
-        <Text>Activities</Text>
-        <ButtonPrimary title={"New Activity"} onPress={handleNavigate} />
+      <Text>Workout Plans</Text>
+      <ButtonPrimary title={"New Workout Plan"} onPress={handleNavigate} />
 
-        <View>
-          <FlatList
-            data={dayActivities}
-            keyExtractor={(item: DayActivity) => item.uuid}
-            renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => handleSelectDayActivity(item)}>
-                <View style={styles.itemContainer}>
-                  <Text style={styles.title}>{item.name}</Text>
-                </View>
-              </TouchableOpacity>
-            )}
-          />
-        </View>
+      <View>
+        <FlatList
+          data={workoutPlans}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => handleSelectWorkoutPlan(item)}>
+              <View style={styles.itemContainer}>
+                <Text style={styles.title}>{item.name}</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        />
       </View>
     </View>
   );
@@ -83,14 +79,12 @@ export default function Workout() {
 
 const styles = StyleSheet.create({
   itemContainer: {
-    padding: 16,
-    backgroundColor: Colors.dark.background,
-    marginVertical: 8,
-    borderRadius: 8,
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.lightGray,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
+    fontSize: 16,
+    color: "white",
   },
 });

@@ -11,7 +11,6 @@ import { Colors } from "@/constants/Colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "expo-router";
 import BackButton from "../../components/navigation/BackButton";
-import { Containers } from "../../constants/Container";
 
 const StorageViewerScreen = () => {
   const navigation = useNavigation();
