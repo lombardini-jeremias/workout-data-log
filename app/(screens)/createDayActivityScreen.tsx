@@ -1,43 +1,26 @@
 import { Text, View, Alert, StyleSheet, FlatList } from "react-native";
-import React, { useLayoutEffect, useState } from "react";
+import React, { useLayoutEffect, useState, useEffect } from "react";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { Colors } from "../../constants/Colors";
 import { Containers } from "../../constants/Container";
 import RightSecondaryButton from "../../components/navigation/RightSecondaryButton";
 import CancelButton from "../../components/navigation/CancelButton";
 import ButtonSecondary from "../../components/buttons/ButtonSecondary";
-import { Exercise } from "../../interfaces/Exercise.interface";
 import TextOrInput from "../../components/reusables/TextOrInput";
-import { WorkoutService } from "../../services/Workout.service";
-import { SetService } from "../../services/Set.service";
 import ExerciseSetsManager from "../../components/reusables/ExerciseSetsManager";
-import { ExerciseTypeCategory } from "../../interfaces/ExerciseType.interface";
+import { WorkoutService } from "../../services/Workout.service";
+import { ExerciseService } from "../../services/Exercise.service";
+import { EquipmentService } from "../../services/Equipment.service";
+import { MuscleGroupService } from "../../services/MuscleGroup.service";
+import { ExerciseTypeService } from "../../services/ExerciseType.service";
 
 export default function CreateDayActivityScreen() {
   const navigation = useNavigation();
   const router = useRouter();
 
   const [activityName, setActivityName] = useState("");
-
   const { selectedExercises: selectedExercisesString } = useLocalSearchParams();
-  const [selectedExercises, setSelectedExercises] = useState(() => {
-    console.log("selectedExercises", selectedExercisesString);
-    let exercisesArray: Exercise[] = [];
-    if (typeof selectedExercisesString === "string") {
-      try {
-        exercisesArray = JSON.parse(selectedExercisesString);
-      } catch (error) {
-        console.error("Failed to parse exercises", error);
-      }
-    } else if (Array.isArray(selectedExercisesString)) {
-      exercisesArray = selectedExercisesString;
-    }
-
-    return exercisesArray.map((exercise) => ({
-      ...exercise,
-      sets: [{ set: 1, kg: "", reps: "" }],
-    }));
-  });
+  const [selectedExercises, setSelectedExercises] = useState([]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -48,33 +31,48 @@ export default function CreateDayActivityScreen() {
     });
   }, [navigation, activityName]);
 
+  useEffect(() => {
+    if (typeof selectedExercisesString === "string") {
+      try {
+        const exercisesArray = JSON.parse(selectedExercisesString);
+
+        // Fetch details for each exercise
+        const fetchExerciseDetails = async () => {
+          const exercisesWithDetails = await Promise.all(
+            exercisesArray.map(async (exercise) => {
+              const fetchedEquipment = await EquipmentService.getById(exercise.equipmentId);
+              const fetchedPrimaryMuscleGroup = await MuscleGroupService.getById(exercise.primaryMuscleGroupId);
+              const fetchedSecondaryMuscleGroup = exercise.secondaryMuscleGroupId
+                ? await MuscleGroupService.getById(exercise.secondaryMuscleGroupId)
+                : null;
+              const fetchedExerciseType = await ExerciseTypeService.getById(exercise.exerciseTypeId);
+
+              return {
+                ...exercise,
+                equipment: fetchedEquipment,
+                primaryMuscleGroup: fetchedPrimaryMuscleGroup,
+                secondaryMuscleGroup: fetchedSecondaryMuscleGroup,
+                exerciseType: fetchedExerciseType,
+                sets: [{ set: 1, kg: "", reps: "" }],
+              };
+            })
+          );
+
+          setSelectedExercises(exercisesWithDetails);
+        };
+
+        fetchExerciseDetails();
+      } catch (error) {
+        console.error("Failed to parse or fetch exercises", error);
+      }
+    }
+  }, [selectedExercisesString]);
+
   const handleCancelButton = () => {
-    router.push({
-      pathname: "/(tabs)/workout",
-    });
+    router.push({ pathname: "/(tabs)/workout" });
   };
 
-  // const handleSetChange = (exerciseId: string, setIndex, field, value) => {
-  //   setSelectedExercises((prevExercises) =>
-  //     prevExercises.map((exercise) =>
-  //       exercise.id === exerciseId
-  //         ? {
-  //             ...exercise,
-  //             sets: exercise.sets.map((set, index) =>
-  //               index === setIndex ? { ...set, [field]: value } : set
-  //             ),
-  //           }
-  //         : exercise
-  //     )
-  //   );
-  // };
-
-  const onSetChange = (
-    exerciseId: string,
-    setIndex: number,
-    field: string,
-    value: string
-  ) => {
+  const onSetChange = (exerciseId, setIndex, field, value) => {
     setSelectedExercises((prevExercises) =>
       prevExercises.map((exercise) => {
         if (exercise.id === exerciseId) {
@@ -88,65 +86,15 @@ export default function CreateDayActivityScreen() {
     );
   };
 
-  const onAddSet = (exerciseId: string) => {
+  const onAddSet = (exerciseId) => {
     setSelectedExercises((prevExercises) =>
       prevExercises.map((exercise) => {
         if (exercise.id === exerciseId) {
-          let newSet;
-
-          // Create a new set depending on the exercise type
-          switch (exercise.exerciseTypeId) {
-            case ExerciseTypeCategory.WEIGHTED_REPS:
-            case ExerciseTypeCategory.BODYWEIGHT_WEIGHTED:
-              newSet = { kg: "", reps: "" };
-              break;
-            case ExerciseTypeCategory.BODYWEIGHT_REPS:
-              newSet = { reps: "" };
-              break;
-            case ExerciseTypeCategory.ASSISTED_BODYWEIGHT:
-              newSet = { kg: "", reps: "" }; // kg for assistance
-              break;
-            case ExerciseTypeCategory.DURATION:
-              newSet = { duration: "" };
-              break;
-            case ExerciseTypeCategory.DURATION_WEIGHT:
-              newSet = { kg: "", duration: "" };
-              break;
-            case ExerciseTypeCategory.DISTANCE_DURATION:
-              newSet = { distance: "", duration: "" };
-              break;
-            case ExerciseTypeCategory.WEIGHT_DISTANCE:
-              newSet = { kg: "", distance: "" };
-              break;
-            default:
-              newSet = {};
-          }
-
-          return { ...exercise, sets: [...exercise.sets, newSet] };
+          return { ...exercise, sets: [...exercise.sets, { set: exercise.sets.length + 1, kg: "", reps: "" }] };
         }
         return exercise;
       })
     );
-  };
-
-  const handleAddSet = (exerciseId: string) => {
-    setSelectedExercises((prevExercises) =>
-      prevExercises.map((exercise) =>
-        exercise.id === exerciseId
-          ? {
-              ...exercise,
-              sets: [
-                ...exercise.sets,
-                { set: exercise.sets.length + 1, kg: "", reps: "" },
-              ],
-            }
-          : exercise
-      )
-    );
-  };
-
-  const handleNavigate = () => {
-    router.push("/(screens)/personalExerciseListScreen");
   };
 
   const handleSave = async () => {
@@ -156,43 +104,18 @@ export default function CreateDayActivityScreen() {
     }
 
     try {
-      // Step 1: Create the workout using WorkoutService
       const workoutData = {
         name: activityName,
-        exercises: Exerc,
+        exercises: selectedExercises,
       };
       const newWorkout = await WorkoutService.create(workoutData);
 
-      // Step 2: Loop through each selected exercise and create related sets and workout-exercise records
-      for (const exercise of selectedExercises) {
-        // Create a WorkoutExercise entry for each exercise
-        const workoutExerciseData = {
-          workoutId: newWorkout.id,
-          exerciseId: exercise.id,
-        };
-        const workoutExercise = await WorkoutExerciseService.create(
-          workoutExerciseData
-        );
-
-        // Create sets for each exercise
-        for (const set of exercise.sets) {
-          const setData = {
-            workoutExerciseId: workoutExercise.id,
-            setNumber: set.set,
-            weight: parseFloat(set.kg),
-            reps: parseInt(set.reps, 10),
-          };
-          await SetService.create(setData);
-        }
-      }
-
-      // Display success message
+      // Save logic for creating workout exercises and sets...
+      
       Alert.alert("Workout saved successfully!");
-      router.push({
-        pathname: "/(tabs)/workout",
-      });
+      router.push({ pathname: "/(tabs)/workout" });
     } catch (error) {
-      console.error("Error saving workout & day activity", error);
+      console.error("Error saving workout", error);
       Alert.alert("An error occurred. Please try again.");
     }
   };
@@ -207,74 +130,40 @@ export default function CreateDayActivityScreen() {
       />
       <View style={styles.separator} />
 
-      {/* <FlatList
-        data={selectedExercises}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View>
-            <Text style={styles.exerciseName}>{item.name}</Text>
-
-            <ExerciseSetsManager
-              isEditable={true}
-              exercise={item}
-              onSetChange={handleSetChange}
-              onAddSet={handleAddSet}
-            />
-          </View>
-        )} */}
       <FlatList
         data={selectedExercises}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View>
             <Text style={styles.exerciseName}>{item.name}</Text>
-
             <ExerciseSetsManager
               isEditable={true}
               exercise={item}
-              exerciseType={item.exerciseTypeId}
+              exerciseType={item.exerciseType?.type}
               onSetChange={onSetChange}
               onAddSet={onAddSet}
             />
           </View>
         )}
-        ListEmptyComponent={
-          <Text style={styles.noExercisesText}>
-            Start adding an Exercise to the Day Activity.
-          </Text>
-        }
+        ListEmptyComponent={<Text style={styles.noExercisesText}>Start adding an Exercise to the Day Activity.</Text>}
       />
 
-      <ButtonSecondary title="+ Add Exercise" onPress={handleNavigate} />
+      <ButtonSecondary title="+ Add Exercise" onPress={() => router.push("/(screens)/personalExerciseListScreen")} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  inputContainer: {
-    paddingTop: 10,
+  separator: {
+    height: 1,
+    backgroundColor: Colors.gray,
+    marginVertical: 10,
   },
   exerciseName: {
     color: Colors.text,
     fontSize: 18,
     fontWeight: "bold",
-    marginVertical: 5,
-  },
-  exerciseText: {
-    color: Colors.text,
-    fontSize: 18,
     marginBottom: 5,
-  },
-  inputText: {
-    textAlign: "left",
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "white",
-  },
-  separator: {
-    height: 1,
-    backgroundColor: Colors.gray,
-    marginVertical: 10,
   },
   noExercisesText: {
     color: Colors.gray,
@@ -283,6 +172,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 });
+
 
 // import { Text, View, Alert, StyleSheet, FlatList } from "react-native";
 // import React, { useLayoutEffect, useState } from "react";

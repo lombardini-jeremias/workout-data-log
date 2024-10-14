@@ -43,9 +43,9 @@ export default function ExerciseSetsManager({
   };
 
   return (
-    <View style={styles.exerciseContainer}>
+    <View style={styles.setContainer}>
       <View style={styles.tableHeader}>
-        <View style={styles.column}>
+        <View style={styles.columnSet}>
           <Text style={styles.columnText}>SET</Text>
           {exercise.sets.map((set, index) => (
             <Text style={styles.setNumber} key={index}>
@@ -189,12 +189,16 @@ export default function ExerciseSetsManager({
 }
 
 const styles = StyleSheet.create({
-  exerciseContainer: {
+  setContainer: {
     marginBottom: 5,
   },
   tableHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  columnSet: {
+    flex: 0.5,
+    alignItems: "center",
   },
   column: {
     flex: 1,
@@ -209,15 +213,19 @@ const styles = StyleSheet.create({
     color: Colors.text,
     fontSize: 16,
     marginBottom: 5,
+    lineHeight: 35,
   },
   input: {
     borderWidth: 1,
+    fontSize: 16,
     borderColor: Colors.gray,
+    color: "white",
     borderRadius: 5,
     padding: 5,
     width: "80%",
     marginBottom: 5,
     textAlign: "center",
+    height: 35,
   },
   separator: {
     height: 1,
