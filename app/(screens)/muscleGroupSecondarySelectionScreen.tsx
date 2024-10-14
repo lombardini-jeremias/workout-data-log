@@ -27,7 +27,7 @@ export default function MuscleGroupSecondarySelectionScreen() {
   const handleSelect = (secondaryMuscleGroup: MuscleGroup) => {
     setExerciseForm((prev) => ({
       ...prev,
-      secondaryMuscleGroupId: secondaryMuscleGroup.uuid,
+      secondaryMuscleGroupId: secondaryMuscleGroup.id,
       secondaryMuscleGroupName: secondaryMuscleGroup.name,
     }));
     router.back();

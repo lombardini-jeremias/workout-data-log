@@ -27,7 +27,7 @@ export default function MuscleGroupSelectionScreen() {
   const handleSelect = (primaryMuscleGroup: MuscleGroup) => {
     setExerciseForm((prev) => ({
       ...prev,
-      primaryMuscleGroupId: primaryMuscleGroup.uuid, // Set UUID
+      primaryMuscleGroupId: primaryMuscleGroup.id, // Set UUID
       primaryMuscleGroupName: primaryMuscleGroup.name, // Set name for display
     }));
     router.back();

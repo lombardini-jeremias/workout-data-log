@@ -1,5 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { v4 as uuidv4 } from "uuid";
+import "react-native-get-random-values";
+
 import { ExerciseType } from "../interfaces/ExerciseType.interface";
 
 export class ExerciseTypeService {
@@ -7,7 +9,7 @@ export class ExerciseTypeService {
 
   // CREATE ExerciseType
   public static async create(
-    exerciseTypeData: Omit<ExerciseType, "uuid">
+    exerciseTypeData: Omit<ExerciseType, "id">
   ): Promise<ExerciseType> {
     if (!exerciseTypeData) {
       throw new Error("ExerciseType data is missing.");
@@ -15,7 +17,7 @@ export class ExerciseTypeService {
 
     try {
       const newExerciseType: ExerciseType = {
-        uuid: uuidv4(),
+        id: uuidv4(),
         ...exerciseTypeData,
       };
 
@@ -54,7 +56,7 @@ export class ExerciseTypeService {
         : [];
 
       // Find the exercise type with the given UUID
-      const exerciseType = exerciseTypes.find((et) => et.uuid === uuid);
+      const exerciseType = exerciseTypes.find((et) => et.id === uuid);
       if (!exerciseType) {
         throw new Error(`ExerciseType with UUID: ${uuid} not found.`);
       }
@@ -97,9 +99,7 @@ export class ExerciseTypeService {
         : [];
 
       // Find the exercise type to update
-      const exerciseTypeIndex = exerciseTypes.findIndex(
-        (et) => et.uuid === uuid
-      );
+      const exerciseTypeIndex = exerciseTypes.findIndex((et) => et.id === uuid);
       if (exerciseTypeIndex === -1) {
         throw new Error(`ExerciseType with UUID: ${uuid} not found.`);
       }
@@ -139,9 +139,7 @@ export class ExerciseTypeService {
         : [];
 
       // Find the exercise type to delete
-      const exerciseTypeIndex = exerciseTypes.findIndex(
-        (et) => et.uuid === uuid
-      );
+      const exerciseTypeIndex = exerciseTypes.findIndex((et) => et.id === uuid);
       if (exerciseTypeIndex === -1) {
         throw new Error(`ExerciseType with UUID: ${uuid} not found.`);
       }

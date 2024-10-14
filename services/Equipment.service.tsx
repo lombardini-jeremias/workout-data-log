@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { v4 as uuidv4 } from "uuid";
+import "react-native-get-random-values";
 import { Equipment } from "../interfaces/Equipment.interface";
 
 export class EquipmentService {
@@ -7,7 +8,7 @@ export class EquipmentService {
 
   // CREATE Equipment
   public static async create(
-    equipmentData: Omit<Equipment, "uuid">
+    equipmentData: Omit<Equipment, "id">
   ): Promise<Equipment> {
     if (!equipmentData) {
       throw new Error("Equipment data is required.");
@@ -15,7 +16,7 @@ export class EquipmentService {
 
     try {
       const newEquipment: Equipment = {
-        uuid: uuidv4(), // Generate a new UUID
+        id: uuidv4(), // Generate a new UUID
         ...equipmentData,
       };
 
@@ -47,14 +48,12 @@ export class EquipmentService {
     }
 
     try {
-      // Retrieve equipment list from AsyncStorage
       const storedEquipment = await AsyncStorage.getItem(this.STORAGE_KEY);
       const equipmentList: Equipment[] = storedEquipment
         ? JSON.parse(storedEquipment)
         : [];
 
-      // Find the equipment by UUID
-      const equipment = equipmentList.find((e) => e.uuid === uuid);
+      const equipment = equipmentList.find((e) => e.id === uuid);
       if (!equipment) {
         throw new Error(`Equipment with UUID: ${uuid} not found.`);
       }
@@ -97,7 +96,7 @@ export class EquipmentService {
         : [];
 
       // Find the equipment to update
-      const equipmentIndex = equipmentList.findIndex((e) => e.uuid === uuid);
+      const equipmentIndex = equipmentList.findIndex((e) => e.id === uuid);
       if (equipmentIndex === -1) {
         throw new Error(`Equipment with UUID: ${uuid} not found.`);
       }
@@ -134,7 +133,7 @@ export class EquipmentService {
         : [];
 
       // Find the equipment to delete
-      const equipmentIndex = equipmentList.findIndex((e) => e.uuid === uuid);
+      const equipmentIndex = equipmentList.findIndex((e) => e.id === uuid);
       if (equipmentIndex === -1) {
         throw new Error(`Equipment with UUID: ${uuid} not found.`);
       }

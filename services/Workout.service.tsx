@@ -1,145 +1,107 @@
 import { v4 as uuidv4 } from "uuid";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Workout } from "../interfaces/Workout.interface";
+import "react-native-get-random-values";
 
-let workouts: Workout[] = [];
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { WorkoutExecution } from "../interfaces/WorkoutExecution.interface";
 
 export class WorkoutService {
   private static readonly STORAGE_KEY = "workouts";
 
   // CREATE Workout
   public static async create(
-    workoutData: Omit<Workout, "uuid">
-  ): Promise<Workout> {
-    if (!workoutData) {
-      throw new Error("Workout data is missing.");
-    }
-
+    workoutData: Omit<WorkoutExecution, "id">
+  ): Promise<WorkoutExecution> {
     try {
-      const newWorkout: Workout = {
-        uuid: uuidv4(),
+      const newWorkout: WorkoutExecution = {
+        id: uuidv4(),
         ...workoutData,
       };
-
       const storedWorkouts = await AsyncStorage.getItem(this.STORAGE_KEY);
-      const workouts: Workout[] = storedWorkouts
+      const workouts: WorkoutExecution[] = storedWorkouts
         ? JSON.parse(storedWorkouts)
         : [];
+
+        // const isDuplicate = workouts.some(
+        //   (workout) =>
+        //     workout.name.toLowerCase() === workoutData.name.toLowerCase()
+        // );
+    
+        // if (isDuplicate) {
+        //   throw new Error(
+        //     `A workout with the name "${workoutData.name}" already exists.`
+        //   );
+        // }
 
       workouts.push(newWorkout);
       await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(workouts));
-
       return newWorkout;
     } catch (error) {
-      throw new Error("Error creating a new workout: " + error.message);
+      throw new Error(`Error creating new workout: ${error.message}`);
     }
   }
 
-  // GET a Workout by UUID
-  public static async getById(uuid: string): Promise<Workout | undefined> {
-    if (!uuid) {
-      throw new Error("UUID is required.");
-    }
-
+  // GET a Workout by ID
+  public static async getById(
+    uuid: string
+  ): Promise<WorkoutExecution | undefined> {
     try {
-      // Retrieve workouts from AsyncStorage
       const storedWorkouts = await AsyncStorage.getItem(this.STORAGE_KEY);
-      const workouts: Workout[] = storedWorkouts
+      const workouts: WorkoutExecution[] = storedWorkouts
         ? JSON.parse(storedWorkouts)
         : [];
-
-      // Find the workout with the given UUID
-      const workout = workouts.find((w) => w.uuid === uuid);
-      if (!workout) {
-        throw new Error(`Workout with UUID: ${uuid} not found.`);
-      }
-
-      return workout;
+      return workouts.find((w) => w.id === uuid);
     } catch (error) {
-      throw new Error("Error retrieving workout: " + error.message);
+      throw new Error(`Error fetching workout by ID: ${error.message}`);
     }
   }
 
   // GET all Workouts
-  public static async getAll(): Promise<Workout[]> {
+  public static async getAll(): Promise<WorkoutExecution[]> {
     try {
-      // Retrieve workouts from AsyncStorage
       const storedWorkouts = await AsyncStorage.getItem(this.STORAGE_KEY);
-      const workouts: Workout[] = storedWorkouts
-        ? JSON.parse(storedWorkouts)
-        : [];
-
-      return workouts;
+      return storedWorkouts ? JSON.parse(storedWorkouts) : [];
     } catch (error) {
-      throw new Error("Error retrieving all workouts: " + error.message);
+      throw new Error(`Error retrieving all workouts: ${error.message}`);
     }
   }
 
-  // UPDATE/PATCH a Workout by UUID
+  // UPDATE Workout
   public static async update(
     uuid: string,
-    updates: Partial<Workout>
-  ): Promise<Workout | undefined> {
-    if (!uuid) {
-      throw new Error("UUID is required for updating a workout.");
-    }
-
+    updates: Partial<WorkoutExecution>
+  ): Promise<WorkoutExecution | undefined> {
     try {
-      // Retrieve existing workouts from AsyncStorage
       const storedWorkouts = await AsyncStorage.getItem(this.STORAGE_KEY);
-      const workouts: Workout[] = storedWorkouts
+      const workouts: WorkoutExecution[] = storedWorkouts
         ? JSON.parse(storedWorkouts)
         : [];
-
-      // Find the workout to update
-      const workoutIndex = workouts.findIndex((w) => w.uuid === uuid);
-      if (workoutIndex === -1) {
-        throw new Error(`Workout with UUID: ${uuid} not found.`);
-      }
-
-      // Merge updates into the workout
+      const workoutIndex = workouts.findIndex((w) => w.id === uuid);
+      if (workoutIndex === -1)
+        throw new Error(`Workout with ID: ${uuid} not found.`);
       const updatedWorkout = { ...workouts[workoutIndex], ...updates };
-
-      // Update the workout in the list
       workouts[workoutIndex] = updatedWorkout;
-
-      // Save updated workouts list back to AsyncStorage
       await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(workouts));
-
       return updatedWorkout;
     } catch (error) {
-      throw new Error("Error updating workout: " + error.message);
+      throw new Error(`Error updating workout: ${error.message}`);
     }
   }
 
-  // DELETE a Workout by UUID
+  // DELETE Workout
   public static async delete(uuid: string): Promise<boolean> {
-    if (!uuid) {
-      throw new Error("UUID is required for deleting a workout.");
-    }
-
     try {
-      // Retrieve existing workouts from AsyncStorage
       const storedWorkouts = await AsyncStorage.getItem(this.STORAGE_KEY);
-      const workouts: Workout[] = storedWorkouts
+      const workouts: WorkoutExecution[] = storedWorkouts
         ? JSON.parse(storedWorkouts)
         : [];
-
-      // Find the workout to delete
-      const workoutIndex = workouts.findIndex((w) => w.uuid === uuid);
-      if (workoutIndex === -1) {
-        throw new Error(`Workout with UUID: ${uuid} not found.`);
-      }
-
-      // Remove the workout from the array
+      const workoutIndex = workouts.findIndex((w) => w.id === uuid);
+      if (workoutIndex === -1)
+        throw new Error(`Workout with ID: ${uuid} not found.`);
       workouts.splice(workoutIndex, 1);
-
-      // Save updated workouts list back to AsyncStorage
       await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(workouts));
-
       return true;
     } catch (error) {
-      throw new Error("Error deleting workout: " + error.message);
+      throw new Error(`Error deleting workout: ${error.message}`);
     }
   }
 }

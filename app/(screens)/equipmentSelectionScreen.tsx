@@ -27,7 +27,7 @@ export default function EquipmentSelectionScreen() {
   const handleSelect = (equipment: Equipment) => {
     setExerciseForm((prev) => ({
       ...prev,
-      equipmentId: equipment.uuid,
+      equipmentId: equipment.id,
       equipmentName: equipment.name,
     }));
     router.back();
