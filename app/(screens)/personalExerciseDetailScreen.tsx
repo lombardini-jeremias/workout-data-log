@@ -12,6 +12,7 @@ import { Colors } from "@/constants/Colors";
 import { Containers } from "@/constants/Container";
 
 import { Exercise } from "../../interfaces/Exercise.interface";
+
 import { ExerciseService } from "../../services/Exercise.service";
 import { EquipmentService } from "../../services/Equipment.service";
 import { MuscleGroupService } from "../../services/MuscleGroup.service";

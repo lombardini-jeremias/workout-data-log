@@ -5,15 +5,15 @@ import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { Containers } from "@/constants/Container";
 
-import SaveButton from "../../components/navigation/RightSecondaryButton";
-import SecondaryInput from "../../components/inputs/SecondaryInput";
-import PrimaryInput from "../../components/inputs/PrimaryInput";
-import { preloadAllDataService } from "../../services/preloadData.service";
-import { ExerciseService } from "../../services/Exercise.service";
-import { Equipment } from "../../interfaces/Equipment.interface";
-import { MuscleGroup } from "../../interfaces/MuscleGroup.interface";
-import { ExerciseType } from "../../interfaces/ExerciseType.interface";
-import { useExerciseForm } from "../../context/ExerciseFormProvider";
+import SaveButton from "../../../components/navigation/RightSecondaryButton";
+import SecondaryInput from "../../../components/inputs/SecondaryInput";
+import PrimaryInput from "../../../components/inputs/PrimaryInput";
+import { preloadAllDataService } from "../../../services/preloadData.service";
+import { ExerciseService } from "../../../services/Exercise.service";
+import { Equipment } from "../../../interfaces/Equipment.interface";
+import { MuscleGroup } from "../../../interfaces/MuscleGroup.interface";
+import { ExerciseType } from "../../../interfaces/ExerciseType.interface";
+import { useExerciseForm } from "../../../context/ExerciseFormProvider";
 
 export default function CreateExerciseScreen() {
   const navigation = useNavigation();

@@ -1,16 +1,20 @@
 import { Text, View, Alert, StyleSheet, FlatList } from "react-native";
 import React, { useLayoutEffect, useState, useEffect } from "react";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+
 import { Colors } from "@/constants/Colors";
 import { Containers } from "@/constants/Container";
-import RightSecondaryButton from "../../components/navigation/RightSecondaryButton";
+
 import CancelButton from "../../components/navigation/CancelButton";
 import ButtonSecondary from "../../components/buttons/ButtonSecondary";
+import RightSecondaryButton from "../../components/navigation/RightSecondaryButton";
+
 import TextOrInput from "../../components/reusables/TextOrInput";
 import ExerciseSetsManager from "../../components/reusables/ExerciseSetsManager";
-import { ExerciseTypeService } from "../../services/ExerciseType.service";
+
 import { SetService } from "../../services/Set.service";
 import { WorkoutPlanService } from "../../services/WorkoutPlan.service";
+import { ExerciseTypeService } from "../../services/ExerciseType.service";
 
 export default function workoutPlanCreateScreen() {
   const navigation = useNavigation();
