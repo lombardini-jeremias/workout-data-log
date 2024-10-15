@@ -236,6 +236,8 @@ import { WorkoutPlanService } from "../../services/WorkoutPlan.service";
 import { SetService } from "../../services/Set.service";
 import { ExerciseService } from "../../services/Exercise.service";
 import ExerciseSetsManager from "../../components/reusables/ExerciseSetsManager";
+import { ExerciseType } from "../../interfaces/ExerciseType.interface";
+import { ExerciseTypeService } from "../../services/ExerciseType.service";
 
 export default function WorkoutPlanDetailScreen() {
   const navigation = useNavigation();
@@ -247,6 +249,10 @@ export default function WorkoutPlanDetailScreen() {
 
   const [workoutPlan, setWorkoutPlan] = useState<WorkoutPlan | null>(null);
   const [sets, setSets] = useState<Set[]>([]);
+  const [exerciseTypes, setExerciseTypes] = useState<{
+    [key: string]: ExerciseType | null;
+  }>({});
+
   const [loading, setLoading] = useState(true);
   const [exerciseNames, setExerciseNames] = useState<{ [key: string]: string }>(
     {}
@@ -280,9 +286,26 @@ export default function WorkoutPlanDetailScreen() {
             selectedWorkoutPlan.exerciseId.map(async (exerciseId) => {
               const name = await getExerciseNameById(exerciseId);
               names[exerciseId] = name;
+              console.log("EX-NAMES", name);
             })
           );
           setExerciseNames(names);
+
+          // Fetch exercise types for the sets
+          const exerciseTypesMap: { [key: string]: ExerciseType | null } = {};
+          await Promise.all(
+            setsForPlan.map(async (set) => {
+              if (set?.exerciseTypeId && set?.exerciseId) {
+                const exerciseType = await ExerciseTypeService.getById(
+                  set.exerciseTypeId
+                );
+                exerciseTypesMap[set.exerciseId] = exerciseType; // Use exerciseId to map types
+                console.log("MAP-EX-TYPE", exerciseTypesMap[set.exerciseId]);
+              }
+            })
+          );
+
+          setExerciseTypes(exerciseTypesMap);
         } else {
           Alert.alert("Workout Plan not found.");
         }
@@ -348,23 +371,22 @@ export default function WorkoutPlanDetailScreen() {
             );
 
             return (
-              <View style={styles.exerciseContainer}>
+              <View>
                 <TouchableOpacity
                   onPress={() => handleExerciseDetailById(exerciseId)}
                 >
-                  {/* Render the exercise name from the state */}
                   <Text style={styles.exerciseText}>
-                    {exerciseNames[exerciseId] || "Loading..."}
+                    {exerciseNames?.[exerciseId] || "Unknown Exercise"}
                   </Text>
                 </TouchableOpacity>
 
-                {/* Use ExerciseSetsManager to display sets */}
                 {exerciseSets.length > 0 ? (
                   <ExerciseSetsManager
-                    exercise={{ id: exerciseId, sets: exerciseSets }} // Pass the exercise object
-                    isEditable={false} // Set to false to display non-editable fields
-                    onSetChange={() => {}} // No-op since not editable
-                    onAddSet={() => {}} // No-op since not editable
+                    exercise={{ id: exerciseId, sets: exerciseSets }}
+                    isEditable={false}
+                    onSetChange={() => {}}
+                    onAddSet={() => {}}
+                    exerciseType={exerciseTypes[exerciseId]?.type || null}
                   />
                 ) : (
                   <Text style={styles.noSetsText}>
@@ -385,14 +407,14 @@ export default function WorkoutPlanDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  subheaderContainer: {
-    flexDirection: "row",
-    marginBottom: 5,
-  },
   separator: {
     height: 1,
     backgroundColor: Colors.gray,
     marginVertical: 10,
+  },
+  subheaderContainer: {
+    flexDirection: "row",
+    marginBottom: 5,
   },
   subheaderText: {
     fontSize: 18,
@@ -408,9 +430,6 @@ const styles = StyleSheet.create({
     color: Colors.text,
     marginBottom: 8,
     fontWeight: "bold",
-  },
-  exerciseContainer: {
-    marginBottom: 15,
   },
   noWorkoutsText: {
     fontSize: 18,

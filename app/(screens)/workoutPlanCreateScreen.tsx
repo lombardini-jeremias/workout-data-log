@@ -45,7 +45,7 @@ export default function workoutPlanCreateScreen() {
               return {
                 ...exercise,
                 exerciseType: fetchedExerciseType,
-                sets: [{ set: 1, kg: "", reps: "" }],
+                sets: [{ set: 1, weight: "", reps: "" }],
               };
             })
           );
@@ -86,7 +86,7 @@ export default function workoutPlanCreateScreen() {
             ...exercise,
             sets: [
               ...exercise.sets,
-              { set: exercise.sets.length + 1, kg: "", reps: "" },
+              { set: exercise.sets.length + 1, weight: "", reps: "" },
             ],
           };
         }
@@ -177,7 +177,7 @@ export default function workoutPlanCreateScreen() {
       exerciseId: exercise.id,
       setIndex: set.set,
       reps: set.reps ? parseInt(set.reps, 10) : undefined,
-      weight: set.kg ? parseFloat(set.kg) : undefined,
+      weight: set.weight ? parseFloat(set.weight) : undefined,
       duration: set.duration ? parseInt(set.duration, 10) : undefined,
       distance: set.distance ? parseFloat(set.distance) : undefined,
       restTime: set.restTime ? parseInt(set.restTime, 10) : undefined,

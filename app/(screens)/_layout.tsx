@@ -106,7 +106,7 @@ export default function StackLayout() {
           headerShown: true,
         }}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="dayActivityEditScreen"
         options={{
           title: "Edit Day Activity",
@@ -118,7 +118,7 @@ export default function StackLayout() {
           headerTintColor: Colors.secondary,
           headerShown: true,
         }}
-      />
+      /> */}
       <Stack.Screen
         name="equipmentSelectionScreen"
         options={{
