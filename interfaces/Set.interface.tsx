@@ -1,5 +1,6 @@
 export interface Set {
   id: string;
+  exerciseId: string;
   setIndex: number; // Set number (1 set, 2 set, etc.)
   reps?: number;
   weight?: number;

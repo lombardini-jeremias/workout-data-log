@@ -58,7 +58,7 @@ export default function StackLayout() {
       />
 
       <Stack.Screen
-        name="createExerciseScreen"
+        name="exerciseCreateScreen"
         options={{
           title: "Create Exercise",
           headerBackTitle: "Back",
@@ -83,9 +83,9 @@ export default function StackLayout() {
       /> */}
 
       <Stack.Screen
-        name="createDayActivityScreen"
+        name="workoutPlanCreateScreen"
         options={{
-          title: "Create Day Activity",
+          title: "Create Workout Plan",
           headerStyle: {
             backgroundColor: Colors.dark.background,
           },
@@ -94,9 +94,9 @@ export default function StackLayout() {
         }}
       />
       <Stack.Screen
-        name="dayActivityDetailScreen"
+        name="workoutPlanDetailScreen"
         options={{
-          title: "Day Activity Detail",
+          title: "Workout Plan Detail",
           headerBackTitle: "Back",
           headerBackTitleStyle: {},
           headerStyle: {

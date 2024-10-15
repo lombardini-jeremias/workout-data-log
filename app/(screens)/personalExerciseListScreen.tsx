@@ -6,14 +6,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import exercisesData from "../../db/exercises.json";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRouter } from "expo-router";
-import { Exercise } from "../../interfaces/Exercise.interface";
-import { Containers } from "../../constants/Container";
+import { Exercise } from "@/interfaces/Exercise.interface";
+import { Containers } from "@/constants/Container";
 import SearchBar from "../../components/navigation/SearchBar";
 import CreateButton from "../../components/navigation/CreateButton";
 import ButtonSecondary from "../../components/buttons/ButtonSecondary";
@@ -48,7 +46,7 @@ export default function PersonalExerciseListScreen() {
 
   const handleCreate = () => {
     router.push({
-      pathname: "/(screens)/createExerciseScreen",
+      pathname: "/(screens)/exerciseCreateScreen",
     });
   };
 
@@ -76,7 +74,7 @@ export default function PersonalExerciseListScreen() {
 
   const handleAddExercises = () => {
     router.push({
-      pathname: "/(screens)/createDayActivityScreen",
+      pathname: "/(screens)/workoutPlanCreateScreen",
       params: { selectedExercises: JSON.stringify(selectedExercises) },
     });
   };
