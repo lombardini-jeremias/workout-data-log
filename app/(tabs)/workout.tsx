@@ -13,6 +13,7 @@ import { Colors } from "@/constants/Colors";
 import { Containers } from "@/constants/Container";
 
 import ButtonPrimary from "@/components/buttons/ButtonPrimary";
+import BottomSheetReusable from "../../components/reusables/BottomSheetReusable";
 
 // Load workout plans from AsyncStorage
 const loadWorkoutPlansFromStorage = async () => {
@@ -58,8 +59,9 @@ export default function Workout() {
   return (
     <View style={Containers.screenContainer}>
       <Text>Workout Plans</Text>
+      
       <ButtonPrimary title={"New Workout Plan"} onPress={handleNavigate} />
-
+      
       <View>
         <FlatList
           data={workoutPlans}

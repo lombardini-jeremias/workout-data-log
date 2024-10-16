@@ -126,52 +126,48 @@ export default function workoutPlanEditScreen() {
   };
 
   const onAddSet = (exerciseId) => {
-    const newSet = { set: exercise.sets.length + 1, weight: "", reps: "" }; // Adjust structure as necessary
-    setSets((prevSets) => [...prevSets, { ...newSet, exerciseId }]);
+    const newSet = {
+      index: sets.filter((set) => set.exerciseId === exerciseId).length,
+      set: sets.length + 1,
+      weight: "",
+      reps: "",
+      exerciseId,
+    };
+    setSets((prevSets) => [...prevSets, newSet]);
   };
 
-  const onRemoveSet = (exerciseId, setIndex) => {
-    setSets((prevSets) =>
-      prevSets.filter(
+  // const onDeleteSet = (exerciseId, setIndex) => {
+  //   console.log("EX-Id", exerciseId);
+  //   setSets((prevSets) =>
+  //     prevSets
+  //       .filter(
+  //         (set) => !(set.exerciseId === exerciseId && set.index === setIndex)
+  //       )
+  //       .map((set, index) =>
+  //         set.exerciseId === exerciseId ? { ...set, index } : set
+  //       )
+  //   );
+  // };
+
+  const onDeleteSet = (exerciseId, setIndex) => {
+    console.log("EX-Id", exerciseId);
+
+    // Create a new array without mutating the previous state
+    setSets((prevSets) => {
+      const filteredSets = prevSets.filter(
         (set) => !(set.exerciseId === exerciseId && set.index === setIndex)
-      )
-    );
+      );
+
+      // Map the remaining sets to update their index if necessary
+      return filteredSets.map((set, index) =>
+        set.exerciseId === exerciseId ? { ...set, index } : set
+      );
+    });
   };
 
-  // const onSetChange = (exerciseId, setIndex, field, value) => {
-  //   setSelectedExercises((prevExercises) =>
-  //     prevExercises.map((exercise) => {
-  //       if (exercise.id === exerciseId) {
-  //         const updatedSets = exercise.sets.map((set, index) =>
-  //           index === setIndex ? { ...set, [field]: value } : set
-  //         );
-  //         return { ...exercise, sets: updatedSets };
-  //       }
-  //       return exercise;
-  //     })
-  //   );
+  // const handleAddExercise = () => {
+  //   router.push("/(screens)/personalExerciseListScreen");
   // };
-
-  // const onAddSet = (exerciseId) => {
-  //   setSelectedExercises((prevExercises) =>
-  //     prevExercises.map((exercise) => {
-  //       if (exercise.id === exerciseId) {
-  //         return {
-  //           ...exercise,
-  //           sets: [
-  //             ...exercise.sets,
-  //             { set: exercise.sets.length + 1, weight: "", reps: "" },
-  //           ],
-  //         };
-  //       }
-  //       return exercise;
-  //     })
-  //   );
-  // };
-
-  const handleAddExercise = () => {
-    router.push("/(screens)/personalExerciseListScreen");
-  };
 
   const handleUpdate = async () => {
     try {
@@ -233,7 +229,7 @@ export default function workoutPlanEditScreen() {
 
   return (
     <View style={Containers.screenContainer}>
-      <TextOrInput isEditable={false} value={workoutPlanName} />
+      <TextOrInput isEditable={true} value={workoutPlanName} />
       <View style={styles.separator} />
 
       <View style={styles.subheaderContainer}>
@@ -265,7 +261,7 @@ export default function workoutPlanEditScreen() {
                     isEditable={true}
                     onSetChange={onSetChange}
                     onAddSet={onAddSet}
-                    // onRemoveSet={onRemoveSet}
+                    onDeleteSet={onDeleteSet}
                     exerciseType={exerciseTypes[exerciseId]?.type || null}
                   />
                 ) : (
