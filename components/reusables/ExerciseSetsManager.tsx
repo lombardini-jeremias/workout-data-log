@@ -41,9 +41,16 @@ export default function ExerciseSetsManager({
   const openBottomSheet = (index: number) => {
     if (selectedSetIndex !== index) {
       console.log("Opening BOTTOM-SHEET SET index:", index);
+      setSelectedSetIndex(null);
       setSelectedSetIndex(index);
       setBottomSheetVisible(true);
     }
+  };
+
+  const closeBottomSheet = (index: number) => {
+    console.log("Closing BOTTOM-SHEET", index);
+    setSelectedSetIndex(null);
+    setBottomSheetVisible(false);
   };
 
   const renderField = (set, index, field, placeholder, valueKey) => {
@@ -226,7 +233,8 @@ export default function ExerciseSetsManager({
       {/* Render the Bottom Sheet */}
       <BottomSheetReusable
         isVisible={isBottomSheetVisible}
-        onClose={() => setBottomSheetVisible(false)}
+        onClose={closeBottomSheet}
+        // onClose={() => setBottomSheetVisible(false)}
         onDeleteSet={handleDeleteSet}
       />
     </View>
