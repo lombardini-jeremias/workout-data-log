@@ -10,7 +10,7 @@ import ButtonSecondary from "../../components/buttons/ButtonSecondary";
 import RightSecondaryButton from "../../components/navigation/RightSecondaryButton";
 
 import TextOrInput from "../../components/reusables/TextOrInput";
-import ExerciseSetsManager from "../../components/reusables/ExerciseSetsManager";
+import ExerciseSetsManager2 from "../../components/reusables/ExerciseSetsManager2";
 
 import { SetService } from "../../services/Set.service";
 import { WorkoutPlanService } from "../../services/WorkoutPlan.service";
@@ -238,7 +238,7 @@ export default function workoutPlanCreateScreen() {
         renderItem={({ item }) => (
           <View>
             <Text style={styles.exerciseName}>{item.name}</Text>
-            <ExerciseSetsManager
+            <ExerciseSetsManager2
               isEditable={true}
               exercise={item}
               exerciseType={item.exerciseType?.type}

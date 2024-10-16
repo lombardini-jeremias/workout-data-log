@@ -62,21 +62,18 @@ export class SetService {
 
   // UPDATE Set
   public static async update(
-    uuid: string,
+    setId: string,
     updates: Partial<Set>
   ): Promise<Set | undefined> {
     try {
-      const storedSets = await AsyncStorage.getItem(this.STORAGE_KEY);
-      const sets: Set[] = storedSets ? JSON.parse(storedSets) : [];
-      const setIndex = sets.findIndex((s) => s.id === uuid);
-
-      if (setIndex === -1) {
-        throw new Error(`Set with ID: ${uuid} not found.`);
+      const existingSet = await SetService.getById(setId);
+      if (!existingSet) {
+        throw new Error(`Set with ID: ${setId} not found.`);
       }
+      // Merge existing set data with updates
+      const updatedSet = { ...existingSet, ...updates };
+      await SetService.update(setId, updatedSet);
 
-      const updatedSet = { ...sets[setIndex], ...updates };
-      sets[setIndex] = updatedSet;
-      await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(sets));
       return updatedSet;
     } catch (error) {
       throw new Error(`Error updating set: ${error.message}`);
@@ -84,18 +81,14 @@ export class SetService {
   }
 
   // DELETE Set
-  public static async delete(uuid: string): Promise<boolean> {
+  public static async delete(setId: string): Promise<boolean> {
     try {
-      const storedSets = await AsyncStorage.getItem(this.STORAGE_KEY);
-      const sets: Set[] = storedSets ? JSON.parse(storedSets) : [];
-      const setIndex = sets.findIndex((s) => s.id === uuid);
-
-      if (setIndex === -1) {
-        throw new Error(`Set with ID: ${uuid} not found.`);
+      const existingSet = await SetService.getById(setId);
+      if (!existingSet) {
+        throw new Error(`Set with ID: ${setId} not found.`);
       }
+      await SetService.delete(setId);
 
-      sets.splice(setIndex, 1);
-      await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(sets));
       return true;
     } catch (error) {
       throw new Error(`Error deleting set: ${error.message}`);

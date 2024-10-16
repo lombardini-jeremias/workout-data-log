@@ -1,12 +1,19 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import { Colors } from "@/constants/Colors";
 
 import { ExerciseTypeCategory } from "../../interfaces/ExerciseType.interface";
 
 import ButtonPrimary from "../buttons/ButtonPrimary";
+import BottomSheetReusable from "./BottomSheetReusable";
 
-interface ExerciseSetsManagerProps {
+interface ExerciseSetsManager2Props {
   exercise: any;
   isEditable: boolean;
   onSetChange: (
@@ -16,46 +23,46 @@ interface ExerciseSetsManagerProps {
     value: string
   ) => void;
   onAddSet: (exerciseId: string) => void;
+  onDeleteSet: (exerciseId: string, setIndex: number) => void; // Add this prop
   exerciseType?: ExerciseTypeCategory;
 }
 
-export default function ExerciseSetsManager({
+export default function ExerciseSetsManager2({
   exercise,
   isEditable,
   onSetChange,
   onAddSet,
+  onDeleteSet,
   exerciseType,
-}: ExerciseSetsManagerProps) {
+}: ExerciseSetsManager2Props) {
+  const [isBottomSheetVisible, setBottomSheetVisible] = useState(false);
+  const [selectedSetIndex, setSelectedSetIndex] = useState<number | null>(null); // Store selected set index
+
+  const openBottomSheet = (index: number) => {
+    if (selectedSetIndex !== index) {
+      console.log("Opening BOTTOM-SHEET SET index:", index);
+      setSelectedSetIndex(null);
+      setSelectedSetIndex(index);
+      setBottomSheetVisible(true);
+    }
+  };
+
+  const closeBottomSheet = (index: number) => {
+    console.log("Closing BOTTOM-SHEET", index);
+    setSelectedSetIndex(null);
+    setBottomSheetVisible(false);
+  };
+
   const renderField = (set, index, field, placeholder, valueKey) => {
-    const [isFocused, setIsFocused] = useState(false);
-    const [tempValue, setTempValue] = useState(
-      set[valueKey] ? String(set[valueKey]) : ""
-    ); // Temporary input state
-
-    const handleFocus = () => {
-      setIsFocused(true);
-      setTempValue(set[valueKey] ? String(set[valueKey]) : ""); // Set the temporary value to the current stored value when focused
-    };
-
-    const handleBlur = () => {
-      setIsFocused(false);
-      onSetChange(exercise.id, index, field, tempValue); // Only update the main state when focus is lost
-    };
-
     return isEditable ? (
       <TextInput
         key={index}
-        style={[
-          styles.input,
-          isFocused ? styles.inputFocused : null, // Apply focused styles if the field is focused
-        ]}
+        style={[styles.input]}
         placeholder={placeholder}
         placeholderTextColor={Colors.gray}
         keyboardType="numeric"
-        value={tempValue} // Bind the value to the temporary state
-        onChangeText={setTempValue} // Update temporary state as the user types
-        onFocus={handleFocus} // Set focus state and initialize the temp value
-        onBlur={handleBlur} // On blur, save the final value to the main state
+        value={set[valueKey] ? String(set[valueKey]) : ""}
+        onChangeText={(value) => onSetChange(exercise.id, index, field, value)}
       />
     ) : (
       <Text style={styles.setNumber} key={index}>
@@ -64,35 +71,14 @@ export default function ExerciseSetsManager({
     );
   };
 
-  // const renderField = (set, index, field, placeholder, valueKey) => {
-  //   const [isFocused, setIsFocused] = useState(false);
-
-  //   return isEditable ? (
-  //     <TextInput
-  //       key={index}
-  //       style={[
-  //         styles.input,
-  //         isFocused ? styles.inputFocused : null, // Apply focused styles if field is focused
-  //       ]}
-  //       placeholder={placeholder}
-  //       placeholderTextColor={Colors.gray}
-  //       keyboardType="numeric"
-  //       value={set[valueKey] ? String(set[valueKey]) : ""}
-  //       onChangeText={(value) => onSetChange(exercise.id, index, field, value)}
-  //       onFocus={() => setIsFocused(true)} // When the input is focused
-  //       onBlur={() => setIsFocused(false)} // When the input loses focus
-  //     />
-  //   ) : (
-  //     <Text style={styles.setNumber} key={index}>
-  //       {set[valueKey]}
-  //     </Text>
-  //     // <TouchableOpacity key={index} onPress={() => setIsEditing(true)}>
-  //     //   <Text style={styles.setNumber}>
-  //     //     {set[valueKey] ? set[valueKey] : placeholder}
-  //     //   </Text>
-  //     // </TouchableOpacity>
-  //   );
-  // };
+  const handleDeleteSet = () => {
+    if (selectedSetIndex !== null) {
+      onDeleteSet(exercise.id, selectedSetIndex);
+      console.log("SET-INDEX", selectedSetIndex, exercise.id);
+      setBottomSheetVisible(false);
+      setSelectedSetIndex(null);
+    }
+  };
 
   if (!exerciseType) {
     return <Text>No valid exercise type available.</Text>;
@@ -104,7 +90,12 @@ export default function ExerciseSetsManager({
         <View style={styles.columnSet}>
           <Text style={styles.columnText}>SET</Text>
           {exercise.sets.map((set, index) => (
-            <Text style={styles.setNumber}>{index + 1}</Text>
+            <TouchableOpacity
+              key={index}
+              onPress={() => openBottomSheet(index)} // Open the bottom sheet when set number is pressed
+            >
+              <Text style={styles.setNumber}>{index + 1}</Text>
+            </TouchableOpacity>
           ))}
         </View>
 
@@ -238,6 +229,14 @@ export default function ExerciseSetsManager({
       )}
 
       <View style={styles.separator} />
+
+      {/* Render the Bottom Sheet */}
+      <BottomSheetReusable
+        isVisible={isBottomSheetVisible}
+        onClose={closeBottomSheet}
+        // onClose={() => setBottomSheetVisible(false)}
+        onDeleteSet={handleDeleteSet}
+      />
     </View>
   );
 }

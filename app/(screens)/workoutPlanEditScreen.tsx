@@ -118,7 +118,7 @@ export default function workoutPlanEditScreen() {
     setSets((prevSets) =>
       prevSets.map((set) => {
         if (set.exerciseId === exerciseId && set.index === setIndex) {
-          return { ...set, [field]: value };
+          return { ...set, [field]: value }; // Update the changed field
         }
         return set;
       })
@@ -156,39 +156,57 @@ export default function workoutPlanEditScreen() {
 
   const handleUpdate = async () => {
     try {
-      const storedWorkouts = await AsyncStorage.getItem(WORKOUTS_KEY);
-      const parsedWorkouts = storedWorkouts ? JSON.parse(storedWorkouts) : [];
+      // Start by updating the workout plan name if it was changed
+      if (workoutPlanName !== workoutPlan.name) {
+        await WorkoutPlanService.update(workoutPlan.id, {
+          name: workoutPlanName,
+        });
+      }
 
-      const updatedWorkouts = parsedWorkouts.map(
-        (workout) => workouts.find((w) => w.uuid === workout.uuid) || workout
+      // Iterate over each set and apply changes
+      await Promise.all(
+        sets.map(async (set) => {
+          // Check if the set already exists (by checking if it has an id)
+          if (set.id) {
+            // If the set exists, update it with the changed fields
+            await SetService.update(set.id, {
+              reps: set.reps,
+              weight: set.weight,
+              duration: set.duration,
+              distance: set.distance,
+              restTime: set.restTime,
+              rpe: set.rpe,
+            });
+          } else {
+            // If the set is new (no id), create it
+            const newSet = {
+              exerciseId: set.exerciseId,
+              setIndex: set.index,
+              reps: set.reps,
+              weight: set.weight,
+              duration: set.duration,
+              distance: set.distance,
+              exerciseTypeId: set.exerciseTypeId,
+            };
+            const createdSet = await SetService.create(newSet);
+            // Add the new set's ID to the workout plan's setId array
+            workoutPlan.setId.push(createdSet.id);
+          }
+        })
       );
 
-      await AsyncStorage.setItem(WORKOUTS_KEY, JSON.stringify(updatedWorkouts));
-
-      const storedDayActivities = await AsyncStorage.getItem(
-        DAY_ACTIVITIES_KEY
+      const updatedWorkoutPlan = await WorkoutPlanService.update(
+        workoutPlan.id,
+        {
+          setId: workoutPlan.setId,
+          exerciseId: workoutPlan.exerciseId,
+        }
       );
-      const parsedDayActivities = storedDayActivities
-        ? JSON.parse(storedDayActivities)
-        : [];
-
-      const updatedDayActivities = parsedDayActivities.map((activity) =>
-        activity.uuid === selectedDayActivityId
-          ? { ...activity, name: activityName }
-          : activity
-      );
-
-      await AsyncStorage.setItem(
-        DAY_ACTIVITIES_KEY,
-        JSON.stringify(updatedDayActivities)
-      );
-
-      Alert.alert("Success", "Day activity and workouts updated.");
-      setIsEditable(false); // Reset editable mode
-      navigation.goBack();
+      return Alert.alert("Workout Plan updated successfully!");
+      // router.back();
     } catch (error) {
-      console.error("Error updating data:", error);
-      Alert.alert("Failed to update data.");
+      console.error("Error updating workout plan:", error);
+      Alert.alert("Failed to update workout plan. Please try again.");
     }
   };
 
@@ -246,7 +264,7 @@ export default function workoutPlanEditScreen() {
                     isEditable={true}
                     onSetChange={onSetChange}
                     onAddSet={onAddSet}
-                    onDeleteSet={onDeleteSet}
+                    // onDeleteSet={onDeleteSet}
                     exerciseType={exerciseTypes[exerciseId]?.type || null}
                   />
                 ) : (
