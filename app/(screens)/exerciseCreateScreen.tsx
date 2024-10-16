@@ -1,18 +1,17 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect } from "react";
 import { Alert, StyleSheet, View } from "react-native";
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 
 import { Colors } from "@/constants/Colors";
 import { Containers } from "@/constants/Container";
 
-import SaveButton from "../../components/navigation/RightSecondaryButton";
-import SecondaryInput from "../../components/inputs/SecondaryInput";
 import PrimaryInput from "../../components/inputs/PrimaryInput";
-import { preloadAllDataService } from "../../services/preloadData.service";
+import SecondaryInput from "../../components/inputs/SecondaryInput";
+import SaveButton from "../../components/navigation/RightSecondaryButton";
+
 import { ExerciseService } from "../../services/Exercise.service";
-import { Equipment } from "../../interfaces/Equipment.interface";
-import { MuscleGroup } from "../../interfaces/MuscleGroup.interface";
-import { ExerciseType } from "../../interfaces/ExerciseType.interface";
+import { preloadAllDataService } from "../../services/preloadData.service";
+
 import { useExerciseForm } from "../../context/ExerciseFormProvider";
 
 export default function CreateExerciseScreen() {
@@ -20,21 +19,25 @@ export default function CreateExerciseScreen() {
   const router = useRouter();
   const { exerciseForm, setExerciseForm } = useExerciseForm();
 
-  const [equipment, setEquipment] = useState<Equipment["name"] | string>(
-    "Select"
-  );
-  const [primaryMuscleGroup, setPrimaryMuscleGroup] = useState<
-    MuscleGroup["name"] | string
-  >("Select");
-  const [secondaryMuscleGroup, setSecondaryMuscleGroup] = useState<
-    MuscleGroup["name"] | string
-  >("Select");
-  const [exerciseType, setExerciseType] = useState<
-    ExerciseType["type"] | string
-  >("Select");
+  // const [equipment, setEquipment] = useState<Equipment["name"] | string>(
+  //   "Select"
+  // );
+  // const [primaryMuscleGroup, setPrimaryMuscleGroup] = useState<
+  //   MuscleGroup["name"] | string
+  // >("Select");
+  // const [secondaryMuscleGroup, setSecondaryMuscleGroup] = useState<
+  //   MuscleGroup["name"] | string
+  // >("Select");
+  // const [exerciseType, setExerciseType] = useState<
+  //   ExerciseType["type"] | string
+  // >("Select");
 
-  const { selectedEquipment, selectedMuscleGroup, selectedExerciseType } =
-    useLocalSearchParams();
+  // const {
+  //   selectedEquipment,
+  //   selectedPrimaryMuscleGroup,
+  //   selectedSecondaryMuscleGroup,
+  //   selectedExerciseType,
+  // } = useLocalSearchParams();
 
   useEffect(() => {
     const loadPreloadedData = async () => {
@@ -42,40 +45,38 @@ export default function CreateExerciseScreen() {
     };
     loadPreloadedData();
 
-    if (selectedEquipment) {
-      setEquipment(
-        Array.isArray(selectedEquipment)
-          ? selectedEquipment[0]
-          : selectedEquipment
-      );
-    }
-
-    if (selectedMuscleGroup) {
-      setMuscleGroup(
-        Array.isArray(selectedMuscleGroup)
-          ? selectedMuscleGroup[0]
-          : selectedMuscleGroup
-      );
-    }
-
-    if (selectedExerciseType) {
-      setExerciseType(
-        Array.isArray(selectedExerciseType)
-          ? selectedExerciseType[0]
-          : selectedExerciseType
-      );
-    }
-
-    // if (selectedForce) {
-    //   setForce(Array.isArray(selectedForce) ? selectedForce[0] : selectedForce);
-    // }
-
-    // if (selectedMechanic) {
-    //   setMechanic(
-    //     Array.isArray(selectedMechanic) ? selectedMechanic[0] : selectedMechanic
+    // if (selectedEquipment) {
+    //   setEquipment(
+    //     Array.isArray(selectedEquipment)
+    //       ? selectedEquipment[0]
+    //       : selectedEquipment
     //   );
     // }
-  }, [selectedEquipment, selectedMuscleGroup, selectedExerciseType]);
+
+    // if (selectedPrimaryMuscleGroup) {
+    //   setPrimaryMuscleGroup(
+    //     Array.isArray(selectedPrimaryMuscleGroup)
+    //       ? selectedPrimaryMuscleGroup[0]
+    //       : selectedPrimaryMuscleGroup
+    //   );
+    // }
+
+    // if (selectedSecondaryMuscleGroup) {
+    //   setSecondaryMuscleGroup(
+    //     Array.isArray(selectedSecondaryMuscleGroup)
+    //       ? selectedSecondaryMuscleGroup[0]
+    //       : selectedSecondaryMuscleGroup
+    //   );
+    // }
+
+    // if (selectedExerciseType) {
+    //   setExerciseType(
+    //     Array.isArray(selectedExerciseType)
+    //       ? selectedExerciseType[0]
+    //       : selectedExerciseType
+    //   );
+    // }
+  }, []);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -84,13 +85,8 @@ export default function CreateExerciseScreen() {
   }, [navigation, exerciseForm]);
 
   const handleSave = async () => {
-    const {
-      name,
-      equipmentName,
-      primaryMuscleGroupName,
-      secondaryMuscleGroupName,
-      exerciseTypeName,
-    } = exerciseForm;
+    const { name, equipmentName, primaryMuscleGroupName, exerciseTypeName } =
+      exerciseForm;
 
     if (!name || name.trim() === "") {
       Alert.alert("Please enter a name for the exercise");

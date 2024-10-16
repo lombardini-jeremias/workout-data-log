@@ -136,22 +136,7 @@ export default function workoutPlanEditScreen() {
     setSets((prevSets) => [...prevSets, newSet]);
   };
 
-  // const onDeleteSet = (exerciseId, setIndex) => {
-  //   console.log("EX-Id", exerciseId);
-  //   setSets((prevSets) =>
-  //     prevSets
-  //       .filter(
-  //         (set) => !(set.exerciseId === exerciseId && set.index === setIndex)
-  //       )
-  //       .map((set, index) =>
-  //         set.exerciseId === exerciseId ? { ...set, index } : set
-  //       )
-  //   );
-  // };
-
   const onDeleteSet = (exerciseId, setIndex) => {
-    console.log("EX-Id", exerciseId);
-
     // Create a new array without mutating the previous state
     setSets((prevSets) => {
       const filteredSets = prevSets.filter(

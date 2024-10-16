@@ -99,6 +99,21 @@ export default function workoutPlanCreateScreen() {
     );
   };
 
+  const onDeleteSet = (exerciseId, setIndex) => {
+    setSelectedExercises((prevExercises) =>
+      prevExercises.map((exercise) => {
+        if (exercise.id === exerciseId) {
+          // Remove the set at the specified index
+          const updatedSets = exercise.sets.filter(
+            (_, index) => index !== setIndex
+          );
+          return { ...exercise, sets: updatedSets };
+        }
+        return exercise;
+      })
+    );
+  };
+
   // Main function to handle the save process
   const handleSave = async () => {
     if (!activityName.trim()) {
@@ -229,6 +244,7 @@ export default function workoutPlanCreateScreen() {
               exerciseType={item.exerciseType?.type}
               onSetChange={onSetChange}
               onAddSet={onAddSet}
+              onDeleteSet={onDeleteSet}
             />
           </View>
         )}
