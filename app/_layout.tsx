@@ -11,6 +11,7 @@ import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { ExerciseFormProvider } from "../context/ExerciseFormProvider";
+import { WorkoutPlanProvider } from "../context/WorkoutPlanProvider";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -33,13 +34,15 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <ExerciseFormProvider>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="(screens)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-      </ExerciseFormProvider>
+      <WorkoutPlanProvider>
+        <ExerciseFormProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(screens)" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+        </ExerciseFormProvider>
+      </WorkoutPlanProvider>
     </ThemeProvider>
   );
 }

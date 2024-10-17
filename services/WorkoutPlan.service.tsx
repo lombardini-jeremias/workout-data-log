@@ -74,18 +74,31 @@ export class WorkoutPlanService {
     workoutPlanId: string,
     updates: Partial<WorkoutPlan>
   ): Promise<WorkoutPlan | undefined> {
-    console.log("UPDATE", workoutPlanId);
+    console.log("WP-UPDATE", workoutPlanId);
+
     try {
-      // Fetch the existing workout plan using WorkoutPlanService
-      const existingWorkoutPlan = await WorkoutPlanService.getById(
-        workoutPlanId
+      const storedWorkoutPlans = await AsyncStorage.getItem(this.STORAGE_KEY);
+      const workoutPlans: WorkoutPlan[] = storedWorkoutPlans
+        ? JSON.parse(storedWorkoutPlans)
+        : [];
+
+      const workoutPlanIndex = workoutPlans.findIndex(
+        (wp) => wp.id === workoutPlanId
       );
-      if (!existingWorkoutPlan) {
+      if (workoutPlanIndex === -1) {
         throw new Error(`Workout plan with ID: ${workoutPlanId} not found.`);
       }
-      // Merge the updates with the existing workout plan
-      const updatedWorkoutPlan = { ...existingWorkoutPlan, ...updates };
-      await WorkoutPlanService.update(workoutPlanId, updatedWorkoutPlan);
+
+      const updatedWorkoutPlan = {
+        ...workoutPlans[workoutPlanIndex],
+        ...updates,
+      };
+      workoutPlans[workoutPlanIndex] = updatedWorkoutPlan;
+
+      await AsyncStorage.setItem(
+        this.STORAGE_KEY,
+        JSON.stringify(workoutPlans)
+      );
 
       return updatedWorkoutPlan;
     } catch (error) {
@@ -93,45 +106,25 @@ export class WorkoutPlanService {
     }
   }
 
-  // public static async update(
-  //   uuid: string,
-  //   updates: Partial<WorkoutPlan>
-  // ): Promise<WorkoutPlan | undefined> {
-  //   try {
-  //     const storedWorkoutPlans = await AsyncStorage.getItem(this.STORAGE_KEY);
-  //     const workoutPlans: WorkoutPlan[] = storedWorkoutPlans
-  //       ? JSON.parse(storedWorkoutPlans)
-  //       : [];
-  //     const workoutPlanIndex = workoutPlans.findIndex((wp) => wp.id === uuid);
-  //     if (workoutPlanIndex === -1) {
-  //       throw new Error(`Workout plan with ID: ${uuid} not found.`);
-  //     }
-  //     const updatedWorkoutPlan = {
-  //       ...workoutPlans[workoutPlanIndex],
-  //       ...updates,
-  //     };
-  //     workoutPlans[workoutPlanIndex] = updatedWorkoutPlan;
-  //     await AsyncStorage.setItem(
-  //       this.STORAGE_KEY,
-  //       JSON.stringify(workoutPlans)
-  //     );
-  //     return updatedWorkoutPlan;
-  //   } catch (error) {
-  //     throw new Error(`Error updating workout plan: ${error.message}`);
-  //   }
-  // }
-
   // DELETE Workout Plan
   public static async delete(workoutPlanId: string): Promise<boolean> {
     try {
-      const existingWorkoutPlan = await WorkoutPlanService.getById(
-        workoutPlanId
+      const storedWorkoutPlans = await AsyncStorage.getItem(this.STORAGE_KEY);
+      const workoutPlans: WorkoutPlan[] = storedWorkoutPlans
+        ? JSON.parse(storedWorkoutPlans)
+        : [];
+
+      const updatedWorkoutPlans = workoutPlans.filter(
+        (wp) => wp.id !== workoutPlanId
       );
-      if (!existingWorkoutPlan) {
+      if (updatedWorkoutPlans.length === workoutPlans.length) {
         throw new Error(`Workout plan with ID: ${workoutPlanId} not found.`);
       }
 
-      await WorkoutPlanService.delete(workoutPlanId);
+      await AsyncStorage.setItem(
+        this.STORAGE_KEY,
+        JSON.stringify(updatedWorkoutPlans)
+      );
 
       return true;
     } catch (error) {

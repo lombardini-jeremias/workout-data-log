@@ -7,12 +7,11 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useLayoutEffect, useState } from "react";
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 
 import { Colors } from "@/constants/Colors";
 import { Containers } from "@/constants/Container";
 
-import { Set } from "../../interfaces/Set.interface";
 import { ExerciseType } from "../../interfaces/ExerciseType.interface";
 
 import CancelButton from "../../components/navigation/CancelButton";
@@ -22,29 +21,23 @@ import TextOrInput from "../../components/reusables/TextOrInput";
 import ExerciseSetsManager from "../../components/reusables/ExerciseSetsManager";
 
 import { SetService } from "../../services/Set.service";
-import { ExerciseService } from "../../services/Exercise.service";
 import { WorkoutPlanService } from "../../services/WorkoutPlan.service";
-import { ExerciseTypeService } from "../../services/ExerciseType.service";
+import { useWorkoutPlan } from "../../context/WorkoutPlanProvider";
 
 export default function workoutPlanEditScreen() {
   const navigation = useNavigation();
   const router = useRouter();
 
-  const { workoutPlanId } = useLocalSearchParams<{
-    workoutPlanId: string;
-  }>();
-
-  const [workoutPlanName, setWorkoutPlanName] = useState("");
-  const [workoutPlan, setWorkoutPlan] = useState([]);
-  const [sets, setSets] = useState<Set[]>([]);
-  const [exerciseNames, setExerciseNames] = useState<{ [key: string]: string }>(
-    {}
+  const { workoutPlanState, setWorkoutPlanState } = useWorkoutPlan();
+  const { workoutPlan, sets, exerciseNames, exerciseTypes } = workoutPlanState;
+  const [workoutPlanName, setWorkoutPlanName] = useState(
+    workoutPlan?.name || ""
   );
-  const [exerciseTypes, setExerciseTypes] = useState<{
-    [key: string]: ExerciseType | null;
-  }>({});
-
   const [loading, setLoading] = useState(true);
+
+  // console.log("WP-EDIT", workoutPlan);
+  // console.log("EX-Name-EDIT", exerciseNames);
+  // console.log("EX-Types-EDIT", exerciseTypes);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -60,150 +53,106 @@ export default function workoutPlanEditScreen() {
   };
 
   useEffect(() => {
-    const fetchWorkoutPlanDetails = async () => {
-      try {
-        const selectedWorkoutPlan = await WorkoutPlanService.getById(
-          workoutPlanId
-        );
-
-        if (selectedWorkoutPlan) {
-          setWorkoutPlan(selectedWorkoutPlan);
-          setWorkoutPlanName(selectedWorkoutPlan.name);
-          const setsForPlan = await Promise.all(
-            selectedWorkoutPlan.setId.map((setId) => SetService.getById(setId))
-          );
-          setSets(setsForPlan.filter((set) => set !== undefined) as Set[]);
-
-          // Fetch exercise names
-          const names: { [key: string]: string } = {};
-          await Promise.all(
-            selectedWorkoutPlan.exerciseId.map(async (exerciseId) => {
-              const name = await getExerciseNameById(exerciseId);
-              names[exerciseId] = name;
-            })
-          );
-          setExerciseNames(names);
-
-          // Fetch exercise types for the sets
-          const exerciseTypesMap: { [key: string]: ExerciseType | null } = {};
-          await Promise.all(
-            setsForPlan.map(async (set) => {
-              if (set?.exerciseTypeId && set?.exerciseId) {
-                const exerciseType = await ExerciseTypeService.getById(
-                  set.exerciseTypeId
-                );
-                exerciseTypesMap[set.exerciseId] = exerciseType;
-              }
-            })
-          );
-
-          setExerciseTypes(exerciseTypesMap);
-        } else {
-          Alert.alert("Workout Plan not found.");
-        }
-      } catch (error) {
-        console.error("Error fetching workout plan:", error);
-        Alert.alert("Failed to fetch workout plan.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (workoutPlanId) {
-      fetchWorkoutPlanDetails();
+    if (workoutPlan && exerciseNames && sets) {
+      console.log("State fully populated", {
+        workoutPlan,
+        exerciseNames,
+        sets,
+      });
+      setLoading(false);
     }
-  }, [workoutPlanId]);
+  }, [workoutPlan, exerciseNames, sets]);
 
   const onSetChange = (exerciseId, setIndex, field, value) => {
-    setSets((prevSets) =>
-      prevSets.map((set) => {
-        if (set.exerciseId === exerciseId && set.index === setIndex) {
+    setWorkoutPlanState((prevState) => {
+      const updatedSets = prevState.sets.map((set) => {
+        if (set.exerciseId === exerciseId && set.setIndex === setIndex) {
           return { ...set, [field]: value }; // Update the changed field
         }
         return set;
-      })
-    );
+      });
+
+      return { ...prevState, sets: updatedSets };
+    });
   };
 
   const onAddSet = (exerciseId) => {
-    const newSet = {
-      index: sets.filter((set) => set.exerciseId === exerciseId).length,
-      set: sets.length + 1,
-      weight: "",
-      reps: "",
-      exerciseId,
-    };
-    setSets((prevSets) => [...prevSets, newSet]);
-  };
+    setWorkoutPlanState((prevState) => {
+      const newSetIndex = prevState.sets.filter(
+        (set) => set.exerciseId === exerciseId
+      ).length;
 
-  const onDeleteSet = (exerciseId, setIndex) => {
-    // Create a new array without mutating the previous state
-    setSets((prevSets) => {
-      const filteredSets = prevSets.filter(
-        (set) => !(set.exerciseId === exerciseId && set.index === setIndex)
-      );
+      const newSet = {
+        exerciseId,
+        setIndex: newSetIndex,
+        reps: "",
+        weight: "",
+        exerciseTypeId: exerciseTypes[exerciseId]?.id || "",
+      };
 
-      // Map the remaining sets to update their index if necessary
-      return filteredSets.map((set, index) =>
-        set.exerciseId === exerciseId ? { ...set, index } : set
-      );
+      return { ...prevState, sets: [...prevState.sets, newSet] };
     });
   };
+
+  // const onDeleteSet = (exerciseId, setIndex) => {
+  //   // Create a new array without mutating the previous state
+  //   setSets((prevSets) => {
+  //     const filteredSets = prevSets.filter(
+  //       (set) => !(set.exerciseId === exerciseId && set.index === setIndex)
+  //     );
+
+  //     // Map the remaining sets to update their index if necessary
+  //     return filteredSets.map((set, index) =>
+  //       set.exerciseId === exerciseId ? { ...set, index } : set
+  //     );
+  //   });
+  // };
 
   // const handleAddExercise = () => {
   //   router.push("/(screens)/personalExerciseListScreen");
   // };
 
   const handleUpdate = async () => {
+    console.log("Updating WP-ID:", workoutPlan.id);
+
     try {
-      // Start by updating the workout plan name if it was changed
-      if (workoutPlanName !== workoutPlan.name) {
+      if (workoutPlanName !== workoutPlan?.name) {
+        console.log("Updating WP-NAME..", workoutPlanName, workoutPlan?.name);
         await WorkoutPlanService.update(workoutPlan.id, {
           name: workoutPlanName,
         });
       }
-
-      // Iterate over each set and apply changes
-      await Promise.all(
-        sets.map(async (set) => {
-          // Check if the set already exists (by checking if it has an id)
-          if (set.id) {
-            // If the set exists, update it with the changed fields
+      console.log("END-UPDATE-WP-NAME");
+      const updatedSetPromises = sets.map(async (set) => {
+        if (set.id) {
+          const existingSet = await SetService.getById(set.id);
+          if (
+            existingSet.reps !== set.reps ||
+            existingSet.weight !== set.weight
+          ) {
+            console.log(`Updating SET-ID: ${set.id}`);
             await SetService.update(set.id, {
               reps: set.reps,
               weight: set.weight,
-              duration: set.duration,
-              distance: set.distance,
-              restTime: set.restTime,
-              rpe: set.rpe,
             });
-          } else {
-            // If the set is new (no id), create it
-            const newSet = {
-              exerciseId: set.exerciseId,
-              setIndex: set.index,
-              reps: set.reps,
-              weight: set.weight,
-              duration: set.duration,
-              distance: set.distance,
-              exerciseTypeId: set.exerciseTypeId,
-            };
-            const createdSet = await SetService.create(newSet);
-            // Add the new set's ID to the workout plan's setId array
-            workoutPlan.setId.push(createdSet.id);
           }
-        })
-      );
-
-      const updatedWorkoutPlan = await WorkoutPlanService.update(
-        workoutPlan.id,
-        {
-          setId: workoutPlan.setId,
-          exerciseId: workoutPlan.exerciseId,
+        } else {
+          console.log("Creating new set...");
+          const newSet = await SetService.create(set);
+          set.id = newSet.id;
+          workoutPlan.setId.push(newSet.id);
         }
-      );
-      return Alert.alert("Workout Plan updated successfully!");
-      // router.back();
+      });
+
+      await Promise.all(updatedSetPromises);
+
+      await WorkoutPlanService.update(workoutPlan.id, {
+        setId: workoutPlan.setId,
+        exerciseId: workoutPlan.exerciseId,
+      });
+
+      Alert.alert("Workout Plan updated successfully!");
+      router.back();
     } catch (error) {
       console.error("Error updating workout plan:", error);
       Alert.alert("Failed to update workout plan. Please try again.");
@@ -217,9 +166,33 @@ export default function workoutPlanEditScreen() {
     });
   };
 
-  const getExerciseNameById = async (id: string) => {
-    const exercise = await ExerciseService.getById(id);
-    return exercise?.name || "Unknown Exercise";
+  // Render a list of exercises and their sets
+  const renderExerciseItem = ({ item: exerciseId }) => {
+    const exerciseSets = sets.filter((set) => set.exerciseId === exerciseId);
+
+    return (
+      <View>
+        <TouchableOpacity onPress={() => handleExerciseDetailById(exerciseId)}>
+          <Text style={styles.exerciseText}>
+            {exerciseNames?.[exerciseId] || "Unknown Exercise"}
+          </Text>
+        </TouchableOpacity>
+
+        {exerciseSets.length > 0 ? (
+          <ExerciseSetsManager
+            exercise={{ id: exerciseId, sets: exerciseSets }}
+            isEditable={true}
+            onSetChange={onSetChange}
+            onAddSet={onAddSet}
+            exerciseType={exerciseTypes[exerciseId]?.type || null}
+          />
+        ) : (
+          <Text style={styles.noSetsText}>
+            No sets available for this exercise.
+          </Text>
+        )}
+      </View>
+    );
   };
 
   if (loading) {
@@ -232,7 +205,12 @@ export default function workoutPlanEditScreen() {
 
   return (
     <View style={Containers.screenContainer}>
-      <TextOrInput isEditable={true} value={workoutPlanName} />
+      <TextOrInput
+        isEditable={true}
+        value={workoutPlanName}
+        onChangeText={(text) => setWorkoutPlanName(text)}
+      />
+
       <View style={styles.separator} />
 
       <View style={styles.subheaderContainer}>
@@ -243,38 +221,7 @@ export default function workoutPlanEditScreen() {
         <FlatList
           data={workoutPlan.exerciseId}
           keyExtractor={(exerciseId) => exerciseId}
-          renderItem={({ item: exerciseId }) => {
-            const exerciseSets = sets.filter(
-              (set) => set.exerciseId === exerciseId
-            );
-
-            return (
-              <View>
-                <TouchableOpacity
-                  onPress={() => handleExerciseDetailById(exerciseId)}
-                >
-                  <Text style={styles.exerciseText}>
-                    {exerciseNames?.[exerciseId] || "Unknown Exercise"}
-                  </Text>
-                </TouchableOpacity>
-
-                {exerciseSets.length > 0 ? (
-                  <ExerciseSetsManager
-                    exercise={{ id: exerciseId, sets: exerciseSets }}
-                    isEditable={true}
-                    onSetChange={onSetChange}
-                    onAddSet={onAddSet}
-                    // onDeleteSet={onDeleteSet}
-                    exerciseType={exerciseTypes[exerciseId]?.type || null}
-                  />
-                ) : (
-                  <Text style={styles.noSetsText}>
-                    No sets available for this exercise.
-                  </Text>
-                )}
-              </View>
-            );
-          }}
+          renderItem={renderExerciseItem} // Render each exercise item
         />
       ) : (
         <Text style={styles.noWorkoutsText}>

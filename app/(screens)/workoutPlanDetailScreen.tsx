@@ -23,26 +23,19 @@ import { SetService } from "../../services/Set.service";
 import { ExerciseService } from "../../services/Exercise.service";
 import { WorkoutPlanService } from "../../services/WorkoutPlan.service";
 import { ExerciseTypeService } from "../../services/ExerciseType.service";
+import { useWorkoutPlan } from "../../context/WorkoutPlanProvider";
 
 export default function WorkoutPlanDetailScreen() {
   const navigation = useNavigation();
   const router = useRouter();
+  const { workoutPlanState, setWorkoutPlanState } = useWorkoutPlan();
+  const { workoutPlan, sets, exerciseNames, exerciseTypes } = workoutPlanState;
+  // console.log("WP-DETAILS", workoutPlan);
+  // console.log("EX-Names-DETAILS", exerciseNames);
+  // console.log("EX-Types-DETAILS", exerciseTypes);
 
   const { workoutPlanId } = useLocalSearchParams() as { workoutPlanId: string };
-  // maybe i can fetch the name when i fetch getAll() workoutPlan
-
-  const [workoutPlan, setWorkoutPlan] = useState<WorkoutPlan | null>(null);
-  const [workoutPlanName, setWorkoutPlanName] = useState<string>("");
-
-  const [sets, setSets] = useState<Set[]>([]);
-  const [exerciseTypes, setExerciseTypes] = useState<{
-    [key: string]: ExerciseType | null;
-  }>({});
-
   const [loading, setLoading] = useState(true);
-  const [exerciseNames, setExerciseNames] = useState<{ [key: string]: string }>(
-    {}
-  );
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -58,12 +51,14 @@ export default function WorkoutPlanDetailScreen() {
         );
 
         if (selectedWorkoutPlan) {
-          setWorkoutPlan(selectedWorkoutPlan);
-          setWorkoutPlanName(selectedWorkoutPlan.name);
+          const workoutPlanName = selectedWorkoutPlan.name;
+
           const setsForPlan = await Promise.all(
             selectedWorkoutPlan.setId.map((setId) => SetService.getById(setId))
           );
-          setSets(setsForPlan.filter((set) => set !== undefined) as Set[]);
+          const filteredSets = setsForPlan.filter(
+            (set) => set !== undefined
+          ) as Set[];
 
           // Fetch exercise names
           const names: { [key: string]: string } = {};
@@ -73,12 +68,11 @@ export default function WorkoutPlanDetailScreen() {
               names[exerciseId] = name;
             })
           );
-          setExerciseNames(names);
 
           // Fetch exercise types for the sets
           const exerciseTypesMap: { [key: string]: ExerciseType | null } = {};
           await Promise.all(
-            setsForPlan.map(async (set) => {
+            filteredSets.map(async (set) => {
               if (set?.exerciseTypeId && set?.exerciseId) {
                 const exerciseType = await ExerciseTypeService.getById(
                   set.exerciseTypeId
@@ -88,7 +82,13 @@ export default function WorkoutPlanDetailScreen() {
             })
           );
 
-          setExerciseTypes(exerciseTypesMap);
+          // Actualizar el estado del contexto
+          setWorkoutPlanState({
+            workoutPlan: selectedWorkoutPlan,
+            sets: filteredSets,
+            exerciseNames: names,
+            exerciseTypes: exerciseTypesMap,
+          });
         } else {
           Alert.alert("Workout Plan not found.");
         }
@@ -105,6 +105,61 @@ export default function WorkoutPlanDetailScreen() {
     }
   }, [workoutPlanId]);
 
+  // useEffect(() => {
+  //   const fetchWorkoutPlanDetails = async () => {
+  //     try {
+  //       const selectedWorkoutPlan = await WorkoutPlanService.getById(
+  //         workoutPlanId
+  //       );
+
+  //       if (selectedWorkoutPlan) {
+  //         setWorkoutPlan(selectedWorkoutPlan);
+  //         setWorkoutPlanName(selectedWorkoutPlan.name);
+  //         const setsForPlan = await Promise.all(
+  //           selectedWorkoutPlan.setId.map((setId) => SetService.getById(setId))
+  //         );
+  //         setSets(setsForPlan.filter((set) => set !== undefined) as Set[]);
+
+  //         // Fetch exercise names
+  //         const names: { [key: string]: string } = {};
+  //         await Promise.all(
+  //           selectedWorkoutPlan.exerciseId.map(async (exerciseId) => {
+  //             const name = await getExerciseNameById(exerciseId);
+  //             names[exerciseId] = name;
+  //           })
+  //         );
+  //         setExerciseNames(names);
+
+  //         // Fetch exercise types for the sets
+  //         const exerciseTypesMap: { [key: string]: ExerciseType | null } = {};
+  //         await Promise.all(
+  //           setsForPlan.map(async (set) => {
+  //             if (set?.exerciseTypeId && set?.exerciseId) {
+  //               const exerciseType = await ExerciseTypeService.getById(
+  //                 set.exerciseTypeId
+  //               );
+  //               exerciseTypesMap[set.exerciseId] = exerciseType;
+  //             }
+  //           })
+  //         );
+
+  //         setExerciseTypes(exerciseTypesMap);
+  //       } else {
+  //         Alert.alert("Workout Plan not found.");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching workout plan:", error);
+  //       Alert.alert("Failed to fetch workout plan.");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   if (workoutPlanId) {
+  //     fetchWorkoutPlanDetails();
+  //   }
+  // }, [workoutPlanId]);
+
   const getExerciseNameById = async (id: string) => {
     const exercise = await ExerciseService.getById(id);
     return exercise?.name || "Unknown Exercise";
@@ -120,7 +175,7 @@ export default function WorkoutPlanDetailScreen() {
   const handleEditWorkoutPlan = (workoutPlanId: string) => {
     router.push({
       pathname: "/(screens)/workoutPlanEditScreen",
-      params: { workoutPlanId },
+      // params: { workoutPlanId },
     });
   };
 
@@ -134,7 +189,7 @@ export default function WorkoutPlanDetailScreen() {
 
   return (
     <View style={Containers.screenContainer}>
-      <TextOrInput isEditable={false} value={workoutPlanName} />
+      <TextOrInput isEditable={false} value={workoutPlan?.name || ""} />
       <View style={styles.separator} />
 
       <View style={styles.subheaderContainer}>

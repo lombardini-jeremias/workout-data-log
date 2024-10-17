@@ -17,22 +17,11 @@ export class SetService {
 
       const storedSets = await AsyncStorage.getItem(this.STORAGE_KEY);
       const sets: Set[] = storedSets ? JSON.parse(storedSets) : [];
-
-      // Check for duplicates by exerciseId and setIndex
-      // const isDuplicate = sets.some(
-      //   (set) =>
-      //     set.exerciseId === setData.exerciseId &&
-      //     set.setIndex === setData.setIndex
-      // );
-
-      // if (isDuplicate) {
-      //   throw new Error(
-      //     `A set for exercise "${setData.exerciseId}" at index ${setData.setIndex} already exists.`
-      //   );
-      // }
-
       sets.push(newSet);
+
       await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(sets));
+
+      console.log("CREATE-SET", newSet);
       return newSet;
     } catch (error) {
       throw new Error(`Error creating new set: ${error.message}`);
@@ -74,6 +63,7 @@ export class SetService {
       const updatedSet = { ...existingSet, ...updates };
       await SetService.update(setId, updatedSet);
 
+      console.log("UPDATE-SET", updatedSet);
       return updatedSet;
     } catch (error) {
       throw new Error(`Error updating set: ${error.message}`);
