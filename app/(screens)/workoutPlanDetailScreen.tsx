@@ -7,7 +7,12 @@ import {
   Alert,
   TouchableOpacity,
 } from "react-native";
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import {
+  useFocusEffect,
+  useLocalSearchParams,
+  useNavigation,
+  useRouter,
+} from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { Containers } from "@/constants/Container";
 
@@ -28,11 +33,9 @@ import { useWorkoutPlan } from "../../context/WorkoutPlanProvider";
 export default function WorkoutPlanDetailScreen() {
   const navigation = useNavigation();
   const router = useRouter();
+
   const { workoutPlanState, setWorkoutPlanState } = useWorkoutPlan();
   const { workoutPlan, sets, exerciseNames, exerciseTypes } = workoutPlanState;
-  // console.log("WP-DETAILS", workoutPlan);
-  // console.log("EX-Names-DETAILS", exerciseNames);
-  // console.log("EX-Types-DETAILS", exerciseTypes);
 
   const { workoutPlanId } = useLocalSearchParams() as { workoutPlanId: string };
   const [loading, setLoading] = useState(true);
@@ -43,68 +46,133 @@ export default function WorkoutPlanDetailScreen() {
     });
   }, [navigation]);
 
-  useEffect(() => {
-    const fetchWorkoutPlanDetails = async () => {
-      try {
-        const selectedWorkoutPlan = await WorkoutPlanService.getById(
-          workoutPlanId
-        );
+  // useEffect(() => {
+  //   const fetchWorkoutPlanDetails = async () => {
+  //     try {
+  //       const selectedWorkoutPlan = await WorkoutPlanService.getById(
+  //         workoutPlanId
+  //       );
 
-        if (selectedWorkoutPlan) {
-          const workoutPlanName = selectedWorkoutPlan.name;
+  //       if (selectedWorkoutPlan) {
+  //         const workoutPlanName = selectedWorkoutPlan.name;
 
-          const setsForPlan = await Promise.all(
-            selectedWorkoutPlan.setId.map((setId) => SetService.getById(setId))
+  //         const setsForPlan = await Promise.all(
+  //           selectedWorkoutPlan.setId.map((setId) => SetService.getById(setId))
+  //         );
+  //         const filteredSets = setsForPlan.filter(
+  //           (set) => set !== undefined
+  //         ) as Set[];
+
+  //         // Fetch exercise names
+  //         const names: { [key: string]: string } = {};
+  //         await Promise.all(
+  //           selectedWorkoutPlan.exerciseId.map(async (exerciseId) => {
+  //             const name = await getExerciseNameById(exerciseId);
+  //             names[exerciseId] = name;
+  //           })
+  //         );
+
+  //         // Fetch exercise types for the sets
+  //         const exerciseTypesMap: { [key: string]: ExerciseType | null } = {};
+  //         await Promise.all(
+  //           filteredSets.map(async (set) => {
+  //             if (set?.exerciseTypeId && set?.exerciseId) {
+  //               const exerciseType = await ExerciseTypeService.getById(
+  //                 set.exerciseTypeId
+  //               );
+  //               exerciseTypesMap[set.exerciseId] = exerciseType;
+  //             }
+  //           })
+  //         );
+
+  //         // Actualizar el estado del contexto
+  //         setWorkoutPlanState({
+  //           workoutPlan: selectedWorkoutPlan,
+  //           sets: filteredSets,
+  //           exerciseNames: names,
+  //           exerciseTypes: exerciseTypesMap,
+  //         });
+  //       } else {
+  //         Alert.alert("Workout Plan not found.");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching workout plan:", error);
+  //       Alert.alert("Failed to fetch workout plan.");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   if (workoutPlanId) {
+  //     fetchWorkoutPlanDetails();
+  //   }
+  // }, [workoutPlanId]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchWorkoutPlanDetails = async () => {
+        setLoading(true);
+
+        try {
+          const selectedWorkoutPlan = await WorkoutPlanService.getById(
+            workoutPlanId
           );
-          const filteredSets = setsForPlan.filter(
-            (set) => set !== undefined
-          ) as Set[];
 
-          // Fetch exercise names
-          const names: { [key: string]: string } = {};
-          await Promise.all(
-            selectedWorkoutPlan.exerciseId.map(async (exerciseId) => {
-              const name = await getExerciseNameById(exerciseId);
-              names[exerciseId] = name;
-            })
-          );
+          if (selectedWorkoutPlan) {
 
-          // Fetch exercise types for the sets
-          const exerciseTypesMap: { [key: string]: ExerciseType | null } = {};
-          await Promise.all(
-            filteredSets.map(async (set) => {
-              if (set?.exerciseTypeId && set?.exerciseId) {
-                const exerciseType = await ExerciseTypeService.getById(
-                  set.exerciseTypeId
-                );
-                exerciseTypesMap[set.exerciseId] = exerciseType;
-              }
-            })
-          );
+            const setsForPlan = await Promise.all(
+              selectedWorkoutPlan.setId.map((setId) =>
+                SetService.getById(setId)
+              )
+            );
+            const filteredSets = setsForPlan.filter(
+              (set) => set !== undefined
+            ) as Set[];
 
-          // Actualizar el estado del contexto
-          setWorkoutPlanState({
-            workoutPlan: selectedWorkoutPlan,
-            sets: filteredSets,
-            exerciseNames: names,
-            exerciseTypes: exerciseTypesMap,
-          });
-        } else {
-          Alert.alert("Workout Plan not found.");
+            // Fetch EX names
+            const names: { [key: string]: string } = {};
+            await Promise.all(
+              selectedWorkoutPlan.exerciseId.map(async (exerciseId) => {
+                const name = await getExerciseNameById(exerciseId);
+                names[exerciseId] = name;
+              })
+            );
+
+            // Fetch EX-TYPES for the sets
+            const exerciseTypesMap: { [key: string]: ExerciseType | null } = {};
+            await Promise.all(
+              filteredSets.map(async (set) => {
+                if (set?.exerciseTypeId && set?.exerciseId) {
+                  const exerciseType = await ExerciseTypeService.getById(
+                    set.exerciseTypeId
+                  );
+                  exerciseTypesMap[set.exerciseId] = exerciseType;
+                }
+              })
+            );
+
+            setWorkoutPlanState({
+              workoutPlan: selectedWorkoutPlan,
+              sets: filteredSets,
+              exerciseNames: names,
+              exerciseTypes: exerciseTypesMap,
+            });
+          } else {
+            Alert.alert("Workout Plan not found.");
+          }
+        } catch (error) {
+          console.error("Error fetching workout plan:", error);
+          Alert.alert("Failed to fetch workout plan.");
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        console.error("Error fetching workout plan:", error);
-        Alert.alert("Failed to fetch workout plan.");
-      } finally {
-        setLoading(false);
+      };
+
+      if (workoutPlanId) {
+        fetchWorkoutPlanDetails();
       }
-    };
-
-    if (workoutPlanId) {
-      fetchWorkoutPlanDetails();
-    }
-  }, [workoutPlanId]);
-
+    }, [workoutPlanId])
+  );
   // useEffect(() => {
   //   const fetchWorkoutPlanDetails = async () => {
   //     try {
@@ -172,10 +240,9 @@ export default function WorkoutPlanDetailScreen() {
     });
   };
 
-  const handleEditWorkoutPlan = (workoutPlanId: string) => {
+  const handleEditWorkoutPlan = () => {
     router.push({
       pathname: "/(screens)/workoutPlanEditScreen",
-      // params: { workoutPlanId },
     });
   };
 
@@ -194,7 +261,7 @@ export default function WorkoutPlanDetailScreen() {
 
       <View style={styles.subheaderContainer}>
         <Text style={styles.subheaderText}>Exercises and Sets</Text>
-        <TouchableOpacity onPress={() => handleEditWorkoutPlan(workoutPlanId)}>
+        <TouchableOpacity onPress={() => handleEditWorkoutPlan()}>
           <Text style={styles.subheaderButton}>Edit Workout Plan</Text>
         </TouchableOpacity>
       </View>

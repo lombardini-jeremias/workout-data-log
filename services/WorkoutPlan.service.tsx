@@ -74,7 +74,7 @@ export class WorkoutPlanService {
     workoutPlanId: string,
     updates: Partial<WorkoutPlan>
   ): Promise<WorkoutPlan | undefined> {
-    console.log("WP-UPDATE", workoutPlanId);
+    console.log("WP-UPDATE-EXECUTED", workoutPlanId);
 
     try {
       const storedWorkoutPlans = await AsyncStorage.getItem(this.STORAGE_KEY);

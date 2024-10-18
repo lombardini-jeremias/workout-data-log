@@ -1,5 +1,11 @@
 // WorkoutPlanContext.tsx
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { WorkoutPlan } from "../interfaces/WorkoutPlan.interface";
 import { Set } from "../interfaces/Set.interface";
 import { ExerciseType } from "../interfaces/ExerciseType.interface";
@@ -33,16 +39,27 @@ export const WorkoutPlanProvider = ({
   );
 
   useEffect(() => {
-    console.log("WP-State CONTEXT", workoutPlanState);
+    console.log("Updated-STATE-CONTEXT:", workoutPlanState.sets, workoutPlanState.workoutPlan?.name);
   }, [workoutPlanState]);
 
+  const value = useMemo(
+    () => ({ workoutPlanState, setWorkoutPlanState }),
+    [workoutPlanState, setWorkoutPlanState]
+  );
+
   return (
-    <WorkoutPlanContext.Provider
-      value={{ workoutPlanState, setWorkoutPlanState }}
-    >
+    <WorkoutPlanContext.Provider value={value}>
       {children}
     </WorkoutPlanContext.Provider>
   );
+
+  // return (
+  //   <WorkoutPlanContext.Provider
+  //     value={{ workoutPlanState, setWorkoutPlanState }}
+  //   >
+  //     {children}
+  //   </WorkoutPlanContext.Provider>
+  // );
 };
 
 export const useWorkoutPlan = () => {

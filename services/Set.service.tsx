@@ -54,16 +54,23 @@ export class SetService {
     setId: string,
     updates: Partial<Set>
   ): Promise<Set | undefined> {
+    console.log("SET-SERVICE-UPDATE-EXECUTED");
     try {
-      const existingSet = await SetService.getById(setId);
-      if (!existingSet) {
+      const storedSets = await AsyncStorage.getItem(this.STORAGE_KEY);
+      const sets: Set[] = storedSets ? JSON.parse(storedSets) : [];
+      const existingSetIndex = sets.findIndex((s) => s.id === setId);
+
+      if (existingSetIndex === -1) {
         throw new Error(`Set with ID: ${setId} not found.`);
       }
-      // Merge existing set data with updates
-      const updatedSet = { ...existingSet, ...updates };
-      await SetService.update(setId, updatedSet);
 
-      console.log("UPDATE-SET", updatedSet);
+      // Merge existing set data with updates
+      const updatedSet = { ...sets[existingSetIndex], ...updates };
+      sets[existingSetIndex] = updatedSet; // Update the set in the array
+
+      await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(sets)); // Save updated sets
+
+      console.log("SET-SERVICE-UPDATED-END", updatedSet);
       return updatedSet;
     } catch (error) {
       throw new Error(`Error updating set: ${error.message}`);
@@ -73,11 +80,17 @@ export class SetService {
   // DELETE Set
   public static async delete(setId: string): Promise<boolean> {
     try {
-      const existingSet = await SetService.getById(setId);
-      if (!existingSet) {
+      const storedSets = await AsyncStorage.getItem(this.STORAGE_KEY);
+      const sets: Set[] = storedSets ? JSON.parse(storedSets) : [];
+      const existingSetIndex = sets.findIndex((s) => s.id === setId);
+
+      if (existingSetIndex === -1) {
         throw new Error(`Set with ID: ${setId} not found.`);
       }
-      await SetService.delete(setId);
+
+      sets.splice(existingSetIndex, 1); // Remove the set from the array
+
+      await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(sets)); // Save updated sets
 
       return true;
     } catch (error) {

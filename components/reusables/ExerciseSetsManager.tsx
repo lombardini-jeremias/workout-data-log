@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 
@@ -13,7 +13,7 @@ interface ExerciseSetsManagerProps {
     exerciseId: string,
     setIndex: number,
     field: string,
-    value: string
+    value: number
   ) => void;
   onAddSet: (exerciseId: string) => void;
   exerciseType?: ExerciseTypeCategory;
@@ -26,73 +26,50 @@ export default function ExerciseSetsManager({
   onAddSet,
   exerciseType,
 }: ExerciseSetsManagerProps) {
-  const renderField = (set, index, field, placeholder, valueKey) => {
-    const [isFocused, setIsFocused] = useState(false);
-    const [tempValue, setTempValue] = useState(
-      set[valueKey] ? String(set[valueKey]) : ""
-    ); // Temporary input state
+  const renderField = useCallback(
+    (set, index, field, placeholder, valueKey) => {
+      const [isFocused, setIsFocused] = useState(false);
+      const [tempValue, setTempValue] = useState(
+        set[valueKey] ? String(set[valueKey]) : ""
+      );
 
-    const handleFocus = () => {
-      setIsFocused(true);
-      setTempValue(set[valueKey] ? String(set[valueKey]) : ""); // Set the temporary value to the current stored value when focused
-    };
+      const handleFocus = () => {
+        setIsFocused(true);
+        setTempValue(set[valueKey] ? String(set[valueKey]) : "");
+      };
 
-    const handleBlur = () => {
-      setIsFocused(false);
-      onSetChange(exercise.id, index, field, tempValue); // Only update the main state when focus is lost
-    };
+      const handleBlur = () => {
+        setIsFocused(false);
+        console.log(`Saving tempValue on blur for field ${field}:`, tempValue);
+        onSetChange(exercise.id, set.setIndex, valueKey, Number(tempValue));
+      };
 
-    return isEditable ? (
-      <TextInput
-        key={index}
-        style={[
-          styles.input,
-          isFocused ? styles.inputFocused : null, // Apply focused styles if the field is focused
-        ]}
-        placeholder={placeholder}
-        placeholderTextColor={Colors.gray}
-        keyboardType="numeric"
-        value={tempValue} // Bind the value to the temporary state
-        onChangeText={setTempValue} // Update temporary state as the user types
-        onFocus={handleFocus} // Set focus state and initialize the temp value
-        onBlur={handleBlur} // On blur, save the final value to the main state
-      />
-    ) : (
-      <Text style={styles.setNumber} key={index}>
-        {set[valueKey]}
-      </Text>
-    );
-  };
+      // const handleBlur = () => {
+      //   setIsFocused(false);
+      //   console.log(`Saving tempValue on blur for field ${field}:`, tempValue);
+      //   onSetChange(exercise.id, index, field, Number(tempValue)); // Call immediately on blur
+      // };
 
-  // const renderField = (set, index, field, placeholder, valueKey) => {
-  //   const [isFocused, setIsFocused] = useState(false);
-
-  //   return isEditable ? (
-  //     <TextInput
-  //       key={index}
-  //       style={[
-  //         styles.input,
-  //         isFocused ? styles.inputFocused : null, // Apply focused styles if field is focused
-  //       ]}
-  //       placeholder={placeholder}
-  //       placeholderTextColor={Colors.gray}
-  //       keyboardType="numeric"
-  //       value={set[valueKey] ? String(set[valueKey]) : ""}
-  //       onChangeText={(value) => onSetChange(exercise.id, index, field, value)}
-  //       onFocus={() => setIsFocused(true)} // When the input is focused
-  //       onBlur={() => setIsFocused(false)} // When the input loses focus
-  //     />
-  //   ) : (
-  //     <Text style={styles.setNumber} key={index}>
-  //       {set[valueKey]}
-  //     </Text>
-  //     // <TouchableOpacity key={index} onPress={() => setIsEditing(true)}>
-  //     //   <Text style={styles.setNumber}>
-  //     //     {set[valueKey] ? set[valueKey] : placeholder}
-  //     //   </Text>
-  //     // </TouchableOpacity>
-  //   );
-  // };
+      return isEditable ? (
+        <TextInput
+          key={set.id}
+          style={[styles.input, isFocused ? styles.inputFocused : null]}
+          placeholder={placeholder}
+          placeholderTextColor={Colors.gray}
+          keyboardType="numeric"
+          value={tempValue}
+          onChangeText={setTempValue}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+        />
+      ) : (
+        <Text style={styles.setNumber} key={set.id}>
+          {set[valueKey]}
+        </Text>
+      );
+    },
+    [isEditable, exercise.id, onSetChange]
+  );
 
   if (!exerciseType) {
     return <Text>No valid exercise type available.</Text>;
