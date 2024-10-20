@@ -34,8 +34,9 @@ export default function WorkoutPlanDetailScreen() {
   const navigation = useNavigation();
   const router = useRouter();
 
-  const { workoutPlanState, setWorkoutPlanState } = useWorkoutPlan();
+  const { workoutPlanState } = useWorkoutPlan();
   const { workoutPlan, sets, exerciseNames, exerciseTypes } = workoutPlanState;
+  console.log("WP-STATE-DETAIL-SCREEN", workoutPlanState);
 
   const { workoutPlanId } = useLocalSearchParams() as { workoutPlanId: string };
   const [loading, setLoading] = useState(true);
@@ -46,187 +47,83 @@ export default function WorkoutPlanDetailScreen() {
     });
   }, [navigation]);
 
-  // useEffect(() => {
-  //   const fetchWorkoutPlanDetails = async () => {
-  //     try {
-  //       const selectedWorkoutPlan = await WorkoutPlanService.getById(
-  //         workoutPlanId
-  //       );
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     const fetchWorkoutPlanDetails = async () => {
+  //       setLoading(true);
 
-  //       if (selectedWorkoutPlan) {
-  //         const workoutPlanName = selectedWorkoutPlan.name;
-
-  //         const setsForPlan = await Promise.all(
-  //           selectedWorkoutPlan.setId.map((setId) => SetService.getById(setId))
+  //       try {
+  //         const selectedWorkoutPlan = await WorkoutPlanService.getById(
+  //           workoutPlanId
   //         );
-  //         const filteredSets = setsForPlan.filter(
-  //           (set) => set !== undefined
-  //         ) as Set[];
+  //         if (selectedWorkoutPlan) {
+  //           const setsForPlan = await Promise.all(
+  //             selectedWorkoutPlan.setId.map((setId) =>
+  //               SetService.getById(setId)
+  //             )
+  //           );
 
-  //         // Fetch exercise names
-  //         const names: { [key: string]: string } = {};
-  //         await Promise.all(
-  //           selectedWorkoutPlan.exerciseId.map(async (exerciseId) => {
-  //             const name = await getExerciseNameById(exerciseId);
-  //             names[exerciseId] = name;
-  //           })
-  //         );
+  //           const filteredSets = setsForPlan.filter(
+  //             (set) => set !== undefined
+  //           ) as Set[];
 
-  //         // Fetch exercise types for the sets
-  //         const exerciseTypesMap: { [key: string]: ExerciseType | null } = {};
-  //         await Promise.all(
-  //           filteredSets.map(async (set) => {
-  //             if (set?.exerciseTypeId && set?.exerciseId) {
-  //               const exerciseType = await ExerciseTypeService.getById(
-  //                 set.exerciseTypeId
-  //               );
-  //               exerciseTypesMap[set.exerciseId] = exerciseType;
-  //             }
-  //           })
-  //         );
+  //           // Fetch EX names
+  //           const names: { [key: string]: string } = {};
+  //           await Promise.all(
+  //             selectedWorkoutPlan.exerciseId.map(async (exerciseId) => {
+  //               const name = await getExerciseNameById(exerciseId);
+  //               names[exerciseId] = name;
+  //             })
+  //           );
 
-  //         // Actualizar el estado del contexto
-  //         setWorkoutPlanState({
-  //           workoutPlan: selectedWorkoutPlan,
-  //           sets: filteredSets,
-  //           exerciseNames: names,
-  //           exerciseTypes: exerciseTypesMap,
-  //         });
-  //       } else {
-  //         Alert.alert("Workout Plan not found.");
+  //           // Fetch EX-TYPES for the sets
+  //           const exerciseTypesMap: { [key: string]: ExerciseType | null } = {};
+  //           await Promise.all(
+  //             filteredSets.map(async (set) => {
+  //               if (set?.exerciseTypeId && set?.exerciseId) {
+  //                 const exerciseType = await ExerciseTypeService.getById(
+  //                   set.exerciseTypeId
+  //                 );
+  //                 exerciseTypesMap[set.exerciseId] = exerciseType;
+  //               }
+  //             })
+  //           );
+
+  //           console.log("REACT-EFFECT-DETAILS-1", workoutPlanState.sets);
+  //           setWorkoutPlanState({
+  //             workoutPlan: selectedWorkoutPlan,
+  //             sets: filteredSets,
+  //             exerciseNames: names,
+  //             exerciseTypes: exerciseTypesMap,
+  //           });
+
+  //           console.log("REACT-EFFECT-DETAILS-2", workoutPlanState.sets);
+  //         } else {
+  //           Alert.alert("Workout Plan not found.");
+  //         }
+  //       } catch (error) {
+  //         console.error("Error fetching workout plan:", error);
+  //         Alert.alert("Failed to fetch workout plan.");
+  //       } finally {
+  //         setLoading(false);
   //       }
-  //     } catch (error) {
-  //       console.error("Error fetching workout plan:", error);
-  //       Alert.alert("Failed to fetch workout plan.");
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+  //     };
 
-  //   if (workoutPlanId) {
-  //     fetchWorkoutPlanDetails();
-  //   }
-  // }, [workoutPlanId]);
+  //     if (workoutPlanId) {
+  //       fetchWorkoutPlanDetails();
+  //     }
+  //   }, [workoutPlanId])
+  // );
 
   useFocusEffect(
     React.useCallback(() => {
-      const fetchWorkoutPlanDetails = async () => {
-        setLoading(true);
-
-        try {
-          const selectedWorkoutPlan = await WorkoutPlanService.getById(
-            workoutPlanId
-          );
-
-          if (selectedWorkoutPlan) {
-
-            const setsForPlan = await Promise.all(
-              selectedWorkoutPlan.setId.map((setId) =>
-                SetService.getById(setId)
-              )
-            );
-            const filteredSets = setsForPlan.filter(
-              (set) => set !== undefined
-            ) as Set[];
-
-            // Fetch EX names
-            const names: { [key: string]: string } = {};
-            await Promise.all(
-              selectedWorkoutPlan.exerciseId.map(async (exerciseId) => {
-                const name = await getExerciseNameById(exerciseId);
-                names[exerciseId] = name;
-              })
-            );
-
-            // Fetch EX-TYPES for the sets
-            const exerciseTypesMap: { [key: string]: ExerciseType | null } = {};
-            await Promise.all(
-              filteredSets.map(async (set) => {
-                if (set?.exerciseTypeId && set?.exerciseId) {
-                  const exerciseType = await ExerciseTypeService.getById(
-                    set.exerciseTypeId
-                  );
-                  exerciseTypesMap[set.exerciseId] = exerciseType;
-                }
-              })
-            );
-
-            setWorkoutPlanState({
-              workoutPlan: selectedWorkoutPlan,
-              sets: filteredSets,
-              exerciseNames: names,
-              exerciseTypes: exerciseTypesMap,
-            });
-          } else {
-            Alert.alert("Workout Plan not found.");
-          }
-        } catch (error) {
-          console.error("Error fetching workout plan:", error);
-          Alert.alert("Failed to fetch workout plan.");
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      if (workoutPlanId) {
-        fetchWorkoutPlanDetails();
+      if (workoutPlan && workoutPlan.id === workoutPlanId) {
+        setLoading(false);
+      } else {
+        Alert.alert("Workout Plan not found.");
       }
-    }, [workoutPlanId])
+    }, [workoutPlan, workoutPlanId, workoutPlanState])
   );
-  // useEffect(() => {
-  //   const fetchWorkoutPlanDetails = async () => {
-  //     try {
-  //       const selectedWorkoutPlan = await WorkoutPlanService.getById(
-  //         workoutPlanId
-  //       );
-
-  //       if (selectedWorkoutPlan) {
-  //         setWorkoutPlan(selectedWorkoutPlan);
-  //         setWorkoutPlanName(selectedWorkoutPlan.name);
-  //         const setsForPlan = await Promise.all(
-  //           selectedWorkoutPlan.setId.map((setId) => SetService.getById(setId))
-  //         );
-  //         setSets(setsForPlan.filter((set) => set !== undefined) as Set[]);
-
-  //         // Fetch exercise names
-  //         const names: { [key: string]: string } = {};
-  //         await Promise.all(
-  //           selectedWorkoutPlan.exerciseId.map(async (exerciseId) => {
-  //             const name = await getExerciseNameById(exerciseId);
-  //             names[exerciseId] = name;
-  //           })
-  //         );
-  //         setExerciseNames(names);
-
-  //         // Fetch exercise types for the sets
-  //         const exerciseTypesMap: { [key: string]: ExerciseType | null } = {};
-  //         await Promise.all(
-  //           setsForPlan.map(async (set) => {
-  //             if (set?.exerciseTypeId && set?.exerciseId) {
-  //               const exerciseType = await ExerciseTypeService.getById(
-  //                 set.exerciseTypeId
-  //               );
-  //               exerciseTypesMap[set.exerciseId] = exerciseType;
-  //             }
-  //           })
-  //         );
-
-  //         setExerciseTypes(exerciseTypesMap);
-  //       } else {
-  //         Alert.alert("Workout Plan not found.");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching workout plan:", error);
-  //       Alert.alert("Failed to fetch workout plan.");
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   if (workoutPlanId) {
-  //     fetchWorkoutPlanDetails();
-  //   }
-  // }, [workoutPlanId]);
 
   const getExerciseNameById = async (id: string) => {
     const exercise = await ExerciseService.getById(id);
@@ -271,9 +168,8 @@ export default function WorkoutPlanDetailScreen() {
           data={workoutPlan.exerciseId}
           keyExtractor={(exerciseId) => exerciseId}
           renderItem={({ item: exerciseId }) => {
-            const exerciseSets = sets.filter(
-              (set) => set.exerciseId === exerciseId
-            );
+            const exerciseSets =
+              sets?.filter((set) => set.exerciseId === exerciseId) || [];
 
             return (
               <View>

@@ -39,27 +39,31 @@ export const WorkoutPlanProvider = ({
   );
 
   useEffect(() => {
-    console.log("Updated-STATE-CONTEXT:", workoutPlanState.sets, workoutPlanState.workoutPlan?.name);
+    console.log(
+      "Updated-STATE-CONTEXT:",
+      workoutPlanState.sets,
+      workoutPlanState.workoutPlan?.name
+    );
   }, [workoutPlanState]);
 
-  const value = useMemo(
-    () => ({ workoutPlanState, setWorkoutPlanState }),
-    [workoutPlanState, setWorkoutPlanState]
-  );
-
-  return (
-    <WorkoutPlanContext.Provider value={value}>
-      {children}
-    </WorkoutPlanContext.Provider>
-  );
+  // const value = useMemo(
+  //   () => ({ workoutPlanState, setWorkoutPlanState }),
+  //   [workoutPlanState, setWorkoutPlanState]
+  // );
 
   // return (
-  //   <WorkoutPlanContext.Provider
-  //     value={{ workoutPlanState, setWorkoutPlanState }}
-  //   >
+  //   <WorkoutPlanContext.Provider value={value}>
   //     {children}
   //   </WorkoutPlanContext.Provider>
   // );
+
+  return (
+    <WorkoutPlanContext.Provider
+      value={{ workoutPlanState, setWorkoutPlanState }}
+    >
+      {children}
+    </WorkoutPlanContext.Provider>
+  );
 };
 
 export const useWorkoutPlan = () => {

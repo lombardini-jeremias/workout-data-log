@@ -47,7 +47,7 @@ export default function workoutPlanEditScreen() {
         <RightSecondaryButton title="Update" onPress={handleUpdate} />
       ),
     });
-  }, [navigation, workoutPlan, workoutPlanName, workoutPlanState]); // Only dependent on 'navigation'
+  }, [navigation, workoutPlan, workoutPlanName, workoutPlanState]);
 
   const handleCancelButton = () => {
     router.back();
@@ -60,7 +60,7 @@ export default function workoutPlanEditScreen() {
       });
       setLoading(false);
     }
-  }, [workoutPlan, exerciseNames, sets]);
+  }, [workoutPlan, exerciseNames, sets, workoutPlanState]);
 
   const onSetChange = (exerciseId, setIndex, field, value) => {
     console.log("SET-CHANGE-triggered:", {
@@ -116,82 +116,6 @@ export default function workoutPlanEditScreen() {
   // const handleAddExercise = () => {
   //   router.push("/(screens)/personalExerciseListScreen");
   // };
-
-  // const handleUpdate = useCallback(async () => {
-  //   console.log("Updating WP-ID:", workoutPlan.id);
-  //   console.log("WP-STATE-AFTER-1-NAME", workoutPlanState.sets);
-
-  //   try {
-  //     // Update workout plan name if it has changed
-  //     if (workoutPlanName !== workoutPlan?.name) {
-  //       console.log("Updating WP-NAME..", workoutPlanName);
-  //       await WorkoutPlanService.update(workoutPlan.id, {
-  //         name: workoutPlanName,
-  //       });
-  //     }
-
-  //     const updatedSetPromises = workoutPlanState.sets.map(async (set) => {
-  //       if (set.id) {
-  //         const storageSet = await SetService.getById(set.id);
-
-  //         // Find the current set in workoutPlanState
-  //         const currentSet = workoutPlanState.sets.find((s) => s.id === set.id);
-  //         if (!currentSet) {
-  //           console.error(
-  //             `No matching set found in state for SET-ID: ${set.id}`
-  //           );
-  //           return;
-  //         }
-  //         const needsUpdate =
-  //           (Number(storageSet.reps) || 0) !== (Number(currentSet.reps) || 0) ||
-  //           (Number(storageSet.weight) || 0) !==
-  //             (Number(currentSet.weight) || 0) ||
-  //           (Number(storageSet.duration) || 0) !==
-  //             (Number(currentSet.duration) || 0) ||
-  //           (Number(storageSet.distance) || 0) !==
-  //             (Number(currentSet.distance) || 0);
-
-  //         console.log("Needs Update:", needsUpdate);
-
-  //         if (needsUpdate) {
-  //           console.log(`Updating SET-ID: ${set.id}`);
-  //           await SetService.update(set.id, {
-  //             reps: currentSet.reps,
-  //             weight: currentSet.weight,
-  //           });
-  //         }
-  //       } else {
-  //         // Handle new sets
-  //         const newSet = await SetService.create(set);
-  //         set.id = newSet.id;
-  //         workoutPlan.setId.push(newSet.id);
-  //       }
-  //     });
-
-  //     await Promise.all(updatedSetPromises);
-
-  //     // Persist changes to workoutPlan itself
-  //     await WorkoutPlanService.update(workoutPlan.id, {
-  //       setId: workoutPlan.setId,
-  //     });
-
-  //     setWorkoutPlanState((prevState) => ({
-  //       ...prevState,
-  //       workoutPlan: {
-  //         ...prevState.workoutPlan,
-  //         name: workoutPlanName,
-  //         setId: workoutPlan.setId,
-  //       },
-  //       sets: [...prevState.sets],
-  //     }));
-  //     console.log("Workout Plan updated successfully");
-  //     Alert.alert("Workout Plan updated successfully!");
-  //     router.back();
-  //   } catch (error) {
-  //     console.error("Error updating workout plan:", error);
-  //     Alert.alert("Failed to update workout plan. Please try again.");
-  //   }
-  // }, [workoutPlanName, workoutPlanState, workoutPlan.id, router]);
 
   const handleUpdate = async () => {
     console.log("Updating WP-ID:", workoutPlan.id);
@@ -255,17 +179,16 @@ export default function workoutPlanEditScreen() {
           workoutPlan.setId.push(newSet.id);
           console.log("END-CREATING-SET", newSet);
         }
-        console.log("END-UPDATEING-SET");
       });
-
       await Promise.all(updatedSetPromises);
+      console.log("END-UPDATING-SET");
 
       await WorkoutPlanService.update(workoutPlan.id, {
-        setId: workoutPlan.setId,
-        exerciseId: workoutPlan.exerciseId,
+        setId: workoutPlan?.setId,
+        exerciseId: workoutPlan?.exerciseId,
       });
 
-      // Update the workout plan state after the updates
+      // Update the WP-STATE after the updates
       setWorkoutPlanState((prevState) => ({
         ...prevState,
         workoutPlan: {
@@ -274,9 +197,9 @@ export default function workoutPlanEditScreen() {
           setId: workoutPlan.setId,
           exerciseId: workoutPlan.exerciseId,
         },
-        sets: workoutPlanState.sets, // Keep the updated sets
+        sets: workoutPlanState.sets,
       }));
-      console.log("WP-UPDATE-FINISHED");
+      console.log("HANDLE-UPDATE-FINISHED");
 
       Alert.alert("Workout Plan updated successfully!");
       router.back();
