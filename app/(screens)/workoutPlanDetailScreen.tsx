@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import {
   View,
   Text,
@@ -20,14 +20,8 @@ import BackButton from "@/components/navigation/BackButton";
 import TextOrInput from "@/components/reusables/TextOrInput";
 import ExerciseSetsManager from "@/components/reusables/ExerciseSetsManager";
 
-import { Set } from "@/interfaces/Set.interface";
-import { WorkoutPlan } from "@/interfaces/WorkoutPlan.interface";
-import { ExerciseType } from "@/interfaces/ExerciseType.interface";
-
-import { SetService } from "../../services/Set.service";
 import { ExerciseService } from "../../services/Exercise.service";
-import { WorkoutPlanService } from "../../services/WorkoutPlan.service";
-import { ExerciseTypeService } from "../../services/ExerciseType.service";
+
 import { useWorkoutPlan } from "../../context/WorkoutPlanProvider";
 
 export default function WorkoutPlanDetailScreen() {
@@ -46,74 +40,6 @@ export default function WorkoutPlanDetailScreen() {
       headerLeft: () => <BackButton />,
     });
   }, [navigation]);
-
-  // useFocusEffect(
-  //   React.useCallback(() => {
-  //     const fetchWorkoutPlanDetails = async () => {
-  //       setLoading(true);
-
-  //       try {
-  //         const selectedWorkoutPlan = await WorkoutPlanService.getById(
-  //           workoutPlanId
-  //         );
-  //         if (selectedWorkoutPlan) {
-  //           const setsForPlan = await Promise.all(
-  //             selectedWorkoutPlan.setId.map((setId) =>
-  //               SetService.getById(setId)
-  //             )
-  //           );
-
-  //           const filteredSets = setsForPlan.filter(
-  //             (set) => set !== undefined
-  //           ) as Set[];
-
-  //           // Fetch EX names
-  //           const names: { [key: string]: string } = {};
-  //           await Promise.all(
-  //             selectedWorkoutPlan.exerciseId.map(async (exerciseId) => {
-  //               const name = await getExerciseNameById(exerciseId);
-  //               names[exerciseId] = name;
-  //             })
-  //           );
-
-  //           // Fetch EX-TYPES for the sets
-  //           const exerciseTypesMap: { [key: string]: ExerciseType | null } = {};
-  //           await Promise.all(
-  //             filteredSets.map(async (set) => {
-  //               if (set?.exerciseTypeId && set?.exerciseId) {
-  //                 const exerciseType = await ExerciseTypeService.getById(
-  //                   set.exerciseTypeId
-  //                 );
-  //                 exerciseTypesMap[set.exerciseId] = exerciseType;
-  //               }
-  //             })
-  //           );
-
-  //           console.log("REACT-EFFECT-DETAILS-1", workoutPlanState.sets);
-  //           setWorkoutPlanState({
-  //             workoutPlan: selectedWorkoutPlan,
-  //             sets: filteredSets,
-  //             exerciseNames: names,
-  //             exerciseTypes: exerciseTypesMap,
-  //           });
-
-  //           console.log("REACT-EFFECT-DETAILS-2", workoutPlanState.sets);
-  //         } else {
-  //           Alert.alert("Workout Plan not found.");
-  //         }
-  //       } catch (error) {
-  //         console.error("Error fetching workout plan:", error);
-  //         Alert.alert("Failed to fetch workout plan.");
-  //       } finally {
-  //         setLoading(false);
-  //       }
-  //     };
-
-  //     if (workoutPlanId) {
-  //       fetchWorkoutPlanDetails();
-  //     }
-  //   }, [workoutPlanId])
-  // );
 
   useFocusEffect(
     React.useCallback(() => {
@@ -172,7 +98,7 @@ export default function WorkoutPlanDetailScreen() {
               sets?.filter((set) => set.exerciseId === exerciseId) || [];
 
             return (
-              <View>
+              <View key={exerciseId}>
                 <TouchableOpacity
                   onPress={() => handleExerciseDetailById(exerciseId)}
                 >

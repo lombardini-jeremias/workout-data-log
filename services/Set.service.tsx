@@ -50,11 +50,40 @@ export class SetService {
   }
 
   // UPDATE Set
+  // public static async update(
+  //   setId: string,
+  //   updates: Partial<Set>
+  // ): Promise<Set | undefined> {
+  //   console.log("SET-SERVICE-UPDATE-EXECUTED", setId, updates);
+  //   try {
+  //     const storedSets = await AsyncStorage.getItem(this.STORAGE_KEY);
+  //     const sets: Set[] = storedSets ? JSON.parse(storedSets) : [];
+  //     const existingSetIndex = sets.findIndex((s) => s.id === setId);
+
+  //     if (existingSetIndex === -1) {
+  //       throw new Error(`Set with ID: ${setId} not found.`);
+  //     }
+
+  //     // Merge existing set data with updates
+  //     const updatedSet = { ...sets[existingSetIndex], ...updates };
+  //     sets[existingSetIndex] = updatedSet; // Update the set in the array
+
+  //     await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(sets)); // Save updated sets
+
+  //     console.log("SET-SERVICE-UPDATED-END", updatedSet);
+  //     return updatedSet;
+  //   } catch (error) {
+  //     throw new Error(`Error updating set: ${error.message}`);
+  //   }
+  // }
+
+  // DELETE Set
+
   public static async update(
     setId: string,
     updates: Partial<Set>
   ): Promise<Set | undefined> {
-    console.log("SET-SERVICE-UPDATE-EXECUTED");
+    console.log("SET-SERVICE-UPDATE-EXECUTED", setId, updates);
     try {
       const storedSets = await AsyncStorage.getItem(this.STORAGE_KEY);
       const sets: Set[] = storedSets ? JSON.parse(storedSets) : [];
@@ -71,13 +100,20 @@ export class SetService {
       await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(sets)); // Save updated sets
 
       console.log("SET-SERVICE-UPDATED-END", updatedSet);
+
+      // Fetch the updated data from AsyncStorage to verify the update
+      const updatedStoredSets = await AsyncStorage.getItem(this.STORAGE_KEY);
+      const updatedSets: Set[] = updatedStoredSets
+        ? JSON.parse(updatedStoredSets)
+        : [];
+      console.log("SET-SERVICE-UPDATED-VERIFIED", updatedSets);
+
       return updatedSet;
     } catch (error) {
       throw new Error(`Error updating set: ${error.message}`);
     }
   }
 
-  // DELETE Set
   public static async delete(setId: string): Promise<boolean> {
     try {
       const storedSets = await AsyncStorage.getItem(this.STORAGE_KEY);

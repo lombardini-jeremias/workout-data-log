@@ -13,7 +13,6 @@ import { Colors } from "@/constants/Colors";
 import { Containers } from "@/constants/Container";
 
 import ButtonPrimary from "@/components/buttons/ButtonPrimary";
-import BottomSheetReusable from "../../components/reusables/BottomSheetReusable";
 import { useWorkoutPlan } from "../../context/WorkoutPlanProvider";
 import { SetService } from "../../services/Set.service";
 import { ExerciseTypeService } from "../../services/ExerciseType.service";

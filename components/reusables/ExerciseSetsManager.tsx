@@ -44,15 +44,9 @@ export default function ExerciseSetsManager({
         onSetChange(exercise.id, set.setIndex, valueKey, Number(tempValue));
       };
 
-      // const handleBlur = () => {
-      //   setIsFocused(false);
-      //   console.log(`Saving tempValue on blur for field ${field}:`, tempValue);
-      //   onSetChange(exercise.id, index, field, Number(tempValue)); // Call immediately on blur
-      // };
-
       return isEditable ? (
         <TextInput
-          key={set.id}
+          key={`input-${field}-${set.id}`}
           style={[styles.input, isFocused ? styles.inputFocused : null]}
           placeholder={placeholder}
           placeholderTextColor={Colors.gray}
@@ -63,7 +57,7 @@ export default function ExerciseSetsManager({
           onBlur={handleBlur}
         />
       ) : (
-        <Text style={styles.setNumber} key={set.id}>
+        <Text style={styles.setNumber} key={`text-${field}-${set.id}`}>
           {set[valueKey]}
         </Text>
       );
@@ -81,7 +75,9 @@ export default function ExerciseSetsManager({
         <View style={styles.columnSet}>
           <Text style={styles.columnText}>SET</Text>
           {exercise.sets.map((set, index) => (
-            <Text style={styles.setNumber}>{index + 1}</Text>
+            <Text style={styles.setNumber} key={`set-number-${set.id}`}>
+              {index + 1}
+            </Text>
           ))}
         </View>
 
