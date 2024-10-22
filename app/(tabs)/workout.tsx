@@ -13,6 +13,10 @@ import { Colors } from "@/constants/Colors";
 import { Containers } from "@/constants/Container";
 
 import ButtonPrimary from "@/components/buttons/ButtonPrimary";
+import { useWorkoutPlan } from "../../context/WorkoutPlanProvider";
+import { SetService } from "../../services/Set.service";
+import { ExerciseTypeService } from "../../services/ExerciseType.service";
+import { ExerciseService } from "../../services/Exercise.service";
 
 // Load workout plans from AsyncStorage
 const loadWorkoutPlansFromStorage = async () => {
@@ -28,22 +32,7 @@ const loadWorkoutPlansFromStorage = async () => {
 export default function Workout() {
   const router = useRouter();
   const [workoutPlans, setWorkoutPlans] = useState([]);
-
-  const handleNavigate = () => {
-    router.push({
-      pathname: "/(screens)/workoutPlanCreateScreen",
-    });
-  };
-
-  const handleSelectWorkoutPlan = (selectedWorkoutPlan) => {
-    router.push({
-      pathname: "/(screens)/workoutPlanDetailScreen",
-      params: {
-        workoutPlanId: selectedWorkoutPlan.id,
-        workoutPlanName: selectedWorkoutPlan.name,
-      },
-    });
-  };
+  const { setWorkoutPlanState } = useWorkoutPlan();
 
   useFocusEffect(
     useCallback(() => {
@@ -55,9 +44,95 @@ export default function Workout() {
     }, [])
   );
 
+  const handleNavigate = () => {
+    router.push({
+      pathname: "/(screens)/workoutPlanCreateScreen",
+    });
+  };
+
+  const handleSelectWorkoutPlan = async (selectedWorkoutPlan) => {
+    console.log("SELECTED-WP", selectedWorkoutPlan);
+
+    const resolvedSets = await loadSetsForWorkoutPlan(
+      selectedWorkoutPlan.setId
+    );
+    const exerciseNames = await loadExerciseNames(
+      selectedWorkoutPlan.exerciseId
+    );
+    const exerciseTypes = await loadExerciseTypes(resolvedSets);
+
+    // Update state after data has been fully resolved
+    setWorkoutPlanState((prevState) => ({
+      ...prevState,
+      workoutPlan: selectedWorkoutPlan,
+      sets: resolvedSets,
+      exerciseNames,
+      exerciseTypes,
+    }));
+
+    console.log("NAV-WP-STATE");
+    router.push({
+      pathname: "/(screens)/workoutPlanDetailScreen",
+      params: {
+        workoutPlanId: selectedWorkoutPlan.id,
+      },
+    });
+  };
+
+  const loadExerciseNames = async (exerciseIds) => {
+    const names = {};
+    await Promise.all(
+      exerciseIds.map(async (exerciseId) => {
+        const exercise = await ExerciseService.getById(exerciseId);
+        names[exerciseId] = exercise?.name || "Unknown Exercise";
+      })
+    );
+    return names;
+  };
+
+  const loadExerciseTypes = async (sets) => {
+    const types = {};
+    await Promise.all(
+      sets.map(async (set) => {
+        if (set.exerciseId && set.exerciseTypeId) {
+          const type = await ExerciseTypeService.getById(set.exerciseTypeId);
+          types[set.exerciseId] = type || null;
+        }
+      })
+    );
+    return types;
+  };
+
+  const loadSetsForWorkoutPlan = async (setIds) => {
+    const sets = await Promise.all(
+      setIds.map((setId) => SetService.getById(setId))
+    );
+    return sets.filter((set) => set !== undefined);
+  };
+
+  // const handleSelectWorkoutPlan = async (selectedWorkoutPlan) => {
+  //   console.log("SELECTED-WP", selectedWorkoutPlan);
+
+  //   setWorkoutPlanState((prevState) => ({
+  //     ...prevState,
+  //     workoutPlan: selectedWorkoutPlan,
+  //     sets: loadSetsForWorkoutPlan(selectedWorkoutPlan.setId),
+  //   }));
+
+  //   console.log("NAV-WP-STATE");
+
+  //   router.push({
+  //     pathname: "/(screens)/workoutPlanDetailScreen",
+  //     params: {
+  //       workoutPlanId: selectedWorkoutPlan.id,
+  //     },
+  //   });
+  // };
+
   return (
     <View style={Containers.screenContainer}>
       <Text>Workout Plans</Text>
+
       <ButtonPrimary title={"New Workout Plan"} onPress={handleNavigate} />
 
       <View>

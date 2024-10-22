@@ -1,222 +1,4 @@
-// import React, { useEffect, useLayoutEffect, useState } from "react";
-
-// import {
-//   View,
-//   Text,
-//   FlatList,
-//   StyleSheet,
-//   Alert,
-//   TouchableOpacity,
-// } from "react-native";
-// import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-// import { Colors } from "../../constants/Colors";
-// import { Containers } from "../../constants/Container";
-// import BackButton from "../../components/navigation/BackButton";
-// import TextOrInput from "../../components/reusables/TextOrInput";
-// import { WorkoutPlan } from "../../interfaces/WorkoutPlan.interface";
-// import { Set } from "../../interfaces/Set.interface";
-// import { WorkoutPlanService } from "../../services/WorkoutPlan.service";
-// import { SetService } from "../../services/Set.service";
-// import { ExerciseService } from "../../services/Exercise.service";
-
-// export default function workoutPlanDetailScreen() {
-//   const navigation = useNavigation();
-//   const router = useRouter();
-
-//   const { workoutPlanId } = useLocalSearchParams() as { workoutPlanId: string };
-//   const { workoutPlanName } = useLocalSearchParams();
-
-//   const [workoutPlan, setWorkoutPlan] = useState<WorkoutPlan | null>(null);
-//   const [sets, setSets] = useState<Set[]>([]);
-//   const [loading, setLoading] = useState(true);
-
-//   useLayoutEffect(() => {
-//     navigation.setOptions({
-//       headerLeft: () => <BackButton />,
-//     });
-//   }, [navigation]);
-
-//   useEffect(() => {
-//     const fetchWorkoutPlanDetails = async () => {
-//       try {
-//         // Fetch workout plan by ID using the service
-//         const selectedWorkoutPlan = await WorkoutPlanService.getById(
-//           workoutPlanId
-//         );
-//         console.log("SELECTED-W-Plan", selectedWorkoutPlan);
-
-//         if (selectedWorkoutPlan) {
-//           setWorkoutPlan(selectedWorkoutPlan);
-
-//           // Fetch only the sets relevant to this workout plan
-//           const setsForPlan = await Promise.all(
-//             selectedWorkoutPlan.setId.map((setId) => SetService.getById(setId))
-//           );
-//           console.log("SELECTED-SET", setsForPlan);
-//           // Filter out any undefined sets (if any set could not be found)
-//           setSets(setsForPlan.filter((set) => set !== undefined) as Set[]);
-//         } else {
-//           Alert.alert("Workout Plan not found.");
-//         }
-//       } catch (error) {
-//         console.error("Error fetching workout plan:", error);
-//         Alert.alert("Failed to fetch workout plan.");
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     if (workoutPlanId) {
-//       fetchWorkoutPlanDetails();
-//     }
-//   }, [workoutPlanId]);
-
-//   const getExerciseNameById = async (id: string) => {
-//     const exercise = await ExerciseService.getById(id);
-//     return exercise ? exercise.name : "Unknown Exercise";
-//   };
-
-//   const handleExerciseDetailById = (exerciseId: string) => {
-//     router.push({
-//       pathname: "/(screens)/personalExerciseDetailScreen",
-//       params: { exerciseId },
-//     });
-//   };
-
-//   const handleEditDayActivity = (workoutPlanId: string) => {
-//     router.push({
-//       pathname: "/(screens)/workoutPlanEditScreen",
-//       params: { workoutPlanId },
-//     });
-//   };
-
-//   if (loading) {
-//     return (
-//       <View style={Containers.screenContainer}>
-//         <Text>Loading...</Text>
-//       </View>
-//     );
-//   }
-
-//   return (
-//     <View style={Containers.screenContainer}>
-//       {/* Display Workout Plan Name */}
-//       <TextOrInput isEditable={false} value={workoutPlanName} />
-
-//       {/* Edit Button for the workout plan */}
-//       <View style={styles.subheaderContainer}>
-//         <Text style={styles.subheaderText}>Exercises and Sets</Text>
-//         <TouchableOpacity onPress={() => handleEditDayActivity(workoutPlanId)}>
-//           <Text style={styles.subheaderButton}>Edit Workout Plan</Text>
-//         </TouchableOpacity>
-//       </View>
-
-//       {/* Display exercises and their sets */}
-//       {workoutPlan && workoutPlan.exerciseId.length > 0 ? (
-//         <FlatList
-//           data={workoutPlan.exerciseId}
-//           keyExtractor={(exerciseId) => exerciseId}
-//           renderItem={({ item: exerciseId }) => {
-//             const exerciseName = getExerciseNameById(exerciseId);
-//             const exerciseSets = sets.filter(
-//               (set) => set.exerciseId === exerciseId
-//             );
-
-//             return (
-//               <View style={styles.exerciseContainer}>
-//                 {/* Navigate to exercise detail on press */}
-//                 <TouchableOpacity
-//                   onPress={() => handleExerciseDetailById(exerciseId)}
-//                 >
-//                   <Text style={styles.exerciseText}>exerciseName</Text>
-//                 </TouchableOpacity>
-
-//                 {/* Display sets for the exercise */}
-//                 {exerciseSets.length > 0 ? (
-//                   exerciseSets.map((set) => (
-//                     <View key={set.id} style={styles.setContainer}>
-//                       <Text style={styles.setText}>
-//                         Set {set.setIndex}: {set.reps} reps {set.weight} kg
-//                       </Text>
-//                       {set.restTime && (
-//                         <Text style={styles.restText}>
-//                           Rest: {set.restTime}s
-//                         </Text>
-//                       )}
-//                       {set.rpe && (
-//                         <Text style={styles.rpeText}>RPE: {set.rpe}</Text>
-//                       )}
-//                     </View>
-//                   ))
-//                 ) : (
-//                   <Text style={styles.noSetsText}>
-//                     No sets available for this exercise.
-//                   </Text>
-//                 )}
-//               </View>
-//             );
-//           }}
-//         />
-//       ) : (
-//         <Text style={styles.noWorkoutsText}>
-//           No exercises found for this workout plan.
-//         </Text>
-//       )}
-//     </View>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   subheaderContainer: {
-//     flexDirection: "row",
-//     marginBottom: 5,
-//   },
-//   subheaderText: {
-//     fontSize: 18,
-//     flex: 1,
-//     color: Colors.gray,
-//   },
-//   subheaderButton: {
-//     fontSize: 18,
-//     color: "#2196F3",
-//   },
-//   exerciseText: {
-//     fontSize: 18,
-//     color: Colors.text,
-//     marginBottom: 8,
-//     fontWeight: "bold",
-//   },
-//   setContainer: {
-//     marginBottom: 8,
-//   },
-//   setText: {
-//     fontSize: 16,
-//     color: Colors.text,
-//   },
-//   restText: {
-//     fontSize: 14,
-//     color: Colors.gray,
-//   },
-//   rpeText: {
-//     fontSize: 14,
-//     color: Colors.text,
-//   },
-//   exerciseContainer: {
-//     marginBottom: 15,
-//   },
-//   noWorkoutsText: {
-//     fontSize: 18,
-//     textAlign: "center",
-//     color: Colors.gray,
-//   },
-//   noSetsText: {
-//     fontSize: 16,
-//     color: Colors.gray,
-//     fontStyle: "italic",
-//   },
-// });
-
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import {
   View,
   Text,
@@ -225,32 +7,33 @@ import {
   Alert,
   TouchableOpacity,
 } from "react-native";
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import { Colors } from "../../constants/Colors";
-import { Containers } from "../../constants/Container";
-import BackButton from "../../components/navigation/BackButton";
-import TextOrInput from "../../components/reusables/TextOrInput";
-import { WorkoutPlan } from "../../interfaces/WorkoutPlan.interface";
-import { Set } from "../../interfaces/Set.interface";
-import { WorkoutPlanService } from "../../services/WorkoutPlan.service";
-import { SetService } from "../../services/Set.service";
+import {
+  useFocusEffect,
+  useLocalSearchParams,
+  useNavigation,
+  useRouter,
+} from "expo-router";
+import { Colors } from "@/constants/Colors";
+import { Containers } from "@/constants/Container";
+
+import BackButton from "@/components/navigation/BackButton";
+import TextOrInput from "@/components/reusables/TextOrInput";
+import ExerciseSetsManager from "@/components/reusables/ExerciseSetsManager";
+
 import { ExerciseService } from "../../services/Exercise.service";
-import ExerciseSetsManager from "../../components/reusables/ExerciseSetsManager";
+
+import { useWorkoutPlan } from "../../context/WorkoutPlanProvider";
 
 export default function WorkoutPlanDetailScreen() {
   const navigation = useNavigation();
   const router = useRouter();
 
-  const { workoutPlanId } = useLocalSearchParams() as { workoutPlanId: string };
-  // maybe i can fetch the name when i fetch getAll() workoutPlan
-  const { workoutPlanName } = useLocalSearchParams();
+  const { workoutPlanState } = useWorkoutPlan();
+  const { workoutPlan, sets, exerciseNames, exerciseTypes } = workoutPlanState;
+  console.log("WP-STATE-DETAIL-SCREEN", workoutPlanState);
 
-  const [workoutPlan, setWorkoutPlan] = useState<WorkoutPlan | null>(null);
-  const [sets, setSets] = useState<Set[]>([]);
+  const { workoutPlanId } = useLocalSearchParams() as { workoutPlanId: string };
   const [loading, setLoading] = useState(true);
-  const [exerciseNames, setExerciseNames] = useState<{ [key: string]: string }>(
-    {}
-  );
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -258,46 +41,15 @@ export default function WorkoutPlanDetailScreen() {
     });
   }, [navigation]);
 
-  useEffect(() => {
-    const fetchWorkoutPlanDetails = async () => {
-      try {
-        const selectedWorkoutPlan = await WorkoutPlanService.getById(
-          workoutPlanId
-        );
-        console.log("SELECTED-W-Plan", selectedWorkoutPlan);
-
-        if (selectedWorkoutPlan) {
-          setWorkoutPlan(selectedWorkoutPlan);
-          const setsForPlan = await Promise.all(
-            selectedWorkoutPlan.setId.map((setId) => SetService.getById(setId))
-          );
-          console.log("SELECTED-SET", setsForPlan);
-          setSets(setsForPlan.filter((set) => set !== undefined) as Set[]);
-
-          // Fetch exercise names
-          const names: { [key: string]: string } = {};
-          await Promise.all(
-            selectedWorkoutPlan.exerciseId.map(async (exerciseId) => {
-              const name = await getExerciseNameById(exerciseId);
-              names[exerciseId] = name;
-            })
-          );
-          setExerciseNames(names);
-        } else {
-          Alert.alert("Workout Plan not found.");
-        }
-      } catch (error) {
-        console.error("Error fetching workout plan:", error);
-        Alert.alert("Failed to fetch workout plan.");
-      } finally {
+  useFocusEffect(
+    React.useCallback(() => {
+      if (workoutPlan && workoutPlan.id === workoutPlanId) {
         setLoading(false);
+      } else {
+        Alert.alert("Workout Plan not found.");
       }
-    };
-
-    if (workoutPlanId) {
-      fetchWorkoutPlanDetails();
-    }
-  }, [workoutPlanId]);
+    }, [workoutPlan, workoutPlanId, workoutPlanState])
+  );
 
   const getExerciseNameById = async (id: string) => {
     const exercise = await ExerciseService.getById(id);
@@ -311,10 +63,9 @@ export default function WorkoutPlanDetailScreen() {
     });
   };
 
-  const handleEditDayActivity = (workoutPlanId: string) => {
+  const handleEditWorkoutPlan = () => {
     router.push({
       pathname: "/(screens)/workoutPlanEditScreen",
-      params: { workoutPlanId },
     });
   };
 
@@ -328,12 +79,12 @@ export default function WorkoutPlanDetailScreen() {
 
   return (
     <View style={Containers.screenContainer}>
-      <TextOrInput isEditable={false} value={workoutPlanName} />
+      <TextOrInput isEditable={false} value={workoutPlan?.name || ""} />
       <View style={styles.separator} />
 
       <View style={styles.subheaderContainer}>
         <Text style={styles.subheaderText}>Exercises and Sets</Text>
-        <TouchableOpacity onPress={() => handleEditDayActivity(workoutPlanId)}>
+        <TouchableOpacity onPress={() => handleEditWorkoutPlan()}>
           <Text style={styles.subheaderButton}>Edit Workout Plan</Text>
         </TouchableOpacity>
       </View>
@@ -343,28 +94,26 @@ export default function WorkoutPlanDetailScreen() {
           data={workoutPlan.exerciseId}
           keyExtractor={(exerciseId) => exerciseId}
           renderItem={({ item: exerciseId }) => {
-            const exerciseSets = sets.filter(
-              (set) => set.exerciseId === exerciseId
-            );
+            const exerciseSets =
+              sets?.filter((set) => set.exerciseId === exerciseId) || [];
 
             return (
-              <View style={styles.exerciseContainer}>
+              <View key={exerciseId}>
                 <TouchableOpacity
                   onPress={() => handleExerciseDetailById(exerciseId)}
                 >
-                  {/* Render the exercise name from the state */}
                   <Text style={styles.exerciseText}>
-                    {exerciseNames[exerciseId] || "Loading..."}
+                    {exerciseNames?.[exerciseId] || "Unknown Exercise"}
                   </Text>
                 </TouchableOpacity>
 
-                {/* Use ExerciseSetsManager to display sets */}
                 {exerciseSets.length > 0 ? (
                   <ExerciseSetsManager
-                    exercise={{ id: exerciseId, sets: exerciseSets }} // Pass the exercise object
-                    isEditable={false} // Set to false to display non-editable fields
-                    onSetChange={() => {}} // No-op since not editable
-                    onAddSet={() => {}} // No-op since not editable
+                    exercise={{ id: exerciseId, sets: exerciseSets }}
+                    isEditable={false}
+                    onSetChange={() => {}}
+                    onAddSet={() => {}}
+                    exerciseType={exerciseTypes[exerciseId]?.type || null}
                   />
                 ) : (
                   <Text style={styles.noSetsText}>
@@ -377,7 +126,7 @@ export default function WorkoutPlanDetailScreen() {
         />
       ) : (
         <Text style={styles.noWorkoutsText}>
-          No exercises found for this workout plan.
+          No exercises found for this Workout Plan.
         </Text>
       )}
     </View>
@@ -385,14 +134,14 @@ export default function WorkoutPlanDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  subheaderContainer: {
-    flexDirection: "row",
-    marginBottom: 5,
-  },
   separator: {
     height: 1,
     backgroundColor: Colors.gray,
     marginVertical: 10,
+  },
+  subheaderContainer: {
+    flexDirection: "row",
+    marginBottom: 5,
   },
   subheaderText: {
     fontSize: 18,
@@ -408,9 +157,6 @@ const styles = StyleSheet.create({
     color: Colors.text,
     marginBottom: 8,
     fontWeight: "bold",
-  },
-  exerciseContainer: {
-    marginBottom: 15,
   },
   noWorkoutsText: {
     fontSize: 18,

@@ -71,27 +71,35 @@ export class WorkoutPlanService {
 
   // UPDATE Workout Plan
   public static async update(
-    uuid: string,
+    workoutPlanId: string,
     updates: Partial<WorkoutPlan>
   ): Promise<WorkoutPlan | undefined> {
+    console.log("WP-UPDATE-EXECUTED", workoutPlanId);
+
     try {
       const storedWorkoutPlans = await AsyncStorage.getItem(this.STORAGE_KEY);
       const workoutPlans: WorkoutPlan[] = storedWorkoutPlans
         ? JSON.parse(storedWorkoutPlans)
         : [];
-      const workoutPlanIndex = workoutPlans.findIndex((wp) => wp.id === uuid);
+
+      const workoutPlanIndex = workoutPlans.findIndex(
+        (wp) => wp.id === workoutPlanId
+      );
       if (workoutPlanIndex === -1) {
-        throw new Error(`Workout plan with ID: ${uuid} not found.`);
+        throw new Error(`Workout plan with ID: ${workoutPlanId} not found.`);
       }
+
       const updatedWorkoutPlan = {
         ...workoutPlans[workoutPlanIndex],
         ...updates,
       };
       workoutPlans[workoutPlanIndex] = updatedWorkoutPlan;
+
       await AsyncStorage.setItem(
         this.STORAGE_KEY,
         JSON.stringify(workoutPlans)
       );
+
       return updatedWorkoutPlan;
     } catch (error) {
       throw new Error(`Error updating workout plan: ${error.message}`);
@@ -99,21 +107,25 @@ export class WorkoutPlanService {
   }
 
   // DELETE Workout Plan
-  public static async delete(uuid: string): Promise<boolean> {
+  public static async delete(workoutPlanId: string): Promise<boolean> {
     try {
       const storedWorkoutPlans = await AsyncStorage.getItem(this.STORAGE_KEY);
       const workoutPlans: WorkoutPlan[] = storedWorkoutPlans
         ? JSON.parse(storedWorkoutPlans)
         : [];
-      const workoutPlanIndex = workoutPlans.findIndex((wp) => wp.id === uuid);
-      if (workoutPlanIndex === -1) {
-        throw new Error(`Workout plan with ID: ${uuid} not found.`);
+
+      const updatedWorkoutPlans = workoutPlans.filter(
+        (wp) => wp.id !== workoutPlanId
+      );
+      if (updatedWorkoutPlans.length === workoutPlans.length) {
+        throw new Error(`Workout plan with ID: ${workoutPlanId} not found.`);
       }
-      workoutPlans.splice(workoutPlanIndex, 1);
+
       await AsyncStorage.setItem(
         this.STORAGE_KEY,
-        JSON.stringify(workoutPlans)
+        JSON.stringify(updatedWorkoutPlans)
       );
+
       return true;
     } catch (error) {
       throw new Error(`Error deleting workout plan: ${error.message}`);

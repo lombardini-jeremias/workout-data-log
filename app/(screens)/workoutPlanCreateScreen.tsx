@@ -1,16 +1,21 @@
 import { Text, View, Alert, StyleSheet, FlatList } from "react-native";
 import React, { useLayoutEffect, useState, useEffect } from "react";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+
 import { Colors } from "@/constants/Colors";
 import { Containers } from "@/constants/Container";
-import RightSecondaryButton from "../../components/navigation/RightSecondaryButton";
+
 import CancelButton from "../../components/navigation/CancelButton";
 import ButtonSecondary from "../../components/buttons/ButtonSecondary";
+import RightSecondaryButton from "../../components/navigation/RightSecondaryButton";
+
 import TextOrInput from "../../components/reusables/TextOrInput";
-import ExerciseSetsManager from "../../components/reusables/ExerciseSetsManager";
-import { ExerciseTypeService } from "../../services/ExerciseType.service";
+import ExerciseSetsManager2 from "../../components/reusables/ExerciseSetsManager2";
+
 import { SetService } from "../../services/Set.service";
 import { WorkoutPlanService } from "../../services/WorkoutPlan.service";
+import { ExerciseTypeService } from "../../services/ExerciseType.service";
+import ExerciseSetsManager from "../../components/reusables/ExerciseSetsManager";
 
 export default function workoutPlanCreateScreen() {
   const navigation = useNavigation();
@@ -45,7 +50,7 @@ export default function workoutPlanCreateScreen() {
               return {
                 ...exercise,
                 exerciseType: fetchedExerciseType,
-                sets: [{ set: 1, kg: "", reps: "" }],
+                sets: [{ set: 1, weight: "", reps: "" }],
               };
             })
           );
@@ -86,9 +91,24 @@ export default function workoutPlanCreateScreen() {
             ...exercise,
             sets: [
               ...exercise.sets,
-              { set: exercise.sets.length + 1, kg: "", reps: "" },
+              { set: exercise.sets.length + 1, weight: "", reps: "" },
             ],
           };
+        }
+        return exercise;
+      })
+    );
+  };
+
+  const onDeleteSet = (exerciseId, setIndex) => {
+    setSelectedExercises((prevExercises) =>
+      prevExercises.map((exercise) => {
+        if (exercise.id === exerciseId) {
+          // Remove the set at the specified index
+          const updatedSets = exercise.sets.filter(
+            (_, index) => index !== setIndex
+          );
+          return { ...exercise, sets: updatedSets };
         }
         return exercise;
       })
@@ -105,11 +125,9 @@ export default function workoutPlanCreateScreen() {
     try {
       // Step 1: Save all sets for the selected exercises and get exercise IDs
       const { exerciseIds, allSetIds } = await saveAllExercisesAndSets();
-
       // Step 2: Save the workout plan
       await saveWorkoutPlan(exerciseIds, allSetIds);
 
-      // Success message
       Alert.alert("Workout saved successfully!");
       router.push({ pathname: "/(tabs)/workout" });
     } catch (error) {
@@ -129,7 +147,6 @@ export default function workoutPlanCreateScreen() {
         // Save sets for the current exercise
         const setIds = await saveSetsForExercise(exercise);
 
-        // Store the exercise ID and all set IDs
         exerciseIds.push(exerciseId);
         allSetIds.push(...setIds);
       } catch (error) {
@@ -144,20 +161,16 @@ export default function workoutPlanCreateScreen() {
     return { exerciseIds, allSetIds };
   };
 
-  // Function to save sets for a specific exercise
   const saveSetsForExercise = async (exercise) => {
     const setIds = [];
 
     for (const set of exercise.sets) {
       try {
-        // Prepare the set data to be saved
         const newSet = prepareSetData(exercise, set);
 
-        // Save the set
         const savedSet = await SetService.create(newSet);
         console.log("SAVED-SET", savedSet);
 
-        // Add the saved set ID to the list
         setIds.push(savedSet.id);
       } catch (error) {
         console.error(
@@ -173,11 +186,12 @@ export default function workoutPlanCreateScreen() {
 
   // Function to prepare the set data for saving
   const prepareSetData = (exercise, set) => {
+    console.log("SET-PreparedSet", set);
     return {
       exerciseId: exercise.id,
       setIndex: set.set,
       reps: set.reps ? parseInt(set.reps, 10) : undefined,
-      weight: set.kg ? parseFloat(set.kg) : undefined,
+      weight: set.weight ? parseFloat(set.weight) : undefined,
       duration: set.duration ? parseInt(set.duration, 10) : undefined,
       distance: set.distance ? parseFloat(set.distance) : undefined,
       restTime: set.restTime ? parseInt(set.restTime, 10) : undefined,
@@ -195,7 +209,6 @@ export default function workoutPlanCreateScreen() {
         setId: setIds,
       };
 
-      // Save the workout plan
       await WorkoutPlanService.create(workoutPlan);
     } catch (error) {
       console.error("Error saving workout plan", error);
@@ -219,10 +232,11 @@ export default function workoutPlanCreateScreen() {
         renderItem={({ item }) => (
           <View>
             <Text style={styles.exerciseName}>{item.name}</Text>
-            <ExerciseSetsManager
+            <ExerciseSetsManager2
               isEditable={true}
               exercise={item}
-              exerciseType={item.exerciseType?.type}
+              // exercise={{ id: exerciseId, sets: exerciseSets }}
+              exerciseType={item.exerciseType?.type || null}
               onSetChange={onSetChange}
               onAddSet={onAddSet}
             />

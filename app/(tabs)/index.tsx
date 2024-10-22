@@ -1,15 +1,24 @@
-import { ScrollView, StyleSheet, Text, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+
+import {
+  Button,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+} from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useRouter } from "expo-router";
 import { Containers } from "../../constants/Container";
 import TitleScreen from "../../components/TitleScreen";
+import BottomSheetReusable from "../../components/reusables/BottomSheetReusable";
 
 export default function HomeScreen() {
   const router = useRouter();
 
   const handleNavigate = () => {
-    router.push("storageViewerScreen");
+    router.push("/(screens)/storageViewerScreen");
   };
 
   return (

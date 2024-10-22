@@ -7,14 +7,18 @@ import {
   View,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-import { Colors } from "@/constants/Colors";
-import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRouter } from "expo-router";
-import { Exercise } from "@/interfaces/Exercise.interface";
+import { Ionicons } from "@expo/vector-icons";
+
+import { Colors } from "@/constants/Colors";
 import { Containers } from "@/constants/Container";
+
+import { Exercise } from "@/interfaces/Exercise.interface";
+
 import SearchBar from "../../components/navigation/SearchBar";
 import CreateButton from "../../components/navigation/CreateButton";
 import ButtonSecondary from "../../components/buttons/ButtonSecondary";
+
 import { ExerciseService } from "../../services/Exercise.service";
 
 export default function PersonalExerciseListScreen() {

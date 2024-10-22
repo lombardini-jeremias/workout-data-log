@@ -2,16 +2,13 @@ import React from "react";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
-import { useNavigation } from "expo-router";
+import { useRouter } from "expo-router";
 
 export default function BackButton() {
-  const navigation = useNavigation();
+  const router = useRouter();
 
   return (
-    <TouchableOpacity
-      onPress={() => navigation.goBack()}
-      style={styles.container}
-    >
+    <TouchableOpacity onPress={() => router.back()} style={styles.container}>
       <Ionicons name="chevron-back" size={26} color={Colors.secondary} />
       <Text style={styles.text}>Back</Text>
     </TouchableOpacity>
@@ -26,6 +23,5 @@ const styles = StyleSheet.create({
   text: {
     color: Colors.secondary,
     fontSize: 17,
-    
   },
 });

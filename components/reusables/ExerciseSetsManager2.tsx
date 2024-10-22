@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 
@@ -6,112 +6,50 @@ import { ExerciseTypeCategory } from "../../interfaces/ExerciseType.interface";
 
 import ButtonPrimary from "../buttons/ButtonPrimary";
 
-interface ExerciseSetsManagerProps {
+interface ExerciseSetsManager2Props {
   exercise: any;
   isEditable: boolean;
   onSetChange: (
     exerciseId: string,
     setIndex: number,
     field: string,
-    value: number
+    value: string
   ) => void;
   onAddSet: (exerciseId: string) => void;
+  onDeleteSet?: (exerciseId: string, setIndex: number) => void;
   exerciseType?: ExerciseTypeCategory;
 }
 
-export default function ExerciseSetsManager({
+export default function ExerciseSetsManager2({
   exercise,
   isEditable,
   onSetChange,
   onAddSet,
   exerciseType,
-}: ExerciseSetsManagerProps) {
-  const [focusStates, setFocusStates] = useState(
-    exercise.sets.map(() => false)
-  );
-  const [tempValues, setTempValues] = useState(
-    exercise.sets.map((set) => ({
-      weight: set.weight !== undefined ? String(set.weight) : "",
-      reps: set.reps !== undefined ? String(set.reps) : "",
-      duration: set.duration !== undefined ? String(set.duration) : "",
-      distance: set.distance !== undefined ? String(set.distance) : "",
-    }))
-  );
-
-  useEffect(() => {
-    setTempValues(
-      exercise.sets.map((set, index) => ({
-        weight: set.weight !== undefined ? String(set.weight) : "",
-        reps: set.reps !== undefined ? String(set.reps) : "",
-        duration: set.duration !== undefined ? String(set.duration) : "",
-        distance: set.distance !== undefined ? String(set.distance) : "",
-      }))
-    );
-    setFocusStates(exercise.sets.map(() => false)); // Reset focus states if necessary
-  }, [exercise.sets]);
-
-  const handleFocus = (index, valueKey) => {
-    setFocusStates((prev) =>
-      prev.map((isFocused, i) => (i === index ? true : isFocused))
+}: ExerciseSetsManager2Props) {
+  const renderField = (set, index, field, placeholder, valueKey) => {
+    return isEditable ? (
+      <TextInput
+        key={`${index}-${valueKey}`}
+        style={[styles.input]}
+        placeholder={placeholder}
+        placeholderTextColor={Colors.gray}
+        keyboardType="numeric"
+        value={set[valueKey] ? String(set[valueKey]) : ""}
+        onChangeText={(value) => onSetChange(exercise.id, index, field, value)}
+      />
+    ) : (
+      <Text style={styles.setNumber} key={index}>
+        {set[valueKey]}
+      </Text>
     );
   };
-
-  const handleBlur = (index, set, valueKey) => {
-    setFocusStates((prev) =>
-      prev.map((isFocused, i) => (i === index ? false : isFocused))
-    );
-
-    const newValue = tempValues[index]?.[valueKey];
-    if (newValue !== undefined) {
-      // Only trigger set change for the exact field that was blurred
-      onSetChange(exercise.id, set.setIndex, valueKey, Number(newValue));
-    }
-  };
-
-  const handleChangeText = (index, valueKey, text) => {
-    setTempValues((prev) =>
-      prev.map((tempValue, i) =>
-        i === index ? { ...tempValue, [valueKey]: text } : tempValue
-      )
-    );
-  };
-
-  const renderField = useCallback(
-    (set, index, field, placeholder, valueKey) => {
-      const displayValue =
-        set[valueKey] !== undefined && set[valueKey] !== ""
-          ? set[valueKey]
-          : "-";
-
-      return isEditable ? (
-        <TextInput
-          key={`${index}-${valueKey}`}
-          style={[
-            styles.input,
-            focusStates[index] ? styles.inputFocused : null,
-          ]}
-          placeholder={placeholder}
-          placeholderTextColor={Colors.gray}
-          keyboardType="numeric"
-          value={tempValues[index]?.[valueKey] ?? ""}
-          onChangeText={(text) => handleChangeText(index, valueKey, text)}
-          onFocus={() => handleFocus(index, valueKey)}
-          onBlur={() => handleBlur(index, set, valueKey)}
-        />
-      ) : (
-        <Text style={styles.setNumber} key={index}>
-          {displayValue}
-        </Text>
-      );
-    },
-    [focusStates, tempValues, isEditable, onSetChange]
-  );
 
   if (!exerciseType) {
     return <Text>No valid exercise type available.</Text>;
   }
 
-  return (
+  return ( 
     <View style={styles.setContainer}>
       <View style={styles.tableHeader}>
         <View style={styles.columnSet}>
