@@ -15,6 +15,7 @@ import ExerciseSetsManager2 from "../../components/reusables/ExerciseSetsManager
 import { SetService } from "../../services/Set.service";
 import { WorkoutPlanService } from "../../services/WorkoutPlan.service";
 import { ExerciseTypeService } from "../../services/ExerciseType.service";
+import ExerciseSetsManager from "../../components/reusables/ExerciseSetsManager";
 
 export default function workoutPlanCreateScreen() {
   const navigation = useNavigation();
@@ -124,11 +125,9 @@ export default function workoutPlanCreateScreen() {
     try {
       // Step 1: Save all sets for the selected exercises and get exercise IDs
       const { exerciseIds, allSetIds } = await saveAllExercisesAndSets();
-
       // Step 2: Save the workout plan
       await saveWorkoutPlan(exerciseIds, allSetIds);
 
-      // Success message
       Alert.alert("Workout saved successfully!");
       router.push({ pathname: "/(tabs)/workout" });
     } catch (error) {
@@ -148,7 +147,6 @@ export default function workoutPlanCreateScreen() {
         // Save sets for the current exercise
         const setIds = await saveSetsForExercise(exercise);
 
-        // Store the exercise ID and all set IDs
         exerciseIds.push(exerciseId);
         allSetIds.push(...setIds);
       } catch (error) {
@@ -163,20 +161,16 @@ export default function workoutPlanCreateScreen() {
     return { exerciseIds, allSetIds };
   };
 
-  // Function to save sets for a specific exercise
   const saveSetsForExercise = async (exercise) => {
     const setIds = [];
 
     for (const set of exercise.sets) {
       try {
-        // Prepare the set data to be saved
         const newSet = prepareSetData(exercise, set);
 
-        // Save the set
         const savedSet = await SetService.create(newSet);
         console.log("SAVED-SET", savedSet);
 
-        // Add the saved set ID to the list
         setIds.push(savedSet.id);
       } catch (error) {
         console.error(
@@ -192,6 +186,7 @@ export default function workoutPlanCreateScreen() {
 
   // Function to prepare the set data for saving
   const prepareSetData = (exercise, set) => {
+    console.log("SET-PreparedSet", set);
     return {
       exerciseId: exercise.id,
       setIndex: set.set,
@@ -214,7 +209,6 @@ export default function workoutPlanCreateScreen() {
         setId: setIds,
       };
 
-      // Save the workout plan
       await WorkoutPlanService.create(workoutPlan);
     } catch (error) {
       console.error("Error saving workout plan", error);
@@ -241,10 +235,10 @@ export default function workoutPlanCreateScreen() {
             <ExerciseSetsManager2
               isEditable={true}
               exercise={item}
-              exerciseType={item.exerciseType?.type}
+              // exercise={{ id: exerciseId, sets: exerciseSets }}
+              exerciseType={item.exerciseType?.type || null}
               onSetChange={onSetChange}
               onAddSet={onAddSet}
-              onDeleteSet={onDeleteSet}
             />
           </View>
         )}

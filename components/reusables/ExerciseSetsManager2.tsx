@@ -1,17 +1,10 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, TextInput, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 
 import { ExerciseTypeCategory } from "../../interfaces/ExerciseType.interface";
 
 import ButtonPrimary from "../buttons/ButtonPrimary";
-import BottomSheetReusable from "./BottomSheetReusable";
 
 interface ExerciseSetsManager2Props {
   exercise: any;
@@ -23,7 +16,7 @@ interface ExerciseSetsManager2Props {
     value: string
   ) => void;
   onAddSet: (exerciseId: string) => void;
-  onDeleteSet: (exerciseId: string, setIndex: number) => void; // Add this prop
+  onDeleteSet?: (exerciseId: string, setIndex: number) => void;
   exerciseType?: ExerciseTypeCategory;
 }
 
@@ -32,31 +25,12 @@ export default function ExerciseSetsManager2({
   isEditable,
   onSetChange,
   onAddSet,
-  onDeleteSet,
   exerciseType,
 }: ExerciseSetsManager2Props) {
-  const [isBottomSheetVisible, setBottomSheetVisible] = useState(false);
-  const [selectedSetIndex, setSelectedSetIndex] = useState<number | null>(null); // Store selected set index
-
-  const openBottomSheet = (index: number) => {
-    if (selectedSetIndex !== index) {
-      console.log("Opening BOTTOM-SHEET SET index:", index);
-      setSelectedSetIndex(null);
-      setSelectedSetIndex(index);
-      setBottomSheetVisible(true);
-    }
-  };
-
-  const closeBottomSheet = (index: number) => {
-    console.log("Closing BOTTOM-SHEET", index);
-    setSelectedSetIndex(null);
-    setBottomSheetVisible(false);
-  };
-
   const renderField = (set, index, field, placeholder, valueKey) => {
     return isEditable ? (
       <TextInput
-        key={index}
+        key={`${index}-${valueKey}`}
         style={[styles.input]}
         placeholder={placeholder}
         placeholderTextColor={Colors.gray}
@@ -71,31 +45,19 @@ export default function ExerciseSetsManager2({
     );
   };
 
-  const handleDeleteSet = () => {
-    if (selectedSetIndex !== null) {
-      onDeleteSet(exercise.id, selectedSetIndex);
-      console.log("SET-INDEX", selectedSetIndex, exercise.id);
-      setBottomSheetVisible(false);
-      setSelectedSetIndex(null);
-    }
-  };
-
   if (!exerciseType) {
     return <Text>No valid exercise type available.</Text>;
   }
 
-  return (
+  return ( 
     <View style={styles.setContainer}>
       <View style={styles.tableHeader}>
         <View style={styles.columnSet}>
           <Text style={styles.columnText}>SET</Text>
           {exercise.sets.map((set, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => openBottomSheet(index)} // Open the bottom sheet when set number is pressed
-            >
-              <Text style={styles.setNumber}>{index + 1}</Text>
-            </TouchableOpacity>
+            <Text style={styles.setNumber} key={index}>
+              {index + 1}
+            </Text>
           ))}
         </View>
 
@@ -229,14 +191,6 @@ export default function ExerciseSetsManager2({
       )}
 
       <View style={styles.separator} />
-
-      {/* Render the Bottom Sheet */}
-      <BottomSheetReusable
-        isVisible={isBottomSheetVisible}
-        onClose={closeBottomSheet}
-        // onClose={() => setBottomSheetVisible(false)}
-        onDeleteSet={handleDeleteSet}
-      />
     </View>
   );
 }
