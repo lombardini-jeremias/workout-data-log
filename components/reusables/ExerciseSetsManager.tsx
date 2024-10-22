@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import { Colors } from "@/constants/Colors";
 
@@ -26,43 +26,85 @@ export default function ExerciseSetsManager({
   onAddSet,
   exerciseType,
 }: ExerciseSetsManagerProps) {
+  const [focusStates, setFocusStates] = useState(
+    exercise.sets.map(() => false)
+  );
+  const [tempValues, setTempValues] = useState(
+    exercise.sets.map((set) => ({
+      weight: set.weight !== undefined ? String(set.weight) : "",
+      reps: set.reps !== undefined ? String(set.reps) : "",
+      duration: set.duration !== undefined ? String(set.duration) : "",
+      distance: set.distance !== undefined ? String(set.distance) : "",
+    }))
+  );
+
+  useEffect(() => {
+    setTempValues(
+      exercise.sets.map((set, index) => ({
+        weight: set.weight !== undefined ? String(set.weight) : "",
+        reps: set.reps !== undefined ? String(set.reps) : "",
+        duration: set.duration !== undefined ? String(set.duration) : "",
+        distance: set.distance !== undefined ? String(set.distance) : "",
+      }))
+    );
+    setFocusStates(exercise.sets.map(() => false)); // Reset focus states if necessary
+  }, [exercise.sets]);
+
+  const handleFocus = (index, valueKey) => {
+    setFocusStates((prev) =>
+      prev.map((isFocused, i) => (i === index ? true : isFocused))
+    );
+  };
+
+  const handleBlur = (index, set, valueKey) => {
+    setFocusStates((prev) =>
+      prev.map((isFocused, i) => (i === index ? false : isFocused))
+    );
+
+    const newValue = tempValues[index]?.[valueKey];
+    if (newValue !== undefined) {
+      // Only trigger set change for the exact field that was blurred
+      onSetChange(exercise.id, set.setIndex, valueKey, Number(newValue));
+    }
+  };
+
+  const handleChangeText = (index, valueKey, text) => {
+    setTempValues((prev) =>
+      prev.map((tempValue, i) =>
+        i === index ? { ...tempValue, [valueKey]: text } : tempValue
+      )
+    );
+  };
+
   const renderField = useCallback(
     (set, index, field, placeholder, valueKey) => {
-      const [isFocused, setIsFocused] = useState(false);
-      const [tempValue, setTempValue] = useState(
-        set[valueKey] ? String(set[valueKey]) : ""
-      );
-
-      const handleFocus = () => {
-        setIsFocused(true);
-        setTempValue(set[valueKey] ? String(set[valueKey]) : "");
-      };
-
-      const handleBlur = () => {
-        setIsFocused(false);
-        console.log(`Saving tempValue on blur for field ${field}:`, tempValue);
-        onSetChange(exercise.id, set.setIndex, valueKey, Number(tempValue));
-      };
+      const displayValue =
+        set[valueKey] !== undefined && set[valueKey] !== ""
+          ? set[valueKey]
+          : "-";
 
       return isEditable ? (
         <TextInput
-          key={`input-${field}-${set.id}`}
-          style={[styles.input, isFocused ? styles.inputFocused : null]}
+          key={`${index}-${valueKey}`}
+          style={[
+            styles.input,
+            focusStates[index] ? styles.inputFocused : null,
+          ]}
           placeholder={placeholder}
           placeholderTextColor={Colors.gray}
           keyboardType="numeric"
-          value={tempValue}
-          onChangeText={setTempValue}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
+          value={tempValues[index]?.[valueKey] ?? ""}
+          onChangeText={(text) => handleChangeText(index, valueKey, text)}
+          onFocus={() => handleFocus(index, valueKey)}
+          onBlur={() => handleBlur(index, set, valueKey)}
         />
       ) : (
-        <Text style={styles.setNumber} key={`text-${field}-${set.id}`}>
-          {set[valueKey]}
+        <Text style={styles.setNumber} key={index}>
+          {displayValue}
         </Text>
       );
     },
-    [isEditable, exercise.id, onSetChange]
+    [focusStates, tempValues, isEditable, onSetChange]
   );
 
   if (!exerciseType) {
@@ -75,7 +117,7 @@ export default function ExerciseSetsManager({
         <View style={styles.columnSet}>
           <Text style={styles.columnText}>SET</Text>
           {exercise.sets.map((set, index) => (
-            <Text style={styles.setNumber} key={`set-number-${set.id}`}>
+            <Text style={styles.setNumber} key={index}>
               {index + 1}
             </Text>
           ))}

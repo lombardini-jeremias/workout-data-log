@@ -6,12 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { useNavigation, useRouter } from "expo-router";
 
 import { Colors } from "@/constants/Colors";
@@ -38,6 +33,7 @@ export default function workoutPlanEditScreen() {
   const [workoutPlanName, setWorkoutPlanName] = useState(
     workoutPlan?.name || ""
   );
+
   const [loading, setLoading] = useState(true);
 
   useLayoutEffect(() => {
@@ -62,51 +58,57 @@ export default function workoutPlanEditScreen() {
     }
   }, [workoutPlan, exerciseNames, sets, workoutPlanState]);
 
-  // const onSetChange = (exerciseId, setIndex, field, value) => {
-  //   console.log("SET-CHANGE-triggered:", {
-  //     exerciseId,
-  //     setIndex,
-  //     field,
-  //     value,
-  //   });
-  //   setWorkoutPlanState((prevState) => {
-  //     const updatedSets = prevState.sets.map((set) => {
-  //       if (set.exerciseId === exerciseId && set.setIndex === setIndex) {
-  //         return { ...set, [field]: value };
-  //       }
-  //       return set;
-  //     });
-
-  //     return { ...prevState, sets: updatedSets };
-  //   });
-  // };
-
   const onSetChange = (exerciseId, setIndex, field, value) => {
     setWorkoutPlanState((prevState) => {
       const updatedSets = prevState.sets.map((set) => {
         if (set.exerciseId === exerciseId && set.setIndex === setIndex) {
-          return { ...set, [field]: value };
+          return { ...set, [field]: value }; // Update only the specified field
         }
         return set;
       });
-      return { ...prevState, sets: [...updatedSets] };
+
+      return { ...prevState, sets: [...updatedSets] }; // Ensure a new array is returned
     });
   };
 
   const onAddSet = (exerciseId) => {
     setWorkoutPlanState((prevState) => {
-      const newSetIndex = prevState.sets.filter(
+      const existingSets = prevState.sets.filter(
         (set) => set.exerciseId === exerciseId
-      ).length;
+      );
 
-      const newSet = {
+      // Find the maximum setIndex in the existing sets for this exercise
+      const maxSetIndex =
+        existingSets.length > 0
+          ? Math.max(...existingSets.map((set) => set.setIndex))
+          : -1;
+
+      // Assign the next higher setIndex for the new set
+      const newSetIndex = maxSetIndex + 1;
+
+      let newSet = {
         exerciseId,
-        setIndex: newSetIndex,
+        setIndex: newSetIndex, // Ensure unique index by incrementing maxSetIndex
         reps: "",
         weight: "",
+        duration: "",
+        distance: "",
         exerciseTypeId: exerciseTypes[exerciseId]?.id || "",
       };
 
+      // Optionally pre-fill new set with values from the last set
+      if (existingSets.length > 0) {
+        const lastSet = existingSets[existingSets.length - 1];
+        newSet = {
+          ...newSet,
+          reps: lastSet.reps ? String(lastSet.reps) : "",
+          weight: lastSet.weight ? String(lastSet.weight) : "",
+          duration: lastSet.duration ? String(lastSet.duration) : "",
+          distance: lastSet.distance ? String(lastSet.distance) : "",
+        };
+      }
+
+      // Return updated state with the new set added
       return { ...prevState, sets: [...prevState.sets, newSet] };
     });
   };
@@ -131,6 +133,7 @@ export default function workoutPlanEditScreen() {
 
   const handleUpdate = async () => {
     try {
+      // Update workout plan name if it has changed
       if (workoutPlanName !== workoutPlan?.name) {
         await WorkoutPlanService.update(workoutPlan.id, {
           name: workoutPlanName,
@@ -138,8 +141,12 @@ export default function workoutPlanEditScreen() {
       }
       console.log("END-UPDATE-WP-NAME");
 
+      // Create an array to store the updated set IDs (both existing and newly created)
+      let updatedSetIds = [...(workoutPlan.setId || [])];
+
       for (const set of workoutPlanState.sets) {
         if (set.id) {
+          // Existing set: Check if it needs to be updated
           const storageSet = await SetService.getById(set.id);
           const currentSet = workoutPlanState.sets.find((s) => s.id === set.id);
 
@@ -152,27 +159,31 @@ export default function workoutPlanEditScreen() {
             });
           }
         } else {
+          // New set: Create it and associate it with the workout plan
           const newSet = await SetService.create(set);
           set.id = newSet.id;
+          updatedSetIds.push(newSet.id); // Add the new set's ID to the workout plan
         }
       }
 
+      // Update the workout plan with the new set IDs
       await WorkoutPlanService.update(workoutPlan.id, {
-        setId: workoutPlan?.setId,
+        setId: updatedSetIds, // Ensure all set IDs (both existing and new) are stored
         exerciseId: workoutPlan?.exerciseId,
       });
 
-      // Update the WP-STATE after the updates
+      // Update the workout plan state with the new changes
       setWorkoutPlanState((prevState) => ({
         ...prevState,
         workoutPlan: {
           ...prevState.workoutPlan,
           name: workoutPlanName,
-          setId: workoutPlan.setId,
+          setId: updatedSetIds, // Make sure the state reflects the new set IDs
           exerciseId: workoutPlan.exerciseId,
         },
         sets: workoutPlanState.sets,
       }));
+
       console.log("HANDLE-UPDATE-FINISHED");
 
       Alert.alert("Workout Plan updated successfully!");
@@ -193,98 +204,6 @@ export default function workoutPlanEditScreen() {
     );
   };
 
-  // const handleUpdate = async () => {
-  //   console.log("Updating WP-ID:", workoutPlan.id);
-  //   console.log("WP-STATE-AFTER-1-NAME", workoutPlanState.sets);
-
-  //   try {
-  //     // Update workout plan name if it has changed
-  //     if (workoutPlanName !== workoutPlan?.name) {
-  //       console.log("Updating WP-NAME..", workoutPlanName, workoutPlan?.name);
-  //       await WorkoutPlanService.update(workoutPlan.id, {
-  //         name: workoutPlanName,
-  //       });
-  //     }
-  //     console.log("END-UPDATE-WP-NAME");
-
-  //     const updatedSetPromises = workoutPlanState.sets.map(async (set) => {
-  //       // Use workoutPlanState.sets
-  //       console.log(`STATE-SET-ID: ${set.id}`, set);
-
-  //       if (set.id) {
-  //         const storageSet = await SetService.getById(set.id);
-  //         console.log(`FETCHED-STORED-SETS:`, storageSet);
-
-  //         // Find the current set in workoutPlanState
-  //         const currentSet = workoutPlanState.sets.find((s) => s.id === set.id);
-  //         console.log(`CURRENT-STATE-SETS-TO-EDIT:`, currentSet);
-
-  //         // Ensure currentSet exists before comparison
-  //         if (!currentSet) {
-  //           console.error(
-  //             `No matching set found in state for SET-ID: ${set.id}`
-  //           );
-  //           return;
-  //         }
-
-  //         const needsUpdate =
-  //           (Number(storageSet.reps) || 0) !== (Number(currentSet.reps) || 0) ||
-  //           (Number(storageSet.weight) || 0) !==
-  //             (Number(currentSet.weight) || 0) ||
-  //           (Number(storageSet.duration) || 0) !==
-  //             (Number(currentSet.duration) || 0) ||
-  //           (Number(storageSet.distance) || 0) !==
-  //             (Number(currentSet.distance) || 0);
-
-  //         console.log("Needs Update:", needsUpdate);
-
-  //         if (needsUpdate) {
-  //           console.log(`Updating SET-ID: ${set.id}`);
-  //           await SetService.update(set.id, {
-  //             reps: currentSet.reps,
-  //             weight: currentSet.weight,
-  //             duration: currentSet.duration,
-  //             distance: currentSet.distance,
-  //           });
-  //         }
-  //         console.log("END-UPDATING-SET-VALUES");
-  //       } else {
-  //         console.log("Creating new set...");
-  //         const newSet = await SetService.create(set);
-  //         set.id = newSet.id; // Ensure we are updating the local state with new ID
-  //         workoutPlan.setId.push(newSet.id);
-  //         console.log("END-CREATING-SET", newSet);
-  //       }
-  //     });
-  //     await Promise.all(updatedSetPromises);
-  //     console.log("END-UPDATING-SET");
-
-  //     await WorkoutPlanService.update(workoutPlan.id, {
-  //       setId: workoutPlan?.setId,
-  //       exerciseId: workoutPlan?.exerciseId,
-  //     });
-
-  //     // Update the WP-STATE after the updates
-  //     setWorkoutPlanState((prevState) => ({
-  //       ...prevState,
-  //       workoutPlan: {
-  //         ...prevState.workoutPlan,
-  //         name: workoutPlanName,
-  //         setId: workoutPlan.setId,
-  //         exerciseId: workoutPlan.exerciseId,
-  //       },
-  //       sets: workoutPlanState.sets,
-  //     }));
-  //     console.log("HANDLE-UPDATE-FINISHED");
-
-  //     Alert.alert("Workout Plan updated successfully!");
-  //     router.back();
-  //   } catch (error) {
-  //     console.error("Error updating workout plan:", error);
-  //     Alert.alert("Failed to update workout plan. Please try again.");
-  //   }
-  // };
-
   const handleExerciseDetailById = (exerciseId: string) => {
     router.push({
       pathname: "/(screens)/personalExerciseDetailScreen",
@@ -297,7 +216,7 @@ export default function workoutPlanEditScreen() {
     const exerciseSets = sets.filter((set) => set.exerciseId === exerciseId);
 
     return (
-      <View>
+      <View key={exerciseId}>
         <TouchableOpacity onPress={() => handleExerciseDetailById(exerciseId)}>
           <Text style={styles.exerciseText}>
             {exerciseNames?.[exerciseId] || "Unknown Exercise"}
@@ -410,34 +329,3 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
   },
 });
-
-// const updatedSetPromises = sets.map(async (set) => {
-//   console.log(`Processing SET-ID: ${set.id}`, set);
-
-//   if (set.id) {
-//     const existingSet = await SetService.getById(set.id);
-//     if (
-//       existingSet.reps !== set.reps ||
-//       existingSet.weight !== set.weight ||
-//       existingSet.duration !== set.duration ||
-//       existingSet.distance !== set.distance
-//     ) {
-//       console.log(`Updating SET-ID: ${set.id}`);
-
-//       await SetService.update(set.id, {
-//         reps: set.reps,
-//         weight: set.weight,
-//         duration: set.duration,
-//         distance: set.distance,
-//       });
-//     }
-//     console.log("END-UPDATING-SET-VALUES");
-//   } else {
-//     console.log("Creating new set...");
-//     const newSet = await SetService.create(set);
-//     set.id = newSet.id;
-//     workoutPlan.setId.push(newSet.id);
-//     console.log("END-CREATING-SET", newSet);
-//   }
-//   console.log("END-UPDATEING-SET");
-// });
